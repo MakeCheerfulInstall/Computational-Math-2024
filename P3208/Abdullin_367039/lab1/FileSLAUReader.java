@@ -37,11 +37,14 @@ public class FileSLAUReader implements SLAUReader {
     } while (file == null);
 
     try {
-      var lines = Files.readAllLines(file);
-      return parser.parseMatrix(lines, lines.size());
-    } catch (IOException e) {
-      throw new RuntimeException(e);
+      var lines = Files.lines(file).filter(line -> !line.isBlank()).toList();
+      return parser.parseMatrix(lines.stream().skip(1).toList(), Integer.parseInt(lines.get(0)));
+    } catch (IOException | RuntimeException e) {
+      System.err.println("Problem with reading resource file");
+      System.out.println(e.getMessage());
+      System.exit(-1);
     }
+    return null;
   }
 
   private void printFiles(List<Path> list) {
