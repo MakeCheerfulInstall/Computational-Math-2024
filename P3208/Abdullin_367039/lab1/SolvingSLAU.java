@@ -3,6 +3,7 @@ package lab1;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
 
 public class SolvingSLAU {
   public static void main(String[] args) throws IOException {
@@ -17,20 +18,20 @@ public class SolvingSLAU {
       if (slauReader == null) System.out.println("Incorrect input");
     } while (slauReader == null);
 
-    double[][] matrix = slauReader.read();
+    BigDecimal[][] matrix = slauReader.read();
     print(matrix);
     GaussExecutor ex = new GaussExecutor();
     ex.solve(matrix);
   }
 
-  static void print(double[][] a) {
+  static void print(BigDecimal[][] a) {
     System.out.println("> Исходная СЛАУ:");
-    for (double[] doubles : a) {
+    for (BigDecimal[] doubles : a) {
       for (int j = 0; j < doubles.length; j++) {
         if (j == a.length) {
-          System.out.print("= " + doubles[j]);
+          System.out.print("= " + doubles[j].toString());
         } else {
-          System.out.print(doubles[j] + " ");
+          System.out.print(doubles[j].toString() + " ");
         }
       }
       System.out.println();

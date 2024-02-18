@@ -1,24 +1,24 @@
 package lab1;
 
-import java.text.DecimalFormat;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 public class GaussExecutor {
-  private final DecimalFormat FORMAT = new DecimalFormat("#.##########");
 
-  public void solve(double[][] matrix) {
+  public void solve(BigDecimal[][] matrix) {
     var m = rightMethod(matrix);
     if (m != null) {
       var vectors = backMethod(m);
       printTriangleMatrix(m, "> Треугольная матрица:");
-      System.out.printf("> Детерминант: %s\n\n", getDeterminate(m));
+      System.out.printf("> Детерминант: %.5f\n\n", getDeterminate(m).doubleValue());
       printVectors(vectors, "> Векторы неизвестных:");
       printVectors(getResidualVectors(matrix, vectors), "> Векторы невязок:");
     }
   }
 
-  private double[][] rightMethod(double[][] m) {
+  private BigDecimal[][] rightMethod(BigDecimal[][] m) {
     for (int i = 0; i < m.length; i++) {
-      if (Double.compare(m[i][i], 0) == 0) {
+      if (m[i][i].compareTo(BigDecimal.ZERO) == 0) {
         int swapRow = findNonZeroDiagonalElementRow(m, i);
         if (swapRow != -1) {
           swapRows(m, i, swapRow);
@@ -34,9 +34,9 @@ public class GaussExecutor {
         }
       }
       for (int j = i + 1; j < m.length; j++) {
-        double factor = m[j][i] / m[i][i];
+        BigDecimal factor = m[j][i].divide(m[i][i], 20, RoundingMode.HALF_UP);
         for (int k = 0; k <= m.length; k++) {
-          m[j][k] -= m[i][k] * factor;
+          m[j][k] = m[j][k].subtract(m[i][k].multiply(factor));
         }
       }
       printTriangleMatrix(m, "> Remove i = " + (i + 1));
@@ -44,58 +44,58 @@ public class GaussExecutor {
     return m;
   }
 
-  private int findNonZeroDiagonalElementRow(double[][] m, int col) {
+  private int findNonZeroDiagonalElementRow(BigDecimal[][] m, int col) {
     for (int i = col + 1; i < m.length; i++) {
-      if (m[i][col] != 0) {
+      if (m[i][col].compareTo(BigDecimal.ZERO) != 0) {
         return i;
       }
     }
     return -1;
   }
 
-  private void swapRows(double[][] m, int row1, int row2) {
-    double[] temp = m[row1];
+  private void swapRows(BigDecimal[][] m, int row1, int row2) {
+    BigDecimal[] temp = m[row1];
     m[row1] = m[row2];
     m[row2] = temp;
   }
 
-  private double[] backMethod(double[][] m) {
-    double[] solution = new double[m.length];
+  private BigDecimal[] backMethod(BigDecimal[][] m) {
+    BigDecimal[] solution = new BigDecimal[m.length];
     for (int i = m.length - 1; i >= 0; i--) {
       solution[i] = m[i][m.length];
       for (int j = i + 1; j < m.length; j++) {
-        solution[i] -= m[i][j] * solution[j];
+        solution[i] = solution[i].subtract(m[i][j].multiply(solution[j]));
       }
-      double res = solution[i] / m[i][i];
-      solution[i] = formatDouble(res, FORMAT);
+      BigDecimal res = solution[i].divide(m[i][i], 20, RoundingMode.HALF_UP);
+      solution[i] = res;
     }
     return solution;
   }
 
-  private void printVectors(double[] vs, String message) {
+  private void printVectors(BigDecimal[] vs, String message) {
     System.out.println(message);
     for (int i = 0; i < vs.length; i++) {
-      System.out.printf("x%s = %s\n", i + 1, vs[i]);
+      System.out.printf("x%s = %.5f\n", i + 1, vs[i].doubleValue());
     }
     System.out.println();
   }
 
-  private double getDeterminate(double[][] m) {
-    double determinate = 1;
+  private BigDecimal getDeterminate(BigDecimal[][] m) {
+    BigDecimal determinate = BigDecimal.ONE;
     for (int i = 0; i < m.length; i++) {
-      determinate *= m[i][i];
+      determinate = determinate.multiply(m[i][i]);
     }
-    return formatDouble(determinate, FORMAT);
+    return determinate;
   }
 
-  private void printTriangleMatrix(double[][] m, String mes) {
+  private void printTriangleMatrix(BigDecimal[][] m, String mes) {
     System.out.println(mes);
-    for (double[] doubles : m) {
+    for (BigDecimal[] doubles : m) {
       for (int j = 0; j <= m.length; j++) {
         if (j == m.length) {
-          System.out.print("= " + formatDouble(doubles[j], FORMAT));
+          System.out.print("= " + String.format("%.5f", doubles[j].doubleValue()));
         } else {
-          System.out.print(formatDouble(doubles[j], FORMAT) + " ");
+          System.out.print(String.format("%.5f", doubles[j].doubleValue()) + " ");
         }
       }
       System.out.println();
@@ -103,16 +103,7 @@ public class GaussExecutor {
     System.out.println();
   }
 
-  private double formatDouble(double value, DecimalFormat format) {
-    String form = format.format(value).replace(',', '.');
-    double n = Double.parseDouble(form);
-    if (Math.abs(value - n) < 0.000000001) {
-      return n;
-    }
-    return value;
-  }
-
-  private int calculateRank(double[][] matrix) {
+  private int calculateRank(BigDecimal[][] matrix) {
     int rowCount = matrix.length;
     int colCount = matrix[0].length;
 
@@ -122,15 +113,15 @@ public class GaussExecutor {
     for (int col = 0; col < colCount; col++) {
       boolean found = false;
       for (int row = 0; row < rowCount && !found; row++) {
-        if (!rowMarked[row] && Math.abs(matrix[row][col]) < 0.0000001) {
+        if (!rowMarked[row] && (matrix[row][col].compareTo(BigDecimal.ZERO) != 0)) {
           rank++;
           rowMarked[row] = true;
           found = true;
 
           for (int k = row + 1; k < rowCount; k++) {
-            double factor = matrix[k][col] / matrix[row][col];
+            BigDecimal factor = matrix[k][col].divide(matrix[row][col], 20, RoundingMode.HALF_UP);
             for (int j = col; j < colCount; j++) {
-              matrix[k][j] -= matrix[row][j] * factor;
+              matrix[k][j] = matrix[k][j].subtract(matrix[row][j].multiply(factor));
             }
           }
         }
@@ -140,15 +131,14 @@ public class GaussExecutor {
     return rank;
   }
 
-  private double[] getResidualVectors(double[][] m, double[] solutions) {
-    var res = new double[solutions.length];
+  private BigDecimal[] getResidualVectors(BigDecimal[][] m, BigDecimal[] solutions) {
+    var res = new BigDecimal[solutions.length];
     for (int i = 0; i < m.length; i++) {
-      double sum = 0;
+      BigDecimal sum = BigDecimal.ZERO;
       for (int j = 0; j < m.length; j++) {
-        sum += m[i][j] * solutions[j];
+        sum = sum.add(m[i][j].multiply(solutions[j]));
       }
-      double value = formatDouble(m[i][m.length] - sum, FORMAT);
-      res[i] = value;
+      res[i] = m[i][m.length].subtract(sum);
     }
     return res;
   }

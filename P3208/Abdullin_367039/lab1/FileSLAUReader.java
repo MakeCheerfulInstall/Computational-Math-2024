@@ -3,6 +3,7 @@ package lab1;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -15,7 +16,7 @@ public class FileSLAUReader implements SLAUReader {
       "/home/yestai/IdeaProjects/CountingMath/src/resources";
 
   @Override
-  public double[][] read() {
+  public BigDecimal[][] read() {
     var list = getAllResources();
 
     printFiles(list);

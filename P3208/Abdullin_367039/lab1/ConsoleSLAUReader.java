@@ -1,6 +1,7 @@
 package lab1;
 
 import java.io.*;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,7 +9,7 @@ public class ConsoleSLAUReader implements SLAUReader {
   private final MatrixParser parser = new MatrixParser();
 
   @Override
-  public double[][] read() {
+  public BigDecimal[][] read() {
     var reader = new BufferedReader(new InputStreamReader(System.in));
     try {
       System.out.println("> Print size of matrix. Size <= 20");

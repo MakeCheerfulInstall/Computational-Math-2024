@@ -1,9 +1,11 @@
 package lab1;
 
+import java.math.BigDecimal;
+
 public interface SLAUReader {
     String CONSOLE = "1";
     String FILE = "2";
     String RANDOM = "3";
 
-    double[][] read();
+    BigDecimal[][] read();
 }

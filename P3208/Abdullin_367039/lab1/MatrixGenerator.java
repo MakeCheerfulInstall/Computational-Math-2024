@@ -3,19 +3,22 @@ package lab1;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
 import java.util.Random;
 
 public class MatrixGenerator implements SLAUReader {
   private final Random random = new Random();
 
-  public double[][] generate() {
+  public BigDecimal[][] generate() {
     int size = readSize();
 
-    double[][] matrix = new double[size][size + 1];
+    BigDecimal[][] matrix = new BigDecimal[size][size + 1];
 
     for (int i = 0; i < size; i++) {
       for (int j = 0; j <= size; j++) {
-        matrix[i][j] = random.nextDouble() * 200000 - 100000;
+        matrix[i][j] =
+            new BigDecimal(
+                String.format("%.3f", random.nextDouble() * 200000 - 100000).replace(',', '.'));
       }
     }
 
@@ -42,7 +45,7 @@ public class MatrixGenerator implements SLAUReader {
   }
 
   @Override
-  public double[][] read() {
+  public BigDecimal[][] read() {
     return generate();
   }
 }
