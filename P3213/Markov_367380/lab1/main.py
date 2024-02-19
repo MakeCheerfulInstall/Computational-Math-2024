@@ -76,7 +76,7 @@ def cli_input() -> tuple:
     while not Validator.validate_precision(str_precision):
         print("Please input precision")
         str_precision = input("(make sure it's greater than 1e-9): ")
-    given_precision: float = round(float(str_precision), 9)
+    given_precision: float = round(float(str_precision.replace(",", ".")), 9)
 
     ans: str = input("Would you like to input matrix by yourself? y/n ")
     if ans == "y":
@@ -134,7 +134,7 @@ def file_input() -> tuple:
             continue
 
         given_dimension: int = int(input_data[0])
-        given_precision: float = round(float(input_data[1]), 9)
+        given_precision: float = round(float(input_data[1].replace(",", ".")), 9)
 
         if len(input_data) == given_dimension + 2:
             data: list = []

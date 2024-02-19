@@ -9,21 +9,20 @@ class Validator:
     @staticmethod
     def validate_precision(given_precision: str) -> bool:
         try:
-            return round(float(given_precision), 9) > 0
+            return round(float(given_precision.replace(",", ".")), 9) > 0
         except ValueError:
             return False
 
     @staticmethod
     def validate_input(input_string: str) -> list:
         try:
-            validated_row = list(map(lambda x: round(float(x), 3), input_string.split()))
+            validated_row = list(map(lambda x: round(float(x.replace(",", ".")), 3), input_string.split()))
             return validated_row
         except ValueError:
             return []
 
     @staticmethod
-    def safe_input(prompt):
-        print("skam")
+    def safe_input(prompt: str = ""):
         try:
             user_input = input(prompt)
             return user_input
