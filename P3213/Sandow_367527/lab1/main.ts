@@ -3,6 +3,7 @@ import { solveLinearEquationsSystem } from './solver.js';
 import { printResult } from './printer.js';
 
 const RANDOM_ELEMENT_MAX_VALUE = 10;
+const RANDOM_DIAGONAL_ELEMENT_INCREMENT = 30;
 
 /** Обработать нажатие кнопки "Решить". */
 function onSolveClicked(event: Event): void {
@@ -40,7 +41,12 @@ function generateRandomMatrix(): void {
     for (let i = 0; i < n; i++) {
       const row: number[] = [];
       for (let j = 0; j < n + 1; j++) {
-        const randomNumber = Math.ceil(Math.random() * RANDOM_ELEMENT_MAX_VALUE);
+        let randomNumber = Math.ceil(Math.random() * RANDOM_ELEMENT_MAX_VALUE);
+
+        if (i === j) {
+          randomNumber += RANDOM_DIAGONAL_ELEMENT_INCREMENT;
+        }
+
         row.push(randomNumber);
       }
 
@@ -48,7 +54,7 @@ function generateRandomMatrix(): void {
       matrixInput.value += stringRow;
     }
   } catch (e) {
-    if (e instanceof Error && e.name === 'DiagonallyDominationUnobtainable') {
+    if (e instanceof Error && e.name === 'ReadError') {
       alert(e.message);
       return;
     }
