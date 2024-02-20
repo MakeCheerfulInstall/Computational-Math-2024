@@ -6,9 +6,9 @@ input = Validator.safe_input
 
 def main():
     print("Welcome!")
-    option: int = int(input("How would you like to input data? (with cli - 1, from file - 2): "))
+    option: int = input("How would you like to input data? (with cli - 1, from file - 2(default)): ")
 
-    if option == 1:
+    if option == "1":
         matrix, results, precision = cli_input()
     else:
         matrix, results, precision = file_input()
@@ -29,15 +29,8 @@ def main():
     right_side_results: Matrix = get_right_side_results(matrix, results)
     print(f"Results after division:\n{right_side_results}\n")
 
-    x: Matrix = right_side_results
-    new_x: Matrix = right_side_results
-    diff: float = float("inf")
-    iteration_count: int = 0
-    while diff > precision:
-        iteration_count += 1
-        x = new_x
-        new_x = right_side_matrix * x + right_side_results
-        diff = (new_x - x).get_max_by_module()
+    new_x, x, iteration_count = perform(precision,right_side_matrix, right_side_results)
+
     print("Error vectors: ")
     print(new_x - x)
     print()
@@ -48,6 +41,19 @@ def main():
     print("Solution:")
     print(new_x)
     print()
+
+
+def perform(precision: float, right_side_matrix: Matrix, right_side_results: Matrix) -> tuple:
+    x: Matrix = right_side_results
+    new_x: Matrix = right_side_results
+    diff: float = float("inf")
+    iteration_count: int = 0
+    while diff > precision:
+        iteration_count += 1
+        x = new_x
+        new_x = right_side_matrix * x + right_side_results
+        diff = (new_x - x).get_max_by_module()
+    return new_x, x, iteration_count
 
 
 def get_right_side_matrix(matrix: SquareMatrix) -> SquareMatrix:
