@@ -60,6 +60,9 @@ def read_matrix_from_console(lines: int) -> List[List[float]]:
         mat: List[List[float]] = []
         for i in range(lines):
             mat.append(read_row_from_console(i + 1, lines))
+        if find_determinant(mat) == 0:
+            print('Matrix is non-degenerate')
+            continue
         try:
             return swap_rows_sort(mat)
         except DiagonalDominatingError as e:
@@ -119,6 +122,9 @@ def read_matrix_from_file(m: int) -> List[List[float]]:
                 row: List[float] = parse_input_row(file.readline(), m)
                 mat.append(row)
                 it += 1
+            if find_determinant(mat) == 0:
+                print('Matrix is non-degenerate')
+                continue
             return swap_rows_sort(mat)
         except (ValueError, FileNotFoundError, DiagonalDominatingError) as e:
             print(e)
@@ -140,6 +146,24 @@ def choose_input() -> int:
             print('No such variant. Try again')
             continue
         return var
+
+
+def find_determinant(mat: List[List[float]]) -> float:
+    copy: List[List[float]] = [row[:-1] for row in mat]
+    ind: List[int] = list(range(len(copy)))
+    if len(copy) == 2 and len(copy[0]) == 2:
+        return copy[0][0] * copy[1][1] - copy[1][0] * copy[0][1]
+    res: float = 0
+    for i in ind:
+        copy = [row[:] for row in mat]
+        copy = copy[1:]
+        height: int = len(copy)
+        for j in range(height):
+            copy[j] = copy[j][0:i] + copy[j][i + 1:]
+        sign: int = (-1) ** (i % 2)
+        det: float = find_determinant(copy)
+        res += sign * mat[0][i] * det
+    return res
 
 
 n, eps = read_dimension_and_precision()
