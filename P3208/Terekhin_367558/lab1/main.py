@@ -112,12 +112,14 @@ def read_dimension_and_precision() -> tuple[int, float]:
     return dim, precision
 
 
-def read_matrix_from_file(m: int) -> List[List[float]]:
+def read_matrix_from_file() -> tuple[int, float, List[List[float]]]:
     while True:
         it: int = 1
         try:
             file: TextIO = open(input('Input file name with extension: '), 'r')
             mat: List[List[float]] = []
+            m = int(file.readline().strip())
+            ep = float(file.readline().strip())
             while it <= m:
                 row: List[float] = parse_input_row(file.readline(), m)
                 mat.append(row)
@@ -125,7 +127,7 @@ def read_matrix_from_file(m: int) -> List[List[float]]:
             if find_determinant(mat) == 0:
                 print('Matrix is non-degenerate')
                 continue
-            return swap_rows_sort(mat)
+            return m, ep, swap_rows_sort(mat)
         except (ValueError, FileNotFoundError, DiagonalDominatingError) as e:
             print(e)
         except ParsingError as e:
@@ -166,13 +168,15 @@ def find_determinant(mat: List[List[float]]) -> float:
     return res
 
 
-n, eps = read_dimension_and_precision()
 inp: int = choose_input()
 matrix: List[List[float]]
+n: int = 0
+eps: float = 0
 
 if inp == 1:
-    matrix = read_matrix_from_file(n)
+    n, eps, matrix = read_matrix_from_file()
 else:
+    n, eps = read_dimension_and_precision()
     matrix = read_matrix_from_console(n)
 
 print('Answer vector is: ', do_simple_iteration(matrix, [0] * n, eps, 1))
