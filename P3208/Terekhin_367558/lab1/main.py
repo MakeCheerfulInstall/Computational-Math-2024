@@ -1,6 +1,6 @@
-from typing import List
+from typing import List, TextIO
 import re
-from exceptions import DiagonalDominatingError
+from exceptions import DiagonalDominatingError, ParsingError
 
 
 def swap_rows_sort(mat: List[List[float]]) -> List[List[float]]:
@@ -19,7 +19,7 @@ def swap_rows_sort(mat: List[List[float]]) -> List[List[float]]:
     return sort_mat
 
 
-def select_vector_equation(mat: List[List[float]]):
+def select_vector_equation(mat: List[List[float]]) -> List[List[float]]:
     vector_mat: List[List[float]] = []
     for i in range(len(mat)):
         vector_mat.append(list(map(lambda num: num / mat[i][i] if num != mat[i][i] else 0, mat[i])))
@@ -42,12 +42,15 @@ def get_precision(epsilon: float) -> int:
     return precision
 
 
-def do_simple_iteration(mat: List[List[float]], approx: List[float], precision: float) -> List[float]:
+def do_simple_iteration(mat: List[List[float]], approx: List[float], precision: float, step: int) -> List[float]:
     k: int = len(approx)
     next_approx: List[float] = get_next_approx(select_vector_equation(mat), approx, get_precision(precision))
-    if max([abs(approx[i] - next_approx[i]) for i in range(k)]) < precision:
+    dispersion_vec = [round(abs(approx[i] - next_approx[i]), get_precision(precision)) for i in range(k)]
+    if max(dispersion_vec) < precision:
+        print(f'Final iteration amount is {step}')
+        print(f'Dispersion vector is: ', dispersion_vec)
         return next_approx
-    return do_simple_iteration(mat, next_approx, precision)
+    return do_simple_iteration(mat, next_approx, precision, step + 1)
 
 
 def read_matrix_from_console(lines: int) -> List[List[float]]:
@@ -56,23 +59,27 @@ def read_matrix_from_console(lines: int) -> List[List[float]]:
     while True:
         mat: List[List[float]] = []
         for i in range(lines):
-            mat.append(read_row_from_console(i + 1))
+            mat.append(read_row_from_console(i + 1, lines))
         try:
             return swap_rows_sort(mat)
         except DiagonalDominatingError as e:
             print(e)
 
 
-def read_row_from_console(step: int) -> List[float]:
+def read_row_from_console(step: int, m: int) -> List[float]:
     while True:
-        s: List[str] = list(filter(lambda a: a, re.split("[ |]+", input(f'Line [{step} / {n}]: '))))
-        if len(s) != n + 1:
-            print('Dimension is incorrect')
-            continue
+        s: str = input(f'Line [{step} / {m}]: ')
         try:
-            return list(map(float, s))
-        except ValueError as ex:
-            print(ex)
+            return parse_input_row(s, m)
+        except (ParsingError, ValueError) as e:
+            print(e)
+
+
+def parse_input_row(row: str, m: int) -> List[float]:
+    s: List[str] = list(filter(lambda a: a, re.split("[ |]+", row)))
+    if len(s) != m + 1:
+        raise ParsingError('Dimension is incorrect')
+    return list(map(float, s))
 
 
 def read_dimension_and_precision() -> tuple[int, float]:
@@ -102,10 +109,27 @@ def read_dimension_and_precision() -> tuple[int, float]:
     return dim, precision
 
 
-def choose_input_descriptor():
+def read_matrix_from_file(m: int) -> List[List[float]]:
+    while True:
+        it: int = 1
+        try:
+            file: TextIO = open(input('Input file name with extension: '), 'r')
+            mat: List[List[float]] = []
+            while it <= m:
+                row: List[float] = parse_input_row(file.readline(), m)
+                mat.append(row)
+                it += 1
+            return swap_rows_sort(mat)
+        except (ValueError, FileNotFoundError, DiagonalDominatingError) as e:
+            print(e)
+        except ParsingError as e:
+            print(e, f'Error in row {it}: check your input format or use another file', sep='\n')
+
+
+def choose_input() -> int:
     variants: List[str] = ['From file', 'Using console']
-    var: int = 0
-    print('How do you want to read your equation?', '\n'.join([f'{ind + 1}. {v}' for ind, v in enumerate(variants)]), sep='\n')
+    print('How do you want to read your equation?',
+          '\n'.join([f'{ind + 1}. {v}' for ind, v in enumerate(variants)]), sep='\n')
     while True:
         try:
             var = int(input())
@@ -119,10 +143,12 @@ def choose_input_descriptor():
 
 
 n, eps = read_dimension_and_precision()
-inp: int = choose_input_descriptor()
-matrix: List[List[float]] = read_matrix_from_console(n)
-sorted_mat: List[List[float]] = swap_rows_sort(matrix)
+inp: int = choose_input()
+matrix: List[List[float]]
 
-print(do_simple_iteration(sorted_mat, [0] * n, eps))
+if inp == 1:
+    matrix = read_matrix_from_file(n)
+else:
+    matrix = read_matrix_from_console(n)
 
-
+print('Answer vector is: ', do_simple_iteration(matrix, [0] * n, eps, 1))
