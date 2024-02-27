@@ -1,3 +1,4 @@
+import random
 from typing import List, TextIO
 import re
 from exceptions import DiagonalDominatingError, ParsingError
@@ -135,7 +136,7 @@ def read_matrix_from_file() -> tuple[int, float, List[List[float]]]:
 
 
 def choose_input() -> int:
-    variants: List[str] = ['From file', 'Using console']
+    variants: List[str] = ['From file', 'Using console', 'Random matrix']
     print('How do you want to read your equation?',
           '\n'.join([f'{ind + 1}. {v}' for ind, v in enumerate(variants)]), sep='\n')
     while True:
@@ -168,6 +169,24 @@ def find_determinant(mat: List[List[float]]) -> float:
     return res
 
 
+def get_random_matrix(m: int) -> List[List[float]]:
+    while True:
+        mat: List[List[float]] = []
+        for i in range(m):
+            mat.append([round(random.random() * 100, 3) for j in range(m + 1)])
+        for i in range(m):
+            mat[i][i] = round(sum(mat[i]), 3)
+        if find_determinant(mat) == 0:
+            continue
+        return mat
+
+
+def print_matrix(mat: List[List[float]]):
+    print('Your matrix:')
+    for i in range(len(mat)):
+        print(mat[i])
+
+
 inp: int = choose_input()
 matrix: List[List[float]]
 n: int = 0
@@ -175,8 +194,12 @@ eps: float = 0
 
 if inp == 1:
     n, eps, matrix = read_matrix_from_file()
-else:
+elif inp == 2:
     n, eps = read_dimension_and_precision()
     matrix = read_matrix_from_console(n)
+else:
+    n, eps = read_dimension_and_precision()
+    matrix = get_random_matrix(n)
+    print_matrix(matrix)
 
 print('Answer vector is: ', do_simple_iteration(matrix, [0] * n, eps, 1))
