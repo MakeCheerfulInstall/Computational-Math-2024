@@ -1,0 +1,425 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<script src="math.js" type="text/javascript"></script>
+		<script type="text/javascript">
+math.config({
+	number: 'BigNumber',
+	precision: 1010,
+	epsilon: 1e-60
+});
+const parser = math.parser()
+window._ = (x)=>{
+	var s=parser.evaluate(x).toString();
+	if (s=='true') return true;
+	if (s=='false') return false;
+	return s;
+}
+window._floor = (s, eps)=>{
+	var precision=0;
+	while (_(`${eps} < 1`)) { eps = _(`${eps} * 10`); precision++; }
+	return math.bignumber(_(s)).toFixed(precision).replace(/(\.0*|(?<=(\..*))0*)$/, "");
+}
+window.print = (x)=>console.log(_(x));
+window._for = (s, f)=>{
+	if (/^\s*\w+\s*=.+\.\..+$/.test(s)) {
+		var v=s.match(/^\s*(\w+)\s*=(.+)\.\.(.+)$/);
+		for (_(`${v[1]}=${v[2]}`); _(`${v[1]}<=${v[3]}`);_(`${v[1]}=${v[1]}+1`)) f();
+		return;
+	}
+	
+	if (/^.*;.*;.*$/.test(s)) {
+		var v=s.match(/^(.*);(.*);(.*)$/);
+		for (_(v[1]); _(v[2]);_(v[3])) f();
+		return;
+	}
+	throw `_for(${s}) not understandable`;
+};
+		</script>
+		
+		
+		
+		<script type="text/javascript">
+			
+			function parse(s) {
+				s = s.replace(/,/g,'.').split('\n').filter(x=>x.trim()).map(x=>x);
+				var message='';
+				s = s.map(x=>{if (!/^(-?([1-9]\d{0,5}|0)(\.\d+)?\s+)*$/.test(x+' ')) message=`Строка "${x}" имеет не численное значение`; return x.replace(/\s+/g,' ').trim().split(' '); });
+				if (message) return message;
+				if (s.length==0) return 'Количество строчек == 0';
+				if (s.length+1!=s[0].length) return 'Количество строчек + 1 != количество чисел в первой строчке';
+				if (s.filter(x=>x.length!=s[0].length).length) return 'Не равномерное количество значений в строчках';
+				
+				if (!/^[1-9]\d{0,2}$/.test(num_of_zeros.value)) return 'Количество знаков после запятой не число';
+				
+				
+				return {precision:'0.'+'0'.repeat(+num_of_zeros.value-1)+'1', square_matrix: s.map(x=>x.slice(0,-1)), b: s.map(x=>x[x.length-1])};
+			}
+			
+			function calculate(args) {	
+				const precision = args.precision;
+				const matrix = args.square_matrix;
+				const b = args.b;
+				
+				// проверяет, что матрица квадратная
+				const is_matrix_with_b_valid = (matrix_with_b) => {
+					return matrix_with_b.every(r => matrix_with_b.length === r.length - 1)
+				}
+				
+				// возвращает массив индексов строчек матрицы так,
+				// чтобы условие преобладания диагональных элементов выполнялось.
+				const form_ready_matrix = (pre_matrix) => {
+					let diag_dom = {};
+					let valid_arrangement = null;
+					let strict_valid_sets = new Array(width).fill(0).map(e => new Set());
+					const find_arrangement = (diag_ind, taken_rows_set, taken_rows_arr) => {
+						if (diag_ind === width && taken_rows_arr.some((val, ind) => strict_valid_sets[ind].has(val))) {
+							valid_arrangement = [...taken_rows_arr];
+							return true
+						}
+						let some_valid = false;
+						if(!diag_dom[diag_ind]) return false;
+						for (let row_ind of diag_dom[diag_ind]) {
+							if (taken_rows_set.has(row_ind)) continue;
+							taken_rows_set.add(row_ind);
+							taken_rows_arr.push(row_ind);
+							some_valid ||= find_arrangement(diag_ind + 1, taken_rows_set, taken_rows_arr);
+							taken_rows_set.delete(row_ind);
+							taken_rows_arr.pop();
+						}
+						return some_valid;
+					}
+					for (let i = 0; i < width; i++) {
+						for (let row_ind in pre_matrix) {
+							let diag_sum = pre_matrix[row_ind].reduce((acc, cur, ind) => i === ind ? acc : _(`${cur} + ${acc}`), '0');
+							if (_(`abs(${diag_sum}) <= abs(${pre_matrix[row_ind][i]})`)) {
+								diag_dom[i] = (diag_dom[i] || []).concat([row_ind]);
+							}
+							if(_(`abs(${diag_sum}) < abs(${pre_matrix[row_ind][i]})`)){
+								strict_valid_sets[i].add(row_ind);
+							}
+						}
+					}
+					// taken_rows_set нужен для того, чтобы определять какие строчки матрицы мы уже взяли
+					// taken_rows_arr для хранения порядка строчек, так как set не хранит порядок добавления
+					find_arrangement(0, new Set(), []);
+					return valid_arrangement;
+				}
+				
+				// проверяет, что норма C матрицы < 1
+				const validate_c_matrix = (c_matrix) => {
+					for(let row of c_matrix){
+						let sum = row.slice(0, row.length-1).reduce((acc, el) => _(`abs(${acc}) + abs(${el})`), 0)
+						if(_(`${sum} >= 1`)) return false;
+					}
+					return true;
+				}
+				
+				
+				
+				
+				// матрица без b
+				// может быть не валидна, валидную матрицу возвращает form_ready_matrix()
+				let matrix_with_b = [...matrix].map((r,i) => r.concat(b[i]));
+
+				// ширина и высота матрицы без b
+				const width = matrix[0].length;
+				const height = matrix.length;
+				
+				
+				if (!is_matrix_with_b_valid(matrix_with_b)) return "неверная матрица"
+				let mat = form_ready_matrix(matrix)
+				if (!mat) {
+					mat = []
+					for(let i = 0; i < height; i++) mat.push(i)
+				}
+				matrix_with_b = mat.map(ind => matrix_with_b[ind]);
+				let c_matrix = new Array(height).fill(0).map(e => new Array(width).fill('0'))
+				for(let i = 0; i < width; i++){
+					for(let j = 0; j < width + 1; j++){
+						if(i === j){
+							c_matrix[i][j] = '0';
+							continue;
+						}
+						c_matrix[i][j] = _(`${j != width ? -1 : 1} * ${matrix_with_b[i][j]} / ${matrix_with_b[i][i]}`)
+					}
+				}
+				if(!validate_c_matrix(c_matrix))  return "Норма матрицы C недействительна";
+				let curr_x = c_matrix.map(row=> row[row.length - 1])
+				let iteration_count = 0;
+				for(let i = 0; i < 10000; i++){
+					iteration_count++;
+					let prev_x = [...curr_x];
+					curr_x = c_matrix.map(coffs => coffs.reduce((acc, el, ind) => _(`${acc} + ${(prev_x[ind] || 1)}*${el}`), '0'))
+					let x_gap = _(`max(${curr_x.map( (x, ind) => math.abs(_(`${x} - ${prev_x[ind]}`))).join(",")})`);
+					if(_(`${x_gap} < ${precision}`)) break;
+				}
+				
+				return {vector: curr_x.map((x)=>_floor(`abs(${x})`, precision)), iteration_count: iteration_count, vector_errors: curr_x.map( (x, ind) => _floor(`abs(${x} - ${curr_x[ind]})`, precision))};
+			}
+			
+			function format_output(obj) {
+				if (typeof obj != 'object') return obj.toString();
+				return "Количество итераций: "+obj.iteration_count+'\nВектор: ['+obj.vector.join(', ')+']\nВектор ошибки: ['+obj.vector_errors.join(', ')+']';
+			}
+			
+			function random_matrix(w,h,min,max) {
+				var rnd_matrix = new Array(h).fill(0).map(x=>Array(w).fill(0).map(y=>_(`random(number(${min}), number(${max}))`)));
+				if (w==h) {
+					for (var k=0;k<rnd_matrix.length;k++){
+						var sum = '0';
+						for (var i=0;i<rnd_matrix.length;i++)
+							if (i!=k)
+								sum = _(`${sum} + abs(${rnd_matrix[k][i]})`);
+						
+						for (var i=0;i<rnd_matrix.length;i++)
+							if (i!=k)
+								sum = _(`${sum} + abs(${rnd_matrix[i][k]})`);
+						rnd_matrix[k][k] = _(`${sum} + 1`);
+					}
+				}
+				return rnd_matrix.map(x=>x.join(' ')).join('\n');
+			}
+			
+			function rnd(id, size) {
+				if ((typeof size)!='string') return;
+				size = size.replace(/[^\d,.-]+/g, ' ').trim().replace(/,/g,'.').split(' ');
+				var min = '-10';
+				var max = '10';
+				if (size.filter(x=>!/^-?([1-9]\d{0,5}|0)(\.\d+)?$/.test(x)).length) return alert('Не удалось прочитать число');
+				if (size.length != 1 && size.length != 3) return alert('Чисел не 1 или 3!');
+				
+				if (!/^([1-9]|1\d|20)$/.test(size[0])) return alert('Размер должен быть от 1 до 20!');
+				if (size.length == 3) min = size[1];
+				if (size.length == 3) max = size[2];
+				if (_(`${min}>${max}`)) return alert('min > max!');
+				if (id=='A') a_mat.value = random_matrix(+size[0], +size[0], min, max);
+				if (id=='B') b_mat.value = random_matrix(1, +size[0], min, max);
+				
+			}
+			
+			//console.log(calculate({precision:'0.0000000000000000000000000000000000000000000000000000000000000001', square_matrix: [[2, 2, 10], [10, 1, 1], [2, 10, 1]], b: [14, 12, 13]}));
+		</script>
+		
+		
+		<script type="text/javascript">
+			function menu(i, s) {
+				from_keyboard.style.display = (i==0?'block':'');  
+				from_file.style.display = (i==1?'block':'');  
+				result.style.display = (i==2?'block':'');
+				if (i==2) {
+					console.log(s);
+					var p=parse(s);
+					if ((typeof p) == 'object') result_pre.innerHTML=format_output(calculate(p));
+					else result_pre.innerHTML='Ошибка чтения: '+p;
+				}
+			}
+			
+			function previewFile(file) {
+				let reader = new FileReader();
+				reader.readAsText(file);
+				reader.onloadend = function() {
+					menu(2, reader.result);
+				}
+			}
+			
+			function on_load() {
+				function resize() {
+					const w = Math.min(document.body.clientWidth-10, Math.max(document.body.clientWidth/1.618,512));
+					const h = Math.min(document.body.clientHeight-10, Math.max(document.body.clientHeight/1.618,600));
+					center_div.style.width = w + 'px';
+					center_div.style.height = h + 'px';
+					center_div.style.left = (document.body.clientWidth/2-w/2) + 'px';
+					center_div.style.top = (document.body.clientHeight/2-h/2) + 'px';
+				}
+				resize();
+				menu(0);
+				
+				function preventDefaults (e) {
+					e.preventDefault();
+					e.stopPropagation();
+				}
+				['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+					dropArea.addEventListener(eventName, preventDefaults, false)
+				});
+				
+				function highlight(e) {
+				  dropDivArea.classList.add('highlight')
+				}
+				function unhighlight(e) {
+				  dropDivArea.classList.remove('highlight')
+				}
+				['dragenter', 'dragover'].forEach(eventName => {
+				  dropArea.addEventListener(eventName, highlight, false)
+				});
+				['dragleave', 'drop'].forEach(eventName => {
+				  dropArea.addEventListener(eventName, unhighlight, false)
+				});
+				
+				function handleDrop(e) {
+					let dt = e.dataTransfer;
+					let files = dt.files;
+					handleFiles(files);
+				}
+				dropArea.addEventListener('drop', handleDrop, false)
+				
+				function handleFiles(files) {
+					if ([...files].length!=1) return alert('more files');
+					previewFile(files[0]);
+				}
+				
+				dropArea.addEventListener("change", () => {
+					if (dropArea.files.length != 1) return alert('more files');
+					previewFile(dropArea.files[0]);
+				});
+				
+				addEventListener("resize", resize);
+			}
+			
+			function prepare_menu() {
+				var A=a_mat.value.split('\n').filter(x=>x.trim());
+				var B=b_mat.value.split('\n').filter(x=>x.trim());
+				if (A.length!=B.length) return alert('Высота A != высоте B');
+				if (B.filter(x=>!/^-?([1-9]\d{0,5}|0)(\.\d+)?$/.test(x.replace(/,/g,'.').trim())).length) return alert('Несколько чисел в одной строчке B или строчка не является числом');
+				menu(2,A.map((x,i)=>x.trim()+' '+B[i].trim()).join('\n'));
+			}
+		</script>
+		<style>
+			html, body, .topButtons {
+				margin: 0;
+				background: #333;
+				color: #fff;
+				height: 100%;
+				width: 100%;
+				font-family: 'Open Sans', sans-serif;
+			}
+			
+			#center_div {
+				position: absolute;
+				background: #666;
+				border-radius: 10px;
+				box-shadow: #2d2d2d 2px 8px 5px 2px;
+			}
+			
+			.topButtons {
+				position: absolute;
+				top: 0px;
+				height: 50px;
+				width: calc(50% - 1px);
+				
+				font-size: 20px;
+			}
+			
+			.tab {
+				position: absolute;
+				top: 50px;
+				left: 0px;
+				right: 0px;
+				bottom: 0px;
+				display: none;
+			}
+			
+			#from_file {
+				padding: 10px;
+			}
+			#dropDivArea {
+				position: relative;
+				border: 3px dashed #3e78ff;
+				width: calc(100% - 6px);
+				height: calc(100% - 6px);
+				text-align: center;
+			}
+			#dropDivArea img {
+				margin-top:10px;
+				height:20%;
+			}
+			
+			.highlight {
+				background: #444;
+			}
+			
+			#from_keyboard {
+				padding: 10px;
+			}
+			
+			#from_keyboard input, #from_keyboard select, #from_keyboard textarea {
+				background: #0002;
+				color: #fff;
+				border-radius: 10px;
+			}
+			#from_keyboard button {
+				background: #525252;
+				color: #fff;
+				font-size: 16px;
+			}
+			textarea {
+			   resize: none;
+			   white-space: nowrap;
+			   padding: 5px;
+			}
+			#from_keyboard button.rnd-btn {
+				background: #0000;
+				border: solid 2px #4c4c4c;
+			}
+			#result {
+				padding:10px;
+			}
+			#result pre {
+				width: calc(100% - 20px);
+				height: calc(100% - 20px);
+				overflow: auto;
+				margin: 0;
+				padding: 10px;
+				background: #0003;
+				border-radius: 10px;
+			}
+		</style>
+	</head>
+<body onload="on_load();">
+	<div id="center_div">
+		<button class="topButtons" style="left: 0px; border-top-left-radius: 10px; background: #555;" onclick="menu(0);">Ввод с клавиатуры</button>
+		<button class="topButtons" style="right: 0px; border-top-right-radius: 10px; background: #484848;" onclick="menu(1);">Ввод с файла</button>
+		<div class="tab" id="from_keyboard">
+			<div style="position: absolute; left: 10px; top: 10px; right:10px; height:25px; text-align: center;">
+				Количество знаков после запятой: <input type="text" id="num_of_zeros" style="text-align: center; width: 45px;height:calc(100% - 5.2px);" maxlength="3" value="300">
+			</div>
+			<div style="position: absolute; top: 50px; left: 10px; bottom: 45px; width:calc(66% - 20px); text-align: center;">
+			A <button class="rnd-btn" style="border-radius: 10px; height:25px; margin:2px 5px;" onclick="rnd('A', prompt('Введите размер матрицы (опционально: минимум и максимум)'));">randomize</button><br />
+			<textarea style="height:calc(100% - 40px); width:calc(100% - 11.6px);" id="a_mat">2 2 10
+10 1 1
+2 10 1</textarea>
+
+			</div>
+			<div style="position: absolute; top: 50px; right:10px; bottom: 45px; width:calc(33% - 20px); text-align: center;">
+			B <button class="rnd-btn" style="border-radius: 10px; height:25px; margin:2px 5px;" onclick="rnd('B', prompt('Введите длину вектора (опционально: минимум и максимум)'));">randomize</button><br />
+			<textarea style="height:calc(100% - 40px); width:calc(100% - 11.6px);" id="b_mat">14
+12
+13</textarea>
+			</div>
+
+			<!--<div style="position: absolute; left: 10px; bottom: 45px; right:10px; height:25px; text-align: center;">
+				Формат вывода:
+				<select name="select" style="height:100%;">
+				  <option value="fixed">fixed</option>
+				  <option value="round" selected>round</option>
+				  <option value="raw">raw</option>
+				</select>
+			</div>-->
+			<button onclick="prepare_menu();" style="border-radius: 10px; position: absolute; left: 10px; bottom: 10px; right:10px; height:25px;">Запустить</button>
+		</div>
+		<div class="tab" id="from_file">
+			<div id="dropDivArea"> 
+				<img src="https://www.pngall.com/wp-content/uploads/2/Upload-PNG-Image-File.png" ><br />
+				<span>Choose files</span><br />
+				<span>or drop files here</span>
+				<input type="file" style="opacity: 0.0; position: absolute; top:0; left: 0; bottom: 0; right:0; width: 100%; height:100%;" id="dropArea" />
+			</div>
+		</div>
+		<div class="tab" id="result">
+			<pre id="result_pre">22222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222
+22222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222
+22222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222</pre>
+		</div>
+	</div>
+</body>
+</html>
