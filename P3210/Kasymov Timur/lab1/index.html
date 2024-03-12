@@ -1,0 +1,284 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <script src="math.js" type="text/javascript"></script>
+    <script src="main.js" type="text/javascript"></script>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <script type="text/javascript">
+
+        function fillMatrix(matrixWithB) {
+            let t1 = document.getElementById("a1")
+            let t2 = document.getElementById("a2")
+            let innerTextForA = ""
+            let innerTextForB = ""
+            for (let row in matrixWithB) {
+                innerTextForA += matrixWithB[row].slice(0, matrixWithB[0].length - 1).join(" ") + (+row !== matrixWithB.length - 1 ? "\n" : "")
+                innerTextForB += matrixWithB[row][matrixWithB[0].length - 1] + (+row !== matrixWithB.length - 1 ? "\n" : "")
+            }
+            t1.innerHTML = innerTextForA;
+            t2.innerHTML = innerTextForB;
+        }
+
+        function handle_rand_gen() {
+            let numOfCol = document.getElementById("colN").value || 5;
+            let numOfRow = document.getElementById("rowN").value || 5;
+            if(isNaN(numOfCol) || isNaN(numOfRow) || +numOfCol % 1 || +numOfRow % 1){
+                alert("number of cols or rows is invalid")
+                return;
+            }
+            let matrixWithB = []
+            for(let i = 0; i < +numOfRow; i++){
+                console.log(i)
+                matrixWithB.push([])
+                for(let j = 0; j < +numOfCol + 1; j++){
+                    matrixWithB[i].push(Math.random()*(-10000) + Math.random()*(10000))
+                }
+            }
+            console.log(matrixWithB)
+            fillMatrix(matrixWithB)
+        }
+
+        function extractMatrixValues(contents) {
+            let matrixWithB = []
+            const rows = contents.split("\n");
+            for (let row in rows) {
+                matrixWithB.push([])
+                for (let num of rows[row].split(" ")) {
+                    matrixWithB[row].push(num.trim())
+                }
+            }
+            if (!isMatrixWithBValid(matrixWithB)) {
+                alert("entered matrix is not valid")
+                return null;
+            }
+            return matrixWithB
+        }
+
+        function handleCalc() {
+            let Acontent = document.getElementById("a1").value;
+            let Bcontent = document.getElementById("a2").value;
+
+            let matrixWithB = []
+            const rowsA = Acontent.split("\n");
+            const rowsB = Bcontent.split("\n");
+            for (let row in rowsA) {
+                matrixWithB.push([])
+                for (let num of rowsA[row].split(" ")) {
+                    matrixWithB[row].push(num.trim())
+                }
+                matrixWithB[row].push(rowsB[row])
+            }
+            if (!isMatrixWithBValid(matrixWithB)) {
+                alert("entered matrix is not valid")
+                return null;
+            }
+            let precision = document.getElementById("precision").value.replace(",", ".");
+            let inter_num = document.getElementById("num_of_iter").value;
+            if (+inter_num % 1) {
+                alert("number of iterations is float number!")
+                return null;
+            }
+            let eps = document.getElementById("eps").value;
+
+            if (isNaN(precision)) {
+                alert("precision is not correct")
+                return null;
+            }
+            if (isNaN(inter_num)) {
+                alert("number of iterations is not correct")
+                return null;
+            }
+            if (isNaN(eps)) {
+                alert("epsilon is not correct")
+                return null;
+            }
+            let [ans, numOfIter] = calculate(matrixWithB, +(inter_num || "300"), eps || "0.001")
+            let ansPlace = document.getElementById("answer");
+            ansPlace.innerHTML = "X: " + ans.map(e => math.bignumber(_(e)).toFixed(+precision || 3)).join(", ")
+            ansPlace.innerHTML += "</br></br>" + "Number of iterations until reached precision: " + numOfIter
+            console.log(matrixWithB)
+        }
+
+
+        function on_load() {
+            document.querySelector('form').addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                const fileInput = document.getElementById('file-input');
+                const file = fileInput.files[0];
+
+                if (file) {
+                    const reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        const contents = e.target.result;
+                        let matrixWithB = extractMatrixValues(contents)
+                        fillMatrix(matrixWithB)
+                        console.log(matrixWithB)
+                        console.log();
+                    }
+
+                    reader.readAsText(file);
+                }
+            });
+        }
+    </script>
+    <style>
+        html, body, .topButtons {
+            margin: 0;
+            background: #333;
+            color: #fff;
+            height: 100%;
+            width: 100%;
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        .file_input {
+            display: flex;
+            flex-flow: row;
+            justify-content: center;
+        }
+
+        .central {
+            position: relative;
+            display: flex;
+            width: 30%;
+            height: 80%;
+            margin: 10% auto auto;
+            background: #525151;
+            border: 5px dashed #8f8c8c;
+            flex-flow: column;
+            justify-content: space-evenly;
+        }
+
+        .keyboard-input {
+            display: flex;
+            flex-direction: column;
+            align-content: space-around;
+            justify-content: space-around;
+            width: 100%;
+        }
+
+        .matrix {
+            display: flex;
+            flex-flow: row;
+            flex-direction: row;
+            justify-content: space-evenly;
+        }
+
+        #dropDivArea img {
+            margin-top: 10px;
+            height: 20%;
+        }
+
+        input[type=file]::file-selector-button, .sbm-btn {
+            margin-right: 20px;
+            border: none;
+            background: #737373;
+            padding: 10px 20px;
+            border-radius: 10px;
+            color: #fff;
+            cursor: pointer;
+            transition: background .2s ease-in-out;
+        }
+
+        .sbm-btn {
+            justify-self: center;
+        }
+
+        .tab {
+            display: flex;
+            flex-flow: column;
+            align-items: center;
+            justify-content: space-evenly;
+        }
+
+        input[type=file]::file-selector-button:hover {
+            background: #737373;
+        }
+
+        .button {
+            padding: 10px 20px;
+            color: #ffffff;
+            border: 2px solid #2a2a2a;
+            border-radius: 15px;
+            font-size: 16px;
+            text-align: center;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+            width: 50%;
+            background-color: #595959;
+            align-self: center;
+
+        }
+
+        .options {
+            color: #000000;
+            border: 1px solid #C4D1EB;
+            border-radius: 5px;
+            box-shadow: 3px 3px 2px 0px #E2E2E2;
+            width: 50%;
+            align-self: center;
+        }
+
+        .answer {
+            text-align: center;
+        }
+
+        .sbm-btn:hover {
+            background-color: #2d2d2d;
+        }
+    </style>
+</head>
+<body onload="on_load();">
+<div class="central">
+    <div class="keyboard-input">
+        <div class="matrix">
+            <label for="a1">A:</label><br/>
+            <textarea id="a1"
+                      style="white-space: nowrap; color: white; white-space: nowrap; display: block; height: 100px; align-self: center; background-color: #706e6e">2 2 10
+10 1 1
+2 10 1</textarea><br/>
+            <label for="a2">B:</label><br/>
+            <textarea id="a2"
+                      style="white-space: nowrap; color: white; white-space: nowrap; display: block; height: 100px; align-self: center; background-color: #706e6e">14
+12
+13</textarea><br/>
+        </div>
+    </div>
+    <label for="eps" style="align-self: center">Epsilon</label>
+    <input id="eps" class="options" value="0.01" type="text"/>
+    <label for="precision" style="align-self: center">Precision</label>
+    <input id="precision" class="options" value="3" type="text"/>
+    <label for="num_of_iter" style="align-self: center">Max number of iterations</label>
+    <input id="num_of_iter" class="options" value="10" type="text"/>
+    </br>
+    <label for="colN" style="text-align: center">Number of columns</label>
+    <input type="text" id="colN" value="5"  class="options" >
+    </br>
+    <label for="rowN" style="text-align: center">Number of rows</label>
+    <input type="text" id="rowN" value="5" class="options">
+    </br>
+    <button onclick="handle_rand_gen()" id="generate-random-matrix" class="gen_rand"
+            style="width: 55%; align-self: center; border-radius: 15px; height: 30px">generate random matrix
+    </button>
+
+    <div class="file_input">
+        <form>
+            <div class="tab" id="from_file">
+                <span style="text-align: center">Choose file or drop file here</span>
+                </br>
+                <label class="custom-file-upload">
+                    <input id="file-input" type="file"/>
+                    <button type="submit" class="sbm-btn">Submit</button>
+                </label>
+            </div>
+        </form>
+    </div>
+    <button class="button" onclick="handleCalc()">calculate</button>
+    <div class="result">
+        <p id="answer" style="text-align: center; margin-left: 30px" class="answer">X: </p>
+    </div>
+</div>
+</body>
+</html>
