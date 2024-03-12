@@ -198,7 +198,7 @@ def iteration_algo(mrx: [[float]], precision: float):
             print(f"Answer was found in {iter_count} iterations!")
             return
         if max(errors) > last_err:
-            print("Answer cannot be found, aborting", file=sys.stderr)
+            print("Answer cannot be found, ОФАЕМ С ПОЗОРОМ", file=sys.stderr)
             return
         last_err = max(errors)
         x = x_1
