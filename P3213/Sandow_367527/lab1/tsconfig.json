@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "lib": ["es2016", "esnext", "dom"],
+    "outDir": "build",
+    "strict": true,
+    "strictNullChecks": true,
+    "forceConsistentCasingInFileNames": true,
+    "declaration": true,
+    "module": "ES6",
+  },
+  "include": ["main.ts"],
+  "exclude": ["build", "node_modules"]
+}

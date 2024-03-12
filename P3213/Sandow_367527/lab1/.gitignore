@@ -1,0 +1,5 @@
+build/
+.vscode/
+node_modules/
+input
+.trunk/
