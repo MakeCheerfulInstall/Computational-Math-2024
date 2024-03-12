@@ -13,7 +13,6 @@ public class Main {
 
         //случай если матрица пустая
         if(checkNullMatrix(matrix)) return;
-
         //Исходная матрица
         System.out.println("Исходная матрица: ");
         printMatrix(matrix);
