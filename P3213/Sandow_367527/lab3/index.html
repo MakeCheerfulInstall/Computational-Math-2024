@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ВычМат - ЛР 2</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <nav>
+    <h1>ВычМат - ЛР 3</h1>
+    <div class="container">
+      <p>Сандов Кирилл Алексеевич</p>
+      <p>Вариант 10</p>
+    </div>
+  </nav>
+  <main>
+    <form>
+      <div class="field" id="function-select">
+        <p>Функция:</p>
+        <div class="radio-container" id="function-select-container"></div>
+      </div>
+      <div class="field" id="integral-method-select">
+        <p>Метод:</p>
+        <div class="radio-container">
+          <label for="left-rectangle">
+            <input type="radio" name="integral-solving-method" id="left-rectangle" value="left-rectangle" checked>
+            <span>Метод левых прямоугольников</span>
+          </label>
+          <label for="right-rectangle">
+            <input type="radio" name="integral-solving-method" id="right-rectangle" value="right-rectangle" checked>
+            <span>Метод правых прямоугольников</span>
+          </label>
+          <label for="middle-rectangle">
+            <input type="radio" name="integral-solving-method" id="middle-rectangle" value="middle-rectangle" checked>
+            <span>Метод средних прямоугольников</span>
+          </label>
+          <label for="trapezoid">
+            <input type="radio" name="integral-solving-method" id="trapezoid" value="trapezoid">
+            <span>Метод трапеций</span>
+          </label>
+          <label for="simpson">
+            <input type="radio" name="integral-solving-method" id="simpson" value="simpson">
+            <span>Метод Симпсона</span>
+          </label>
+        </div>
+      </div>
+      <div class="field">
+        <p>Пределы интегрировния:</p>
+        <div class="interval">
+          <span>[</span>
+          <input name="start" type="number"/>
+          <span>;</span>
+          <input name="end" type="number"/>
+          <span>]</span>
+        </div>
+      </div>
+      <div class="field">
+        <p>Точность вычисления:</p>
+        <input name="epsilon" type="number" value="0.01" step="0.01"/>
+      </div>
+      <div class="field">
+        <input
+          id="solve-button"
+          type="submit"
+          value="Решить"
+        />
+      </div>
+    </form>
+
+    <div class="result hidden">
+      <div class="field">
+        <p>Значение интеграла:</p>
+        <p class="result__value"></p>
+      </div>
+      <div class="field">
+        <p>Число разбиений:</p>
+        <p class="result__partitions"></p>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ВычМат - ЛР 2</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <nav>
+    <h1>ВычМат - ЛР 2</h1>
+    <div class="container">
+      <p>Сандов Кирилл Алексеевич</p>
+      <p>Вариант 10</p>
+    </div>
+  </nav>
+  <main>
+    <form>
+      <div class="field">
+        <p>Максимум итерациий:</p>
+        <input name="max-iterations" type="number" min="0"/>
+      </div>
+      <div class="field">
+        <p>Точность ε:</p>
+        <input name="epsilon" type="number" min="0" max="20" step="0.001"/>
+      </div>
+      <div class="field">
+        <p>Что надо решить:</p>
+        <div class="radio-container">
+          <label for="equation">
+            <input type="radio" name="task-type" id="equation" value="equation" checked>
+            <span>Уравнение</span>
+          </label>
+          <label for="system">
+            <input type="radio" name="task-type" id="system" value="system">
+            <span>Систему</span>
+          </label>
+        </div>
+      </div>
+      <div id="equation-fields">
+        <div class="field">
+          <p>Интервал:</p>
+          <div class="interval">
+            <span>[</span>
+            <input name="start" type="number"/>
+            <span>;</span>
+            <input name="end" type="number"/>
+            <span>]</span>
+          </div>
+        </div>
+        <div class="field" id="equation-select">
+          <p>Уравнение:</p>
+          <div class="radio-container" id="equation-select-container"></div>
+        </div>
+        <div class="field" id="equation-solving-method-select">
+          <p>Метод:</p>
+          <div class="radio-container">
+            <label for="chords">
+              <input type="radio" name="equation-solving-method" id="chords" value="chords">
+              <span>Метод хорд</span>
+            </label>
+            <label for="newton">
+              <input type="radio" name="equation-solving-method" id="newton" value="newton">
+              <span>Метод Ньютона</span>
+            </label>
+            <label for="simple-iterations">
+              <input type="radio" name="equation-solving-method" id="simple-iterations" value="simple-iterations">
+              <span>Метод простых итераций</span>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div id="system-fields" class="hidden">
+        <div class="field">
+          <p>X<sub>0</sub> и Y<sub>0</sub>:</p>
+          <div class="interval">
+            <input name="x0" type="number"/>
+            <input name="y0" type="number"/>
+          </div>
+        </div>
+        <div class="field" id="system-select">
+          <p>Система:</p>
+          <div class="radio-container" id="system-select-container"></div>
+        </div>
+        <div class="field" id="system-solving-method-select">
+          <p>Метод:</p>
+          <div class="radio-container">
+            <label for="system-newton">
+              <input type="radio" name="system-solving-method" id="system-newton" value="system-newton" checked>
+              <span>Метод Ньютона</span>
+            </label>
+            <label for="system-simple-iterations">
+              <input type="radio" name="system-solving-method" id="system-simple-iterations" value="system-simple-iterations">
+              <span>Метод простых итераций</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <p>либо</p>
+
+      <div class="field">
+        <p>Ввод из файла:</p>
+        <input name="input-file" type="file"/>
+      </div>
+      <div class="field">
+        <input
+          id="solve-button"
+          type="submit"
+          value="Решить"
+        />
+      </div>
+    </form>
+
+    <div class="result hidden">
+      <div id="plot"></div>
+      <div id="equation-result">
+        <div class="field">
+          <p>X:</p>
+          <p class="result__solution"></p>
+        </div>
+        <div class="field">
+          <p>f(X):</p>
+          <p class="result__function-value"></p>
+        </div>
+        <div class="field">
+          <p>Количество итераций:</p>
+          <p class="result__iterations-count"></p>
+        </div>
+        <div class="field">
+          <p>Таблица:</p>
+          <table class="result__table">
+            <thead></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+      <div id="system-result">
+        <div class="field">
+          <p>(X, Y):</p>
+          <p class="result__system-solution"></p>
+        </div>
+        <div class="field">
+          <p>Количество итераций:</p>
+          <p class="result__system-iterations-count"></p>
+        </div>
+        <div class="field">
+          <p>Векторы значений X и Y:</p>
+          <div style="max-width: 250px">
+            <table class="result__system-value-vectors">
+              <thead></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="field">
+          <p>Невязки:</p>
+          <p class="result__system-discrepancy"></p>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
