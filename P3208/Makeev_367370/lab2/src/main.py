@@ -22,7 +22,11 @@ def main():
     if data is None:
         print('Oops! Something went wrong')
     else:
-        mth.solve(eq, data)
+        res = mth.solve(eq, data)
+        if res is None:
+            print('Oops! Something went wrong')
+        else:
+            print(res)
 
 
 if __name__ == '__main__':

@@ -51,7 +51,7 @@ class Parser:
                 except (ValueError, IOError):
                     pass
 
-            return ans
+            return method.MethodData(ans[0], ans[1], ans[2])
 
         return Parser.__parse_file(ans)
 
@@ -59,7 +59,8 @@ class Parser:
     def __parse_file(filename: str) -> method.MethodData | None:
         try:
             with open(filename, 'r') as file:
-                return list(map(Parser.__to_float, file.readline().split(' ')))
+                ans = list(map(Parser.__to_float, file.readline().split(' ')))
+                return method.MethodData(ans[0], ans[1], ans[2])
         except (FileNotFoundError, IsADirectoryError):
             print('No such file')
         except (ValueError, IOError):
