@@ -1,10 +1,9 @@
+from method import Method, MethodData
 from parser import Parser
-from equation import AbstractEquation
 
 
 def main():
     ans: str = ''
-    eq: AbstractEquation
     while ans not in ['1', '2']:
         ans = input('Do you want to solve one equation (1) or system (2)? [1/2] -> ')
 
@@ -13,10 +12,9 @@ def main():
     else:
         eq = Parser.choose_system_eq()
 
-    if eq is None:
-        print("Oops! Something went wrong")
-
-    eq.solve()
+    mth: Method = Parser.choose_method(False)
+    data: MethodData = Parser.parse_method_data()
+    mth.solve(eq, data)
 
 
 if __name__ == '__main__':

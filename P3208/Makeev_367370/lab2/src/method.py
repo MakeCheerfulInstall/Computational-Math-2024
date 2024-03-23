@@ -8,26 +8,33 @@ class Method:
         self.descr: str = descr
         self.for_sys: bool = for_sys
 
-    def solve(self, eq) -> None:
-        self.func(eq)
+    def solve(self, eq, data) -> None:
+        self.func(eq, data)
 
     def __str__(self) -> str:
         return self.descr
 
 
-def mid_div_method(eq) -> None:
+class MethodData:
+    def __init__(self, a: float, b: float, e: float) -> None:
+        self.a = a
+        self.b = b
+        self.e = e
+
+
+def mid_div_method(eq, data: MethodData) -> None:
     print("mid_div_method executing...")
 
 
-def secant_method(eq) -> None:
+def secant_method(eq, data: MethodData) -> None:
     print("secant_method executing...")
 
 
-def simple_it_method(eq) -> None:
+def simple_it_method(eq, data: MethodData) -> None:
     print("simple_it_method executing...")
 
 
-def nuton_method(eq) -> None:
+def nuton_method(eq, data: MethodData) -> None:
     print("nuton_method executing...")
 
 

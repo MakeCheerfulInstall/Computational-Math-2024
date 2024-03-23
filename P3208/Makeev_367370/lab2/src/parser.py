@@ -40,11 +40,14 @@ class Parser:
         return
 
     @staticmethod
-    def parse_file_data(filename: str) -> equation.AbstractEquation | None:
+    def parse_method_data() -> method.MethodData:
+        pass
+
+    @staticmethod
+    def __parse_file(filename: str) -> None:
         try:
             with open(filename, 'r') as file:
                 print('Not implemented yet')
-                # TODO
         except (FileNotFoundError, IsADirectoryError):
             print('No such file')
 
