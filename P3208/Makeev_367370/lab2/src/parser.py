@@ -40,15 +40,31 @@ class Parser:
         return
 
     @staticmethod
-    def parse_method_data() -> method.MethodData:
-        pass
+    def parse_method_data() -> method.MethodData | None:
+        ans: str = input('Parse data for solving (a, b, e) from file? [n/filename] -> ')
+        if ans.lower() == 'n':
+            while True:
+                try:
+                    ans = list(map(Parser.__to_float, input('Input 3 float numbers (a, b, e) joined spaces -> ').split(' ')))
+                    if len(ans) == 3:
+                        break
+                except (ValueError, IOError):
+                    pass
+
+            return ans
+
+        return Parser.__parse_file(ans)
 
     @staticmethod
-    def __parse_file(filename: str) -> None:
+    def __parse_file(filename: str) -> method.MethodData | None:
         try:
             with open(filename, 'r') as file:
-                print('Not implemented yet')
+                return list(map(Parser.__to_float, file.readline().split(' ')))
         except (FileNotFoundError, IsADirectoryError):
             print('No such file')
+        except (ValueError, IOError):
+            print('Invalid file format. Make sure you have 3 float numbers in one line like \'1.3 2 3\'')
 
-        return
+    @staticmethod
+    def __to_float(val: str) -> float:
+        return float(val.replace(',', '.'))
