@@ -9,7 +9,7 @@ class ExpressionType(Enum):
     THIRD = lambda x: 10 * math.log2(x ** x) + 1
 
 
-class ExpressionViewType(Enum):
+class ExpressionTypeView(Enum):
     FIRST = '3x^3 - 8x = -3'
     SECOND = 'e^x = 7x'
     THIRD = '10log(x^x) = -1'
@@ -22,6 +22,9 @@ class DerivativeType(Enum):
 
 
 class EquationType(Enum):
-    FIRST = Equation(ExpressionType.FIRST, DerivativeType.FIRST, [-1.7954, 0.3988, 1.3967], ExpressionViewType.FIRST)
-    SECOND = Equation(ExpressionType.SECOND, DerivativeType.SECOND, [0.1692, 3.0664], ExpressionViewType.SECOND)
-    THIRD = Equation(ExpressionType.THIRD, DerivativeType.THIRD, [0.1, 0.7929], ExpressionViewType.THIRD)
+    FIRST: Equation = Equation(ExpressionType.FIRST, DerivativeType.FIRST,
+                               [-1.7954, 0.3988, 1.3967], ExpressionTypeView.FIRST.value)
+    SECOND: Equation = Equation(ExpressionType.SECOND, DerivativeType.SECOND,
+                                [0.1692, 3.0664], ExpressionTypeView.SECOND.value)
+    THIRD: Equation = Equation(ExpressionType.THIRD, DerivativeType.THIRD,
+                               [0.1, 0.7929], ExpressionTypeView.THIRD.value)
