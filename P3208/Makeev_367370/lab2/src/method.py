@@ -46,7 +46,7 @@ class MethodData:
 
 
 def mid_div_method(eq, data: MethodData) -> MethodResult | None:
-    counter = 1
+    counter = 0
     a: float = data.a
     b: float = data.b
     x: float = (a + b) / 2
@@ -68,15 +68,32 @@ def mid_div_method(eq, data: MethodData) -> MethodResult | None:
     return MethodResult(Point(x, eq.get_res(x)), counter)
 
 
-def secant_method(eq, data: MethodData) -> None:
-    print("secant_method executing...")
+def secant_method(eq, data: MethodData) -> MethodResult | None:
+    counter = 0
+    x_last: float = data.a
+    x: float = data.b
+    f_xlast = eq.get_res(x_last)
+    f_x = eq.get_res(x)
+    while abs(x_last - x) > data.e:
+        x_next = x - ((x - x_last) * f_x / (f_x - f_xlast))
+        x_last = x
+        x = x_next
+        f_xlast = eq.get_res(x_last)
+        f_x = eq.get_res(x)
+        counter += 1
+
+        if counter > 1000:
+            print('Too many iterations!')
+            return
+
+    return MethodResult(Point(x, eq.get_res(x)), counter)
 
 
-def simple_it_method(eq, data: MethodData) -> None:
+def simple_it_method(eq, data: MethodData) -> MethodResult | None:
     print("simple_it_method executing...")
 
 
-def nuton_method(eq, data: MethodData) -> None:
+def nuton_method(eq, data: MethodData) -> MethodResult | None:
     print("nuton_method executing...")
 
 
