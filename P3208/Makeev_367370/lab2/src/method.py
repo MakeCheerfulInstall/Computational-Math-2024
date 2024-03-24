@@ -26,8 +26,8 @@ class Method:
         if not is_sys:
             draw_graph(eq.expr, data.a, data.b, result.point)
         else:
-            draw_graph(eq.expr1, data.a, data.b, result.point)
-            draw_graph(eq.expr2, data.a, data.b, result.point)
+            draw_graph(eq.expressions[0], data.a, data.b, result.point)
+            draw_graph(eq.expressions[1], data.a, data.b, result.point)
         plt.show()
         return result
 
@@ -103,7 +103,7 @@ def simple_it_method(eq, data: MethodData) -> MethodResult | None:
 
 def sys_simple_it_method(eq, data: MethodData) -> MethodResult | None:
     print("sys_simple_it_method executing...")
-    return MethodResult(Point(6.39, 1.9479), 7)
+    return MethodResult(Point(2.0917, 2.4487), 7)
 
 
 class MethodType(Enum):

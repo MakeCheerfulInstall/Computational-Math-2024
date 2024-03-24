@@ -53,8 +53,9 @@ def draw_graph(func: Callable, a: float, b: float, point: Point) -> None:
     for i in range(ACCURACY):
         x.append(left + delta * i)
         try:
-            y.append(func(x[-1]))
-        except TypeError:
+            ordinate = func(x[-1])
+            y.append(ordinate)
+        except (ValueError, TypeError, ZeroDivisionError):
             x.pop()
 
     plt.grid(True)

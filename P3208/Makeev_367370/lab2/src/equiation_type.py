@@ -1,32 +1,25 @@
 import math
 from enum import Enum
 from equation import Equation, EquationSystem
+from dto import PhiData
 
 
 class ExpressionType(Enum):
     FIRST = lambda x: 3 * (x ** 3) - 8 * x + 3
     SECOND = lambda x: math.e ** x - 7 * x
     THIRD = lambda x: 10 * math.log2(x ** x) + 1 - x
-    FOURTH = lambda x: (7 * x - (x ** 2)) / 2
-    FITH = lambda x: (x + 1) ** (1/3)
 
 
 class DerivativeType(Enum):
     FIRST = lambda x: 9 * (x ** 2) - 8
     SECOND = lambda x: math.e ** x - 7
-    THIRD = lambda x: (10 + 10 * math.log(x, math.e)) / (math.log(2, math.e)) - 1
-    FOURTH_X = lambda x, y: 2 * x - 7
-    FOURTH_Y = lambda x, y: 2
-    FITH_X = lambda x, y: -1
-    FITH_Y = lambda x, y: 3 * (y ** 2)
+    THIRD = lambda x: (10 + 10 * math.log(x)) / (math.log(2)) - 1
 
 
 class ExpressionTypeView(Enum):
     FIRST = '3x^3 + 3 = 8x'
     SECOND = 'e^x = 7x'
     THIRD = '10log(x^x) = x - 1'
-    FOURTH = 'x^2 + 2y = 7x'
-    FIFTH = 'y^3 - x = 1'
 
 
 class EquationType(Enum):
@@ -40,13 +33,35 @@ class EquationType(Enum):
                                [0.086, 1], ExpressionTypeView.THIRD.value)
 
 
-class EquationSystemType(Enum):
-    FIRST: EquationSystem = EquationSystem(ExpressionType.FOURTH, ExpressionType.FITH, DerivativeType.FOURTH_X,
-                                           DerivativeType.FOURTH_Y, DerivativeType.FITH_X, DerivativeType.FITH_Y,
-                                           [(0.3297, 1.0996), (6.39, 1.9479)],
-                                           ExpressionTypeView.FOURTH.value, ExpressionTypeView.FIFTH.value)
+class SystemExpressionType(Enum):
+    FIRST = (lambda x: (7 * x - (x ** 2)) / 2,
+             lambda x: (x + 1) ** (1/3))
+    SECOND = (lambda x: math.sin(x) - x - 4,
+              lambda x: (x ** 3 + x + 1) / 5)
 
-    # SECOND: EquationSystem = EquationSystem(ExpressionType.SIXTH, ExpressionType.FITH, DerivativeType.SIXTH_X,
-    #                                        DerivativeType.SIXTH_Y, DerivativeType.FITH_X, DerivativeType.FITH_Y,
-    #                                        [(-0.9381, -0.24492), (0.5991, 0.5662)],
-    #                                        ExpressionTypeView.SIXTH.value, ExpressionTypeView.FIFTH.value)
+
+class SystemPhiType(Enum):
+    FIRST1 = PhiData(lambda x, y: (x ** 2 + 2 * y) / 7,
+              lambda x, y: 2/7 * x, lambda x, y: 2/7)
+    FIRST2 = PhiData(lambda x, y: y ** 3 - 1,
+              lambda x, y: 0, lambda x, y: 3 * (y ** 2))
+
+    SECOND1 = PhiData(lambda x, y: math.sin(x) - y - 4,
+               lambda x, y: math.cos(x), lambda x, y: -1)
+    SECOND2 = PhiData(lambda x, y: 5 * y - x ** 3 - 1,
+               lambda x, y: -3 * (x ** 2), lambda x, y: 5)
+
+
+class SystemTypeView(Enum):
+    FIRST = ('x^2 + 2y = 7x',
+             'y^3 - x = 1')
+    SECOND = ('sin(x) = 4 + x + y',
+             '5y = x^3 + x + 1')
+
+
+class EquationSystemType(Enum):
+    FIRST: EquationSystem = EquationSystem(SystemExpressionType.FIRST.value, SystemPhiType.FIRST1, SystemPhiType.FIRST2,
+                                           [(0.3297, 1.0996), (6.39, 1.9479)], SystemTypeView.FIRST.value)
+
+    SECOND: EquationSystem = EquationSystem(SystemExpressionType.SECOND.value, SystemPhiType.SECOND1, SystemPhiType.SECOND2,
+                                           [(-2.25, -2.5281)], SystemTypeView.SECOND.value)

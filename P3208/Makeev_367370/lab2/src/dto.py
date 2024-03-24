@@ -23,3 +23,10 @@ class MethodResult:
 
     def __str__(self) -> str:
         return f'{self.point} It={self.iterations}'
+
+
+class PhiData:
+    def __init__(self, phi, der_x, der_y) -> None:
+        self.phi = phi
+        self.der_x = der_x
+        self.der_y = der_y

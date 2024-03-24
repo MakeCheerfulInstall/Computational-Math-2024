@@ -34,23 +34,18 @@ class Equation:
 
 
 class EquationSystem:
-    def __init__(self, expr1, expr2, ex1_der_x, ex1_der_y,
-                 ex2_der_x, ex2_der_y, roots, view1, view2) -> None:
-        self.expr1 = expr1
-        self.expr2 = expr2
-        self.ex1_der_x = ex1_der_x
-        self.ex1_der_y = ex1_der_y
-        self.ex2_der_x = ex2_der_x
-        self.ex2_der_y = ex2_der_y
+    def __init__(self, expressions, phi1_data, phi2_data, roots, views) -> None:
+        self.expressions = expressions
+        self.phi1_data = phi1_data
+        self.phi2_data = phi2_data
         self.roots = roots
-        self.view1 = view1
-        self.view2 = view2
+        self.views = views
 
     def __str__(self) -> str:
         return ('\n\t\t +--\n' +
-                  '\t\t | ' + self.view1 + '\n' +
+                  '\t\t | ' + self.views[0] + '\n' +
                   '\t\t-+\n' +
-                  '\t\t | ' + self.view2 + '\n' +
+                  '\t\t | ' + self.views[1] + '\n' +
                   '\t\t +--\n')
 
     def has_one_root(self, segment) -> bool:
