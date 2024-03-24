@@ -43,13 +43,13 @@ class SystemExpressionType(Enum):
 class SystemPhiType(Enum):
     FIRST1 = PhiData(lambda x, y: (x ** 2 + 2 * y) / 7,
               lambda x, y: 2/7 * x, lambda x, y: 2/7)
-    FIRST2 = PhiData(lambda x, y: y ** 3 - 1,
-              lambda x, y: 0, lambda x, y: 3 * (y ** 2))
+    FIRST2 = PhiData(lambda x, y: (x + 1) ** (1/3),
+              lambda x, y: ((x + 1) ** (-2/3)) / 3, lambda x, y: 0)
 
     SECOND1 = PhiData(lambda x, y: math.sin(x) - y - 4,
                lambda x, y: math.cos(x), lambda x, y: -1)
-    SECOND2 = PhiData(lambda x, y: 5 * y - x ** 3 - 1,
-               lambda x, y: -3 * (x ** 2), lambda x, y: 5)
+    SECOND2 = PhiData(lambda x, y: (x ** 3 + x + 1) / 5,
+               lambda x, y: (3 * (x ** 2) + 1) / 5, lambda x, y: 0)
 
 
 class SystemTypeView(Enum):
@@ -60,8 +60,10 @@ class SystemTypeView(Enum):
 
 
 class EquationSystemType(Enum):
-    FIRST: EquationSystem = EquationSystem(SystemExpressionType.FIRST.value, SystemPhiType.FIRST1, SystemPhiType.FIRST2,
-                                           [(0.3297, 1.0996), (6.39, 1.9479)], SystemTypeView.FIRST.value)
+    FIRST: EquationSystem = EquationSystem(SystemExpressionType.FIRST.value, SystemPhiType.FIRST1.value,
+                                           SystemPhiType.FIRST2.value,[(0.3297, 1.0996), (6.39, 1.9479)],
+                                           SystemTypeView.FIRST.value)
 
-    SECOND: EquationSystem = EquationSystem(SystemExpressionType.SECOND.value, SystemPhiType.SECOND1, SystemPhiType.SECOND2,
-                                           [(-2.25, -2.5281)], SystemTypeView.SECOND.value)
+    SECOND: EquationSystem = EquationSystem(SystemExpressionType.SECOND.value, SystemPhiType.SECOND1.value,
+                                            SystemPhiType.SECOND2.value,[(-2.25, -2.5281)],
+                                            SystemTypeView.SECOND.value)

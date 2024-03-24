@@ -1,7 +1,6 @@
 from typing import Callable
 import matplotlib.pyplot as plt
-from dto import Point, MethodData
-
+from dto import Point, MethodData, PhiData
 
 ACCURACY = 1000
 EDGE = 0.5
@@ -63,3 +62,24 @@ def draw_graph(func: Callable, a: float, b: float, point: Point) -> None:
     plt.xlabel('x')
     plt.ylabel('f(x)')
     plt.plot(x, y, linewidth=2)
+
+
+def check_sys_conv(phi1_data: PhiData, phi2_data: PhiData, data: MethodData) -> bool:
+    check1 = lambda x, y: abs(phi1_data.der_x(x, y)) + abs(phi1_data.der_y(x, y))
+    check2 = lambda x, y: abs(phi2_data.der_x(x, y)) + abs(phi2_data.der_y(x, y))
+    delta_hor: float = (data.b - data.a) / ACCURACY
+    delta_ver: float = (data.b_y - data.a_y) / ACCURACY
+    check1_max: float = check1(data.a, data.a_y)
+    check2_max: float = check2(data.a, data.a_y)
+    for i in range(ACCURACY):
+        for j in range(ACCURACY):
+            x: float = data.a + delta_hor * i
+            y: float = data.a_y + delta_ver * j
+            ch1: float = check1(x, y)
+            ch2: float = check2(x, y)
+            if ch1 > check1_max:
+                check1_max = ch1
+            if ch2 > check2_max:
+                check2_max = ch2
+
+    return max(check1_max, check2_max) < 1

@@ -3,7 +3,7 @@ from typing import Callable, List
 import matplotlib.pyplot as plt
 
 from dto import MethodResult, MethodData, Point
-from utils import draw_graph
+from utils import draw_graph, check_sys_conv
 
 
 class Method:
@@ -23,12 +23,13 @@ class Method:
             return
 
         result = self.func(eq, data)
-        if not is_sys:
-            draw_graph(eq.expr, data.a, data.b, result.point)
-        else:
-            draw_graph(eq.expressions[0], data.a, data.b, result.point)
-            draw_graph(eq.expressions[1], data.a, data.b, result.point)
-        plt.show()
+        if result is not None:
+            if not is_sys:
+                draw_graph(eq.expr, data.a, data.b, result.point)
+            else:
+                draw_graph(eq.expressions[0], data.a, data.b, result.point)
+                draw_graph(eq.expressions[1], data.a, data.b, result.point)
+            plt.show()
         return result
 
     def __str__(self) -> str:
@@ -102,8 +103,26 @@ def simple_it_method(eq, data: MethodData) -> MethodResult | None:
 
 
 def sys_simple_it_method(eq, data: MethodData) -> MethodResult | None:
-    print("sys_simple_it_method executing...")
-    return MethodResult(Point(2.0917, 2.4487), 7)
+    if not check_sys_conv(eq.phi1_data, eq.phi2_data, data):
+        print("Can't solve it by this method")
+        return None
+
+    x_last: float = data.a
+    x: float = data.b
+    y: float = data.b_y
+    counter: int = 0
+    while abs(x_last - x) > data.e:
+        x_last = x
+        y_last = y
+        x = eq.phi1_data.phi(x_last, y_last)
+        y = eq.phi2_data.phi(x_last, y_last)
+        counter += 1
+
+        if counter > 1000:
+            print('Too many iterations!')
+            return
+
+    return MethodResult(Point(x, y), counter)
 
 
 class MethodType(Enum):
