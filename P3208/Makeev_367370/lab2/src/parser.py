@@ -4,12 +4,12 @@ from typing import Callable
 import method
 import equation
 from utils import to_float
-from equiation_type import EquationType
+from equiation_type import EquationType, EquationSystemType
 
 
 class Parser:
     @staticmethod
-    def choose_method(for_sys: bool) -> method.Method:
+    def choose_method(for_sys: bool = False) -> method.Method:
         return Parser.__choose_enum(method.MethodType, 'method', lambda m: m.for_sys == for_sys)
 
     @staticmethod
@@ -19,10 +19,12 @@ class Parser:
     @staticmethod
     def __choose_enum(enum: Enum, name: str, cond: Callable = lambda o: True):
         counter = 1
+        enums = []
         for obj in enum:
             if cond(obj.value):
                 print('\t', counter, ': ', obj.value, sep='')
                 counter += 1
+                enums.append(obj.value)
 
         num: str = ''
         rang: range = range(1, counter)
@@ -34,11 +36,11 @@ class Parser:
                 pass
             num = input('Choose ' + name + ': [' + ('/'.join(str(x) for x in rang)) + '] -> ')
 
-        return list(enum)[int(num) - 1].value
+        return enums[int(num) - 1]
 
     @staticmethod
     def choose_system_eq() -> equation.EquationSystem:
-        return
+        return Parser.__choose_enum(EquationSystemType, 'equation system')
 
     @staticmethod
     def parse_method_data() -> method.MethodData | None:

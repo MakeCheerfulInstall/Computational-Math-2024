@@ -23,9 +23,6 @@ class Equation:
     def get_res(self, x) -> float:
         return self.expr(x)
 
-    def get_der_res(self, x) -> float:
-        return self.ex_der(x)
-
     def create_phi_func(self, a: float, b: float) -> Callable | None:
         der_max_abs: float = find_func_max_abs(self.ex_der, a, b)
         print(f'der_max_abs: {der_max_abs}')
@@ -38,16 +35,29 @@ class Equation:
 
 
 class EquationSystem:
-    def __init__(self, expr1, expr2, ex_der1, ex_der2, roots, view) -> None:
+    def __init__(self, expr1, expr2, ex1_der_x, ex1_der_y,
+                 ex2_der_x, ex2_der_y, roots, view1, view2) -> None:
         self.expr1 = expr1
         self.expr2 = expr2
-        self.ex_der1 = ex_der1
-        self.ex_der2 = ex_der2
+        self.ex1_der_x = ex1_der_x
+        self.ex1_der_y = ex1_der_y
+        self.ex2_der_x = ex2_der_x
+        self.ex2_der_y = ex2_der_y
         self.roots = roots
-        self.view = view
+        self.view1 = view1
+        self.view2 = view2
 
     def __str__(self) -> str:
-        return self.view
+        return ('\n\t\t +--\n' +
+                  '\t\t | ' + self.view1 + '\n' +
+                  '\t\t-+\n' +
+                  '\t\t | ' + self.view2 + '\n' +
+                  '\t\t +--\n')
 
-    def solve(self) -> None:
-        pass
+    def has_one_root(self, segment) -> bool:
+        counter = 0
+        for root_pair in self.roots:
+            if min(segment) < root_pair[0] < max(segment):
+                counter += 1
+
+        return counter == 1

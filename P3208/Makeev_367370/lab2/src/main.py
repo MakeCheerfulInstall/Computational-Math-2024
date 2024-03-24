@@ -13,12 +13,12 @@ def main():
 
     if ans == '1':
         eq = Parser.choose_single_eq()
+        mth = Parser.choose_method()
     else:
         eq = Parser.choose_system_eq()
+        mth = Parser.choose_method(True)
 
-    mth: Method = Parser.choose_method(False)
     data: MethodData | None = Parser.parse_method_data()
-
     if data is None:
         print('Oops! Something went wrong')
     else:

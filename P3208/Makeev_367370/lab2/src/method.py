@@ -88,12 +88,13 @@ def simple_it_method(eq, data: MethodData) -> MethodResult | None:
     return MethodResult(Point(x, eq.get_res(x)), counter)
 
 
-def nuton_method(eq, data: MethodData) -> MethodResult | None:
-    print("nuton_method executing...")
+def sys_simple_it_method(eq, data: MethodData) -> MethodResult | None:
+    print("sys_simple_it_method executing...")
+    print(eq)
 
 
 class MethodType(Enum):
     FIRST: Method = Method(mid_div_method, 'Метод половинного деления', False)
     SECOND: Method = Method(secant_method, 'Метод секущих', False)
-    THIRD: Method = Method(simple_it_method, 'Метод простой итерации', False)
-    FOURTH: Method = Method(nuton_method, 'Метод Ньютона', True)
+    THIRD: Method = Method(simple_it_method, 'Метод простых итераций', False)
+    FOURTH: Method = Method(sys_simple_it_method, 'Метод простых итераций', True)
