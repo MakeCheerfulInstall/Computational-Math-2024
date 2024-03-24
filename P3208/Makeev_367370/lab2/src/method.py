@@ -1,23 +1,7 @@
 from enum import Enum
 from typing import Callable, List
 
-
-class Point:
-    def __init__(self, x: float, y: float) -> None:
-        self.x = x
-        self.y = y
-
-    def __str__(self) -> str:
-        return f'Point({self.x}, {self.y})'
-
-
-class MethodResult:
-    def __init__(self, point: Point, iterations: int) -> None:
-        self.point = point
-        self.iterations = iterations
-
-    def __str__(self) -> str:
-        return f'{self.point} It={self.iterations}'
+from dto import MethodResult, MethodData, Point
 
 
 class Method:
@@ -36,13 +20,6 @@ class Method:
 
     def __str__(self) -> str:
         return self.descr
-
-
-class MethodData:
-    def __init__(self, a: float, b: float, e: float) -> None:
-        self.a = a
-        self.b = b
-        self.e = e
 
 
 def mid_div_method(eq, data: MethodData) -> MethodResult | None:
@@ -90,7 +67,25 @@ def secant_method(eq, data: MethodData) -> MethodResult | None:
 
 
 def simple_it_method(eq, data: MethodData) -> MethodResult | None:
-    print("simple_it_method executing...")
+    phi = eq.create_phi_func(data.a, data.b)
+    if phi is None:
+        print("Can't solve it by this method")
+        return
+
+    x_last: float = data.a
+    x: float = data.b
+    counter: int = 0
+    while abs(x_last - x) > data.e:
+        x_next: float = phi(x)
+        x_last = x
+        x = x_next
+        counter += 1
+
+        if counter > 1000:
+            print('Too many iterations!')
+            return
+
+    return MethodResult(Point(x, eq.get_res(x)), counter)
 
 
 def nuton_method(eq, data: MethodData) -> MethodResult | None:
