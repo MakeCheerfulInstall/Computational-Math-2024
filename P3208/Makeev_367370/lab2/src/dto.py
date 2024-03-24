@@ -1,8 +1,10 @@
 class MethodData:
-    def __init__(self, a: float, b: float, e: float) -> None:
+    def __init__(self, e: float, a: float, b: float, a_y: float=None, b_y:float=None) -> None:
         self.a = a
         self.b = b
         self.e = e
+        self.a_y = a_y
+        self.b_y = b_y
 
 
 class Point:

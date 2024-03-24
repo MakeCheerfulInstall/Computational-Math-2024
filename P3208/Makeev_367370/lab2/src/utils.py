@@ -1,6 +1,6 @@
 from typing import Callable
 import matplotlib.pyplot as plt
-from dto import Point
+from dto import Point, MethodData
 
 
 ACCURACY = 1000
@@ -44,26 +44,21 @@ def to_float(val: str) -> float:
     return float(val.replace(',', '.'))
 
 
-def draw_graph(eq, a: float, b: float, point: Point) -> None:
+def draw_graph(func: Callable, a: float, b: float, point: Point) -> None:
     left: float = a - EDGE
     right: float = b + EDGE
-    delta = (right - left) / ACCURACY
+    delta: float = (right - left) / ACCURACY
     x = []
     y = []
-    c = 0
     for i in range(ACCURACY):
         x.append(left + delta * i)
-        c += 1
         try:
-            y.append(eq.get_res(x[-1]))
+            y.append(func(x[-1]))
         except TypeError:
             x.pop()
-            c -= 1
 
-    plt.plot([0] * len(y), y, 'k--', linewidth=1)
-    plt.plot(x, [0] * len(x), 'k--', linewidth=1)
+    plt.grid(True)
     plt.plot([point.x], [point.y], 'ro', linewidth=3)
     plt.xlabel('x')
     plt.ylabel('f(x)')
     plt.plot(x, y, linewidth=2)
-    plt.show()

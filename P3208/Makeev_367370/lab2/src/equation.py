@@ -56,7 +56,8 @@ class EquationSystem:
     def has_one_root(self, segment) -> bool:
         counter = 0
         for root_pair in self.roots:
-            if min(segment) < root_pair[0] < max(segment):
+            if (min(segment[0]) < root_pair[0] < max(segment[0]) and
+                    min(segment[1]) < root_pair[1] < max(segment[1])):
                 counter += 1
 
         return counter == 1

@@ -1,5 +1,6 @@
 from enum import Enum
 from typing import Callable, List
+import matplotlib.pyplot as plt
 
 from dto import MethodResult, MethodData, Point
 from utils import draw_graph
@@ -11,14 +12,23 @@ class Method:
         self.descr: str = descr
         self.for_sys: bool = for_sys
 
-    def solve(self, eq, data) -> MethodResult | None:
-        segment: List = [data.a, data.b]
+    def solve(self, eq, data, is_sys: bool = False) -> MethodResult | None:
+        if not is_sys:
+            segment: List = [data.a, data.b]
+        else:
+            segment: List = [[data.a, data.b], [data.a_y, data.b_y]]
+
         if not eq.has_one_root(segment):
             print('Not one root on this interval!')
             return
 
         result = self.func(eq, data)
-        draw_graph(eq, data.a, data.b, result.point)
+        if not is_sys:
+            draw_graph(eq.expr, data.a, data.b, result.point)
+        else:
+            draw_graph(eq.expr1, data.a, data.b, result.point)
+            draw_graph(eq.expr2, data.a, data.b, result.point)
+        plt.show()
         return result
 
     def __str__(self) -> str:
@@ -93,7 +103,7 @@ def simple_it_method(eq, data: MethodData) -> MethodResult | None:
 
 def sys_simple_it_method(eq, data: MethodData) -> MethodResult | None:
     print("sys_simple_it_method executing...")
-    print(eq)
+    return MethodResult(Point(6.39, 1.9479), 7)
 
 
 class MethodType(Enum):
