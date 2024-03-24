@@ -50,11 +50,13 @@ class Parser:
                 try:
                     ans = list(map(to_float, input('Input 3 float numbers (a, b, e) joined spaces -> ').split(' ')))
                     if len(ans) == 3:
-                        break
+                        data = method.MethodData(ans[0], ans[1], ans[2])
+                        if data.a >= data.b:
+                            print('a should be less than b')
+                        else:
+                            return data
                 except (ValueError, IOError):
                     pass
-
-            return method.MethodData(ans[0], ans[1], ans[2])
 
         return Parser.__parse_file(ans)
 

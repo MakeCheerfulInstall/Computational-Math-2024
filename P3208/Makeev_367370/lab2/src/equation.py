@@ -25,7 +25,6 @@ class Equation:
 
     def create_phi_func(self, a: float, b: float) -> Callable | None:
         der_max_abs: float = find_func_max_abs(self.ex_der, a, b)
-        print(f'der_max_abs: {der_max_abs}')
         lam: float = -1 / der_max_abs
         der_phi = lambda x: 1 + lam * self.ex_der(x)
         if check_func_abs_smaller_one(der_phi, a, b):

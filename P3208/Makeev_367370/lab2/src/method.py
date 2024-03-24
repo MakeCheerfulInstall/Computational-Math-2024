@@ -2,6 +2,7 @@ from enum import Enum
 from typing import Callable, List
 
 from dto import MethodResult, MethodData, Point
+from utils import draw_graph
 
 
 class Method:
@@ -16,7 +17,9 @@ class Method:
             print('Not one root on this interval!')
             return
 
-        return self.func(eq, data)
+        result = self.func(eq, data)
+        draw_graph(eq, data.a, data.b, result.point)
+        return result
 
     def __str__(self) -> str:
         return self.descr

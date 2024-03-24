@@ -21,7 +21,7 @@ class DerivativeType(Enum):
     FITH_X = lambda x, y: 2 * x
     FITH_Y = lambda x, y: 4 * y
     SIXTH_X = lambda x, y: math.cos(x + y) - 1.2
-    SIXTH_Y = lambda x, y:  math.cos(x + y)
+    SIXTH_Y = lambda x, y: math.cos(x + y)
 
 
 class ExpressionTypeView(Enum):
