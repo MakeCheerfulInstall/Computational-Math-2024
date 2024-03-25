@@ -1,12 +1,18 @@
 # 2𝑥^3− 1,89𝑥^2 −5𝑥 + 2,34
 # 𝑥^3 + 4,81𝑥^2 − 17,37𝑥 + 5,38
-from typing import Callable, Final, TextIO
+# 1 - Метод половинного деления
+# 4 - Метод секущих
+# 5 - Метод простой итерации
+# 6 - Метод Ньютона
+
+from typing import Callable, Final
 
 import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
 import math
 
-from P3208.Terekhin_367558.lab1.exceptions import ParsingError
+from P3208.Terekhin_367558.lab2.methods import METHODS, METHOD_REQUEST
+from P3208.Terekhin_367558.lab2.readers import AbstractReader, READER_REQUEST, READERS
 
 GRID: Final[int] = 10
 SCALE: Final[int] = 100
@@ -20,10 +26,10 @@ for ind in range(len(FUNCTIONS)):
 CHOOSE_REQUEST += 'Choose a function:'
 
 
-def draw_and_show(function: Callable[[float], float]) -> None:
+def draw_and_show(function: Callable[[float], float]) -> list[float]:
     x: list[float] = [i / SCALE - GRID for i in range(2 * GRID * SCALE)]
     y: list[float] = [function(num) for num in x]
-    bounds: list[float] = [x[i] for i in range(len(y)) if abs(y[i]) < 0.5]
+    bounds: list[float] = [x[i] for i in range(1, len(y)) if (y[i - 1] * y[i] < 0)]
 
     ax: Axes = plt.axes()
     ax.spines['left'].set_position('zero')
@@ -31,8 +37,8 @@ def draw_and_show(function: Callable[[float], float]) -> None:
     ax.spines['right'].set_color('none')
     ax.spines['top'].set_color('none')
     if bounds:
-        l_limit: float = min(-4, bounds[0], bounds[-1]) - 1
-        r_limit: float = max(bounds[0], bounds[-1], 4) + 1
+        l_limit: float = min(-4.0, bounds[0], bounds[-1]) - 1
+        r_limit: float = max(bounds[0], bounds[-1], 4.0) + 1
     else:
         l_limit = -GRID
         r_limit = GRID
@@ -48,88 +54,7 @@ def draw_and_show(function: Callable[[float], float]) -> None:
 
     plt.plot(x, y, linewidth=2)
     plt.show()
-
-
-class AbstractReader:
-    def read_data(self) -> tuple[float, float, float]:
-        pass
-
-
-class ConsoleReader(AbstractReader):
-    def read_first_approx(self) -> tuple[float, float]:
-        print('Input first approximation interval using two numbers:')
-        while True:
-            try:
-                a, b = map(float, input().split(' '))
-                return min(a, b), max(a, b)
-            except ValueError as e:
-                print(e)
-                print('Try again: ')
-
-    def read_precision(self) -> float:
-        print('Input precision:')
-        while True:
-            try:
-                eps: float = float(input())
-                if eps <= 0 or eps > 1:
-                    raise ValueError('Precision is a positive float less then 1')
-                return eps
-            except ValueError as e:
-                print(e)
-                print('Try again: ')
-
-    def read_data(self) -> tuple[float, float, float]:
-        a, b = self.read_first_approx()
-        return a, b, self.read_precision()
-
-
-class FileReader(AbstractReader):
-    def __init__(self) -> None:
-        self.file: TextIO or None = None
-
-    def read_file_name(self) -> None:
-        print('Enter file name with extension:')
-        while True:
-            try:
-                filename: str = input()
-                self.file = open(filename, "r")
-                break
-            except FileNotFoundError:
-                print('No such file. Try again:')
-
-    def read_first_approx(self) -> tuple[float, float]:
-        try:
-            a, b = map(float, self.file.readline().split(' '))
-            return min(a, b), max(a, b)
-        except ValueError as e:
-            raise ParsingError(str(e))
-
-    def read_precision(self) -> float:
-        try:
-            eps: float = float(self.file.readline())
-            if eps <= 0 or eps > 1:
-                raise ValueError('Precision should be a positive float less then 1')
-            return eps
-        except ValueError as e:
-            raise ParsingError(str(e))
-
-    def read_data(self) -> tuple[float, float, float]:
-        while True:
-            try:
-                self.read_file_name()
-                a, b = self.read_first_approx()
-                return a, b, self.read_precision()
-            except ParsingError as e:
-                print(e)
-                print('Try another file')
-
-
-READERS: Final[list[tuple[AbstractReader, str]]] =\
-    [(ConsoleReader(), 'From console'), (FileReader(), 'From file')]
-READER_REQUEST: str = ''
-for ind in range(len(READERS)):
-    READER_REQUEST += f"{ind + 1}. {READERS[ind][1]}\n"
-READER_REQUEST += 'Choose how to read the data: '
+    return bounds
 
 
 def request_function() -> Callable[[float], float]:
@@ -156,8 +81,22 @@ def request_reader() -> AbstractReader:
             print('No such option. Try again')
 
 
+def request_calculating_method() -> Callable[[float, float, float], float]:
+    print(METHOD_REQUEST)
+    while True:
+        try:
+            num: int = int(input())
+            if num <= 0:
+                raise IndexError()
+            return METHODS[num - 1][0]
+        except (IndexError, ValueError):
+            print('No such method. Try again')
+
+
 if __name__ == '__main__':
     func: Callable[[float], float] = request_function()
-    draw_and_show(func)
+    results: list[float] = draw_and_show(func)
     reader: AbstractReader = request_reader()
-    reader.read_data()
+    st, end, precision = reader.read_data(results)
+    method: Callable[[float, float, float], float] = request_calculating_method()
+    method(st, end, precision)
