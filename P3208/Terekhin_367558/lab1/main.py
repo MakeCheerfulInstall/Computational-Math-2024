@@ -173,7 +173,7 @@ def get_random_matrix(m: int) -> List[List[float]]:
     while True:
         mat: List[List[float]] = []
         for i in range(m):
-            mat.append([round(random.random() * 100, 3) for j in range(m + 1)])
+            mat.append([round(random.random() * 100, 3) for _ in range(m + 1)])
         for i in range(m):
             mat[i][i] = round(sum(mat[i]), 3)
         if find_determinant(mat) == 0:
