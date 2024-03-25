@@ -100,7 +100,3 @@ class FileReader(AbstractReader):
 
 READERS: Final[list[tuple[AbstractReader, str]]] =\
     [(ConsoleReader(), 'From console'), (FileReader(), 'From file')]
-READER_REQUEST: str = ''
-for ind in range(len(READERS)):
-    READER_REQUEST += f"{ind + 1}. {READERS[ind][1]}\n"
-READER_REQUEST += 'Choose how to read the data: '

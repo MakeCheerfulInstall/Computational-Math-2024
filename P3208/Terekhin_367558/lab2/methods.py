@@ -22,7 +22,3 @@ METHODS: Final[list[tuple[Callable[[float, float, float], float], str]]] = \
      (secant_method, 'Secants method'),
      (simple_iteration_method, 'Simple iterations method'),
      (newton_method, "Newton's method")]
-METHOD_REQUEST: str = ''
-for ind in range(len(METHODS)):
-    METHOD_REQUEST += f"{ind + 1}. {METHODS[ind][1]}\n"
-METHOD_REQUEST += 'Choose method: '
