@@ -57,7 +57,7 @@ def draw_graph(func: Callable, a: float, b: float, point: Point) -> None:
         except (ValueError, TypeError, ZeroDivisionError):
             x.pop()
 
-    plt.grid(True)
+        plt.grid(True)
     plt.plot([point.x], [point.y], 'ro', linewidth=3)
     plt.xlabel('x')
     plt.ylabel('f(x)')
@@ -73,10 +73,10 @@ def check_sys_conv(phi1_data: PhiData, phi2_data: PhiData, data: MethodData) -> 
     check2_max: float = check2(data.a, data.a_y)
     for i in range(ACCURACY):
         for j in range(ACCURACY):
-            x: float = data.a + delta_hor * i
-            y: float = data.a_y + delta_ver * j
-            ch1: float = check1(x, y)
-            ch2: float = check2(x, y)
+            curr_x: float = data.a + delta_hor * i
+            curr_y: float = data.a_y + delta_ver * j
+            ch1: float = check1(curr_x, curr_y)
+            ch2: float = check2(curr_x, curr_y)
             if ch1 > check1_max:
                 check1_max = ch1
             if ch2 > check2_max:
