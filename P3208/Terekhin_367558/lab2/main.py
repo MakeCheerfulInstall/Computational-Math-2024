@@ -5,21 +5,17 @@
 # 5 - Метод простой итерации
 # 6 - Метод Ньютона
 
-from typing import Callable, Final
+from typing import Callable, Final, Any, Sequence
 
 import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
-import math
 
-from methods import METHODS
+from functions import Function, FUNCTIONS, Describable
+from methods import METHODS, Method
 from readers import AbstractReader, READERS
 
 GRID: Final[int] = 10
 SCALE: Final[int] = 100
-FUNCTIONS: Final[list[tuple[Callable[[float], float], str]]] = \
-    [(lambda x: x * x * x + 4.81 * x * x - 17.37 * x + 5.38, 'x^3 + 4,81x^2 - 17,37x + 5,38'),
-     (lambda x: 2 * x * x * x - 1.89 * x * x - 5 * x + 2.34, '2x^3 - 1,89x^2 - 5x + 2,34'),
-     (lambda x: math.exp(x / 3) - 2 * math.cos(x + 4), 'e^(x / 3) - 2cos(x + 4)')]
 
 
 def draw_and_show(function: Callable[[float], float]) -> list[float]:
@@ -53,29 +49,31 @@ def draw_and_show(function: Callable[[float], float]) -> list[float]:
     return bounds
 
 
-def request_from_list(options, call: str = 'option'):
-    print(create_input_request_from_list(options, call))
+def request_from_list(options: Sequence[Describable]) -> Any:
+    print(create_input_request_from_list(options))
     while True:
         try:
             num: int = int(input())
             if num <= 0:
                 raise IndexError()
-            return options[num - 1][0]
+            return options[num - 1]
         except (ValueError, IndexError):
-            print(f'No such {call}. Try again')
+            print(f'No such {options[0].option_name}. Try again')
 
 
-def create_input_request_from_list(options, call: str) -> str:
+def create_input_request_from_list(options: Sequence[Describable]) -> str:
     req: str = ''
     for i in range(len(options)):
-        req += f"{i + 1}. {options[i][1]}\n"
-    return req + f'Choose {call}:'
+        req += f"{i + 1}. {options[i].description}\n"
+    return req + f'Choose {options[0].option_name}:'
 
 
 if __name__ == '__main__':
-    func: Callable[[float], float] = request_from_list(FUNCTIONS, 'function')
-    results: list[float] = draw_and_show(func)
+    func: Function = request_from_list(FUNCTIONS)
+    results: list[float] = draw_and_show(func.func)
     reader: AbstractReader = request_from_list(READERS)
     st, end, precision = reader.read_data(results)
-    method: Callable[[float, float, float], float] = request_from_list(METHODS, 'method')
-    method(st, end, precision)
+    method: Method = request_from_list(METHODS)
+    method.set_arguments(func, st, end, precision)
+    ans_x, steps, ans_y = method.execute()
+    print(ans_x, steps, ans_y)

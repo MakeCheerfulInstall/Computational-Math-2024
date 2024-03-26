@@ -2,9 +2,13 @@ from abc import abstractmethod
 from typing import Final, Any, TextIO
 
 from P3208.Terekhin_367558.lab1.exceptions import ParsingError
+from functions import Describable
 
 
-class AbstractReader:
+class AbstractReader(Describable):
+    def __init__(self, description: str):
+        super().__init__(description)
+
     def check_interval(self, a: float, b: float, bounds: list[float]) -> int:
         cnt: int = 0
         for i in range(len(bounds)):
@@ -18,6 +22,9 @@ class AbstractReader:
 
 
 class ConsoleReader(AbstractReader):
+    def __init__(self, description: str):
+        super().__init__(description)
+
     def read_first_approx(self, bounds: list[float]) -> tuple[float, float]:
         print('Input first approximation interval using two numbers:')
         while True:
@@ -52,7 +59,8 @@ class ConsoleReader(AbstractReader):
 
 
 class FileReader(AbstractReader):
-    def __init__(self) -> None:
+    def __init__(self, description: str) -> None:
+        super().__init__(description)
         self.file: TextIO | Any = None
 
     def read_file_name(self) -> None:
@@ -98,5 +106,5 @@ class FileReader(AbstractReader):
                 print('Try another file')
 
 
-READERS: Final[list[tuple[AbstractReader, str]]] =\
-    [(ConsoleReader(), 'From console'), (FileReader(), 'From file')]
+READERS: Final[list[AbstractReader]] =\
+    [ConsoleReader('From console'), FileReader('From file')]
