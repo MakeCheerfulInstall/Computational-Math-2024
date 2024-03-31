@@ -1,16 +1,10 @@
-# 2𝑥^3− 1,89𝑥^2 −5𝑥 + 2,34
-# 𝑥^3 + 4,81𝑥^2 − 17,37𝑥 + 5,38
-# 1 - Метод половинного деления
-# 4 - Метод секущих
-# 5 - Метод простой итерации
-# 6 - Метод Ньютона
-
 from typing import Callable, Final, Any, Sequence
 
 import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
 
-from functions import Function, FUNCTIONS, Describable
+from P3208.Terekhin_367558.lab1.main import do_simple_iteration
+from functions import Function, FUNCTIONS, Describable, SYSTEMS, FunctionSystem
 from methods import METHODS, Method
 from readers import AbstractReader, READERS
 
@@ -49,6 +43,53 @@ def draw_and_show(function: Callable[[float], float]) -> list[float]:
     return bounds
 
 
+def compare_list_values(x: list[float], y: list[float]) -> bool:
+    for x_val in x:
+        for y_val in y:
+            if abs(x_val - y_val) < 0.01:
+                return True
+    return False
+
+
+def draw_and_show_system(first: Callable[[float], float | list[float]],
+                         second: Callable[[float], float | list[float]]) -> list[float]:
+    x: list[float] = [i / SCALE - GRID for i in range(2 * GRID * SCALE)]
+    y_first: Any = [first(num) for num in x]
+    y_second: Any = [second(num) for num in x]
+
+    if type(y_first[0]) is not list:
+        y_first = [[y_val] for y_val in y_first]
+    if type(y_second[0]) is not list:
+        y_second = [[y_val] for y_val in y_second]
+
+    bounds: list[float] = [x[i] for i in range(len(x)) if compare_list_values(y_first[i], y_second[i])]
+    ax: Axes = plt.axes()
+    ax.spines['left'].set_position('zero')
+    ax.spines['bottom'].set_position('zero')
+    ax.spines['right'].set_color('none')
+    ax.spines['top'].set_color('none')
+    if bounds:
+        l_limit: float = min(-4.0, bounds[0], bounds[-1]) - 1
+        r_limit: float = max(bounds[0], bounds[-1], 4.0) + 1
+    else:
+        l_limit = -GRID
+        r_limit = GRID
+
+    ax.grid(which='major', alpha=0.5)
+    ax.grid(which='minor', alpha=0.2)
+    ax.set_xticks([i * 0.5 - GRID for i in range(GRID * 4)], minor=True)
+    ax.set_yticks([i * 0.5 - GRID for i in range(GRID * 4)], minor=True)
+    ax.set_xticks([i * 2 - GRID for i in range(GRID)])
+    ax.set_yticks([i * 2 - GRID for i in range(GRID)])
+    ax.set_xlim(l_limit, r_limit)
+    ax.set_ylim(-GRID, GRID)
+
+    plt.plot(x, y_first, linewidth=2, color='blue')
+    plt.plot(x, y_second, linewidth=2, color='red')
+    plt.show()
+    return bounds
+
+
 def request_from_list(options: Sequence[Describable]) -> Any:
     print(create_input_request_from_list(options))
     while True:
@@ -68,7 +109,7 @@ def create_input_request_from_list(options: Sequence[Describable]) -> str:
     return req + f'Choose {options[0].option_name}:'
 
 
-if __name__ == '__main__':
+def calculate_single_equations() -> None:
     func: Function = request_from_list(FUNCTIONS)
     results: list[float] = draw_and_show(func.func)
     reader: AbstractReader = request_from_list(READERS)
@@ -76,4 +117,19 @@ if __name__ == '__main__':
     method: Method = request_from_list(METHODS)
     method.set_arguments(func, st, end, precision)
     ans_x, steps, ans_y = method.execute()
-    print(ans_x, steps, ans_y)
+    print(f"Final answer: {round(ans_x, 4)},\n Steps: {steps},\n Function value: {round(ans_y, 4)}")
+
+
+def calculate_multiple_equations() -> None:
+    sys: FunctionSystem = request_from_list(SYSTEMS)
+    draw_and_show_system(sys.first_y_from_x, sys.second_y_from_x)
+    reader: AbstractReader = request_from_list(READERS)
+    x, y, precision = reader.read_point()
+    # mat: list[list[float]] = [[sys.first_x_derivation(x, y), sys.first_y_derivation(x, y), -sys.first(x, y)],
+    #                           [sys.second_x_derivation(x, y), sys.second_y_derivation(x, y), -sys.second(x, y)]]
+    # ans: list[float] = do_simple_iteration(mat, [0, 0], precision, 1)
+    # print("Newton's method calculations: ", ans)
+
+
+if __name__ == '__main__':
+    calculate_multiple_equations()

@@ -20,6 +20,10 @@ class AbstractReader(Describable):
     def read_data(self, bounds: list[float]) -> tuple[float, float, float]:
         pass
 
+    @abstractmethod
+    def read_point(self) -> tuple[float, float, float]:
+        pass
+
 
 class ConsoleReader(AbstractReader):
     def __init__(self, description: str):
@@ -57,6 +61,18 @@ class ConsoleReader(AbstractReader):
         a, b = self.read_first_approx(bounds)
         return a, b, self.read_precision()
 
+    def read_point(self) -> tuple[float, float, float]:
+        print('Input approximation point using x and y coordinates:')
+        while True:
+            try:
+                x, y = map(float, input().split(' '))
+                break
+            except ValueError as e:
+                print(e)
+                print('Try again: ')
+        eps: float = self.read_precision()
+        return x, y, eps
+
 
 class FileReader(AbstractReader):
     def __init__(self, description: str) -> None:
@@ -86,6 +102,13 @@ class FileReader(AbstractReader):
         except (ValueError, IndexError) as e:
             raise ParsingError(str(e))
 
+    def read_coordinates(self) -> tuple[float, float]:
+        try:
+            a, b = map(float, self.file.readline().split(' '))
+            return a, b
+        except ValueError as e:
+            raise ParsingError(str(e))
+
     def read_precision(self) -> float:
         try:
             eps: float = float(self.file.readline())
@@ -100,6 +123,16 @@ class FileReader(AbstractReader):
             try:
                 self.read_file_name()
                 a, b = self.read_first_approx(bounds)
+                return a, b, self.read_precision()
+            except ParsingError as e:
+                print(e)
+                print('Try another file')
+
+    def read_point(self) -> tuple[float, float, float]:
+        while True:
+            try:
+                self.read_file_name()
+                a, b = self.read_coordinates()
                 return a, b, self.read_precision()
             except ParsingError as e:
                 print(e)

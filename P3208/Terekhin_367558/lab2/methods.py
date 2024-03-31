@@ -132,7 +132,6 @@ class SimpleIterationMethod(Method):
         if self.func is not None:
             phi: Callable[[float], float] = lambda x: x + self.param * self.func.func(x)
             if self.check_convergence(self.func):
-                self.prev = self.a if phi(self.a) < phi(self.b) else self.b
                 ans: float = self.do_iteration(phi)
                 return ans, self.step, self.func.func(ans)
             else:
@@ -151,15 +150,15 @@ class SimpleIterationMethod(Method):
 
     def set_arguments(self, func: Function, a: float, b: float, eps: float) -> None:
         super().set_arguments(func, a, b, eps)
-        max_val: float = max([func.func(x / self.scale) for x in range(int(self.a * self.scale),
-                                                                       int(self.b * self.scale))])
+        max_val: float = max([func.first_derivation(x / self.scale) for x in range(int(self.a * self.scale),
+                                                                                   int(self.b * self.scale))])
         self.param = 1 / max_val
         if func.first_derivation(self.a) > 0 and func.first_derivation(self.b) > 0:
             self.param *= -1
-        print(self.param)
 
     def check_convergence(self, func: Function) -> bool:
         phi_derivation: Callable[[float], float] = lambda x: 1 + self.param * func.first_derivation(x)
+        self.prev = self.a if phi_derivation(self.a) < phi_derivation(self.b) else self.b
         return max(phi_derivation(self.a), phi_derivation(self.b)) < 1
 
 

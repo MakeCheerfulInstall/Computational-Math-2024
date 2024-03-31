@@ -1,7 +1,7 @@
 import random
 from typing import List, TextIO
 import re
-from exceptions import DiagonalDominatingError, ParsingError
+from P3208.Terekhin_367558.lab1.exceptions import DiagonalDominatingError, ParsingError
 
 
 def swap_rows_sort(mat: List[List[float]]) -> List[List[float]]:
@@ -187,19 +187,20 @@ def print_matrix(mat: List[List[float]]):
         print(mat[i])
 
 
-inp: int = choose_input()
-matrix: List[List[float]]
-n: int = 0
-eps: float = 0
+def calculate_equation() -> None:
+    inp: int = choose_input()
+    matrix: List[List[float]]
+    n: int = 0
+    eps: float = 0
 
-if inp == 1:
-    n, eps, matrix = read_matrix_from_file()
-elif inp == 2:
-    n, eps = read_dimension_and_precision()
-    matrix = read_matrix_from_console(n)
-else:
-    n, eps = read_dimension_and_precision()
-    matrix = get_random_matrix(n)
-    print_matrix(matrix)
+    if inp == 1:
+        n, eps, matrix = read_matrix_from_file()
+    elif inp == 2:
+        n, eps = read_dimension_and_precision()
+        matrix = read_matrix_from_console(n)
+    else:
+        n, eps = read_dimension_and_precision()
+        matrix = get_random_matrix(n)
+        print_matrix(matrix)
 
-print('Answer vector is: ', do_simple_iteration(matrix, [0] * n, eps, 1))
+    print('Answer vector is: ', do_simple_iteration(matrix, [0] * n, eps, 1))
