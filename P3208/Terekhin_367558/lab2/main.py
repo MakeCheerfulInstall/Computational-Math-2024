@@ -3,9 +3,9 @@ from typing import Callable, Final, Any, Sequence
 import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
 
-from functions import Function, FUNCTIONS, Describable, SYSTEMS, FunctionSystem
-from methods import METHODS, Method
-from readers import AbstractReader, READERS
+from P3208.Terekhin_367558.lab2.methods import METHODS, Method
+from P3208.Terekhin_367558.lab2.functions import Function, FUNCTIONS, Describable, SYSTEMS, FunctionSystem
+from P3208.Terekhin_367558.lab2.readers import AbstractReader, READERS
 
 GRID: Final[int] = 10
 SCALE: Final[int] = 100
@@ -145,7 +145,7 @@ def calculate_multiple_equations() -> None:
     sys: FunctionSystem = request_from_list(SYSTEMS)
     draw_and_show_system(sys.first_y_from_x, sys.second_y_from_x)
     reader: AbstractReader = request_from_list(READERS)
-    x, y, precision = reader.read_point()
+    x, y, precision = reader.read_tuple('Input approximation point using x and y coordinates: ')
 
     while True:
         mat = [[sys.first_x_derivation(x, y), sys.first_y_derivation(x, y), -sys.first(x, y)],

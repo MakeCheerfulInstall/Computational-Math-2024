@@ -2,7 +2,7 @@ import math
 from abc import abstractmethod
 from typing import Final, Callable
 
-from functions import Describable, Function
+from P3208.Terekhin_367558.lab2.functions import Describable, Function
 
 
 class Method(Describable):

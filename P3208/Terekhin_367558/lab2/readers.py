@@ -2,7 +2,7 @@ from abc import abstractmethod
 from typing import Final, Any, TextIO
 
 from P3208.Terekhin_367558.lab1.exceptions import ParsingError
-from functions import Describable
+from P3208.Terekhin_367558.lab2.functions import Describable
 
 
 class AbstractReader(Describable):
@@ -21,7 +21,7 @@ class AbstractReader(Describable):
         pass
 
     @abstractmethod
-    def read_point(self) -> tuple[float, float, float]:
+    def read_tuple(self, input_text: str) -> tuple[float, float, float]:
         pass
 
 
@@ -61,8 +61,8 @@ class ConsoleReader(AbstractReader):
         a, b = self.read_first_approx(bounds)
         return a, b, self.read_precision()
 
-    def read_point(self) -> tuple[float, float, float]:
-        print('Input approximation point using x and y coordinates:')
+    def read_tuple(self, input_text: str) -> tuple[float, float, float]:
+        print(input_text)
         while True:
             try:
                 x, y = map(float, input().split(' '))
@@ -128,7 +128,7 @@ class FileReader(AbstractReader):
                 print(e)
                 print('Try another file')
 
-    def read_point(self) -> tuple[float, float, float]:
+    def read_tuple(self, text_input: str = '') -> tuple[float, float, float]:
         while True:
             try:
                 self.read_file_name()
