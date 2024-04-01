@@ -78,8 +78,8 @@ SYSTEMS: Final[list[FunctionSystem]] = [
                    lambda x, y: x / (math.cos(x * y + 0.3))**2,
                    lambda x, y: x,
                    lambda x, y: 4 * y,
-                   lambda x: [(math.atan(x**2) + 2 * math.pi * i - 0.3) / x if x != 0 else math.inf
-                              for i in range(-3, 3)],
+                   lambda x: [(math.atan(x**2) + 2 * math.pi * i - 0.3) / x if x != 0
+                              else math.inf for i in range(-5, 5)],
                    lambda x: [math.sqrt((1 - 0.5 * x**2) / 2) if abs(x)**2 * 0.5 <= 1 else math.nan,
                               -math.atan(math.sqrt((1 - 0.5 * x**2)) / 2) if abs(x)**2 * 0.5 <= 1 else math.nan],
                    '| tg(xy + 0,3) = x^2\n   | 0.5x^2 + 2y^2 = 1')

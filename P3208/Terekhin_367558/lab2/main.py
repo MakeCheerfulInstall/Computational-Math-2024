@@ -3,7 +3,6 @@ from typing import Callable, Final, Any, Sequence
 import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
 
-from P3208.Terekhin_367558.lab1.main import do_simple_iteration
 from functions import Function, FUNCTIONS, Describable, SYSTEMS, FunctionSystem
 from methods import METHODS, Method
 from readers import AbstractReader, READERS
@@ -12,7 +11,7 @@ GRID: Final[int] = 10
 SCALE: Final[int] = 100
 
 
-def draw_and_show(function: Callable[[float], float]) -> list[float]:
+def draw_and_show(function: Callable[[float], float], point: tuple[float, float] | None = None) -> list[float]:
     x: list[float] = [i / SCALE - GRID for i in range(2 * GRID * SCALE)]
     y: list[float] = [function(num) for num in x]
     bounds: list[float] = [x[i] for i in range(1, len(y)) if (y[i - 1] * y[i] < 0)]
@@ -39,6 +38,12 @@ def draw_and_show(function: Callable[[float], float]) -> list[float]:
     ax.set_ylim(-GRID, GRID)
 
     plt.plot(x, y, linewidth=2)
+    if point is not None:
+        plt.plot(point[0], point[1], 'bo')
+        plt.annotate(f'[{round(point[0], 2)}, {round(point[1], 2)}]',
+                     xy=(point[0], point[1]), textcoords='offset points',
+                     xytext=(10, 10), ha='right', va='bottom', fontsize=10,
+                     weight='bold', color='darkblue')
     plt.show()
     return bounds
 
@@ -52,7 +57,8 @@ def compare_list_values(x: list[float], y: list[float]) -> bool:
 
 
 def draw_and_show_system(first: Callable[[float], float | list[float]],
-                         second: Callable[[float], float | list[float]]) -> list[float]:
+                         second: Callable[[float], float | list[float]],
+                         point: tuple[float, float] | None = None) -> list[float]:
     x: list[float] = [i / SCALE - GRID for i in range(2 * GRID * SCALE)]
     y_first: Any = [first(num) for num in x]
     y_second: Any = [second(num) for num in x]
@@ -86,6 +92,12 @@ def draw_and_show_system(first: Callable[[float], float | list[float]],
 
     plt.plot(x, y_first, linewidth=2, color='blue')
     plt.plot(x, y_second, linewidth=2, color='red')
+    if point is not None:
+        plt.plot(point[0], point[1], 'bo')
+        plt.annotate(f'[{round(point[0], 2)}, {round(point[1], 2)}]',
+                     xy=(point[0], point[1]), textcoords='offset points',
+                     xytext=(10, 10), ha='right', va='bottom', fontsize=10,
+                     weight='bold', color='darkblue')
     plt.show()
     return bounds
 
@@ -117,7 +129,16 @@ def calculate_single_equations() -> None:
     method: Method = request_from_list(METHODS)
     method.set_arguments(func, st, end, precision)
     ans_x, steps, ans_y = method.execute()
+    if ans_x != 0 and ans_y != 0:
+        draw_and_show(func.func, (ans_x, ans_y))
     print(f"Final answer: {round(ans_x, 4)},\n Steps: {steps},\n Function value: {round(ans_y, 4)}")
+
+
+def get_cramer_answer(mat: list[list[float]]) -> tuple[float, float]:
+    det_a: float = mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0]
+    det_x: float = mat[0][2] * mat[1][1] - mat[1][2] * mat[0][1]
+    det_y: float = mat[0][0] * mat[1][2] - mat[1][0] * mat[0][2]
+    return det_x / det_a, det_y / det_a
 
 
 def calculate_multiple_equations() -> None:
@@ -125,11 +146,20 @@ def calculate_multiple_equations() -> None:
     draw_and_show_system(sys.first_y_from_x, sys.second_y_from_x)
     reader: AbstractReader = request_from_list(READERS)
     x, y, precision = reader.read_point()
-    # mat: list[list[float]] = [[sys.first_x_derivation(x, y), sys.first_y_derivation(x, y), -sys.first(x, y)],
-    #                           [sys.second_x_derivation(x, y), sys.second_y_derivation(x, y), -sys.second(x, y)]]
-    # ans: list[float] = do_simple_iteration(mat, [0, 0], precision, 1)
-    # print("Newton's method calculations: ", ans)
+
+    while True:
+        mat = [[sys.first_x_derivation(x, y), sys.first_y_derivation(x, y), -sys.first(x, y)],
+               [sys.second_x_derivation(x, y), sys.second_y_derivation(x, y), -sys.second(x, y)]]
+        delta_x, delta_y = get_cramer_answer(mat)
+        x += delta_x
+        y += delta_y
+        if abs(delta_y) < precision and abs(delta_x) < precision:
+            break
+
+    print("Newton's method calculations: ", round(x, 3), round(y, 3))
+    draw_and_show_system(sys.first_y_from_x, sys.second_y_from_x, (x, y))
 
 
 if __name__ == '__main__':
     calculate_multiple_equations()
+    # calculate_single_equations()
