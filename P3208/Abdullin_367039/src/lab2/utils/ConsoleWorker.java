@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -37,5 +38,38 @@ public class ConsoleWorker {
     }
 
     return objects;
+  }
+
+  public static <K, V> void printMap(Map<K, V> map, String choose) {
+    System.out.println(choose);
+    var iterator = map.entrySet().iterator();
+    while (iterator.hasNext()) {
+      var current = iterator.next();
+      System.out.printf("%s (%s)", current.getValue(), current.getKey());
+      if (iterator.hasNext()) {
+        System.out.print(", ");
+      }
+      System.out.print("\n");
+    }
+  }
+
+  public static <K, V> void printMap(Map<K, V> map, String choose, List<String> names) {
+    if (map.size() != names.size()) {
+      throw new RuntimeException("Invalid count of names!");
+    }
+
+    System.out.println(choose);
+
+    var mapIterator = map.entrySet().iterator();
+    var listIterator = names.iterator();
+    while (mapIterator.hasNext() && listIterator.hasNext()) {
+      var current = mapIterator.next();
+      String message = listIterator.next();
+      System.out.printf("%s (%s)", message, current.getKey());
+      if (mapIterator.hasNext() && listIterator.hasNext()) {
+        System.out.print(", ");
+      }
+      System.out.print("\n");
+    }
   }
 }
