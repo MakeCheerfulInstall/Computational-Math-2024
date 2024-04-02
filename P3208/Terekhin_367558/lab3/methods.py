@@ -91,9 +91,26 @@ class TrapezeMethod(Method):
         return self.check_end_condition(a, b, ans, eps)
 
 
+class SimpsonsMethod(Method):
+    def __init__(self):
+        super().__init__("Simpson's Method")
+        self.accuracy_order = 4
+
+    def calculate_integral(self, a: float, b: float, eps: float) -> float:
+        h: float = (b - a) / self.partition
+        x: list[float] = [a + h * i for i in range(0, self.partition + 1)]
+        if self.function is not None:
+            y: list[float] = [self.function(num) for num in x]
+        else:
+            raise TypeError('Function is not defined')
+        ans: float = (4 * sum(y[1:-1:2]) + 2 * sum(y[2:-1:2]) + y[0] + y[-1]) * h / 3
+        return self.check_end_condition(a, b, ans, eps)
+
+
 METHODS: Final[list[Method]] = [
     LeftRectangleMethod(),
     RightRectangleMethod(),
     MiddleRectangleMethod(),
-    TrapezeMethod()
+    TrapezeMethod(),
+    SimpsonsMethod()
 ]

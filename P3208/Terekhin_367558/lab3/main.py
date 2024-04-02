@@ -12,3 +12,4 @@ if __name__ == '__main__':
     method.set_function(integral.function)
     ans: float = method.calculate_integral(b_lim, t_lim, precision)
     print('Calculated answer is: ', round(ans, get_precision(precision)))
+    print('Partition intervals number: ', method.partition)
