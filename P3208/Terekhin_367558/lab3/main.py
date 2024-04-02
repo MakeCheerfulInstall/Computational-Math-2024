@@ -16,5 +16,5 @@ if __name__ == '__main__':
         print('Partition intervals number: ', method.partition)
     except (ZeroDivisionError, TypeError) as e:
         print(e)
-        print('Please try again')
+        print('Please, try again')
 
