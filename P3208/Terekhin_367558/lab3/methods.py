@@ -19,6 +19,13 @@ class Method(Describable):
     def calculate_integral(self, a: float, b: float, eps: float) -> float:
         pass
 
+    def check_end_condition(self, a: float, b: float, ans: float, eps: float) -> float:
+        if abs((ans - self.prev_value) / (2 ** self.accuracy_order - 1)) < eps:
+            return ans
+        self.prev_value = ans
+        self.partition *= 2
+        return self.calculate_integral(a, b, eps)
+
     def set_function(self, function: Callable[[float], float]) -> None:
         self.function = function
 
@@ -39,11 +46,7 @@ class RectangleMethod(Method):
         else:
             raise TypeError('Function is not defined')
         ans: float = sum(y) * h
-        if abs((ans - self.prev_value) / (2 ** self.accuracy_order - 1)) < eps:
-            return ans
-        self.prev_value = ans
-        self.partition *= 2
-        return self.calculate_integral(a, b, eps)
+        return self.check_end_condition(a, b, ans, eps)
 
 
 class LeftRectangleMethod(RectangleMethod):
@@ -73,8 +76,24 @@ class MiddleRectangleMethod(RectangleMethod):
         return [a + h * i + h / 2 for i in range(0, self.partition)]
 
 
+class TrapezeMethod(Method):
+    def __init__(self):
+        super().__init__('Trapeze Method')
+
+    def calculate_integral(self, a: float, b: float, eps: float) -> float:
+        h: float = (b - a) / self.partition
+        x: list[float] = [a + h * i for i in range(self.partition + 1)]
+        if self.function is not None:
+            y: list[float] = [self.function(num) for num in x]
+        else:
+            raise TypeError('Function is not defined')
+        ans: float = (sum(y) - (y[0] + y[-1]) / 2) * h
+        return self.check_end_condition(a, b, ans, eps)
+
+
 METHODS: Final[list[Method]] = [
     LeftRectangleMethod(),
     RightRectangleMethod(),
-    MiddleRectangleMethod()
+    MiddleRectangleMethod(),
+    TrapezeMethod()
 ]
