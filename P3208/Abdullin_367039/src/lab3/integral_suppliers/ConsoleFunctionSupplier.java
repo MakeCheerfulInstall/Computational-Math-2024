@@ -5,6 +5,7 @@ import lab3.domains.Equation;
 import lab3.domains.Integral;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -24,6 +25,19 @@ public class ConsoleFunctionSupplier implements FunctionSupplier {
                     .subtract(BigDecimal.valueOf(2).multiply(x))
                     .add(BigDecimal.ONE),
             "-x^3 - x^2 - 2x + 1"));
+    functions.put(
+        "2",
+        new Equation(
+            (x) ->
+                x.divide(
+                    BigDecimal.valueOf(
+                        Math.sqrt(x.pow(4).add(BigDecimal.valueOf(16)).doubleValue())),
+                    20,
+                    RoundingMode.HALF_UP),
+            "x / |/(x^4 + 16)"));
+    functions.put(
+        "3",
+        new Equation(x -> x.multiply(BigDecimal.valueOf(Math.tan(x.doubleValue())).pow(2)), "x*(tan(x))^2"));
   }
 
   @Override

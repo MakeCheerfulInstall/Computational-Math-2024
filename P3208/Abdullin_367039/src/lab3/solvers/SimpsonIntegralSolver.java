@@ -1,8 +1,6 @@
 package lab3.solvers;
 
 import lab3.domains.Integral;
-import org.apache.commons.math3.analysis.UnivariateFunction;
-import org.apache.commons.math3.analysis.integration.TrapezoidIntegrator;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

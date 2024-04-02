@@ -15,7 +15,7 @@ public interface IntegralSolver {
     UnivariateFunction function =
             (x) -> integral.getFunction().apply(BigDecimal.valueOf(x)).doubleValue();
 
-    i.integrate(100, function, integral.getLeft().doubleValue(), integral.getRight().doubleValue());
+    i.integrate(10000, function, integral.getLeft().doubleValue(), integral.getRight().doubleValue());
   }
 
   default Result prepareResult(BigDecimal result, int endN) {
