@@ -19,7 +19,13 @@ class Method:
         return self.name
 
 
-def left_squares(intg: Integral, intv: Interval, eps: float) -> IntegralAnswer:
+class SquaresType(Enum):
+    LEFT = 0,
+    RIGHT = 1,
+    CENTER = 2
+
+
+def abstract_sqares(intg: Integral, intv: Interval, eps: float, sq_type: SquaresType) -> IntegralAnswer:
     r: float = math.inf
     prev_ans: float = math.inf
     n: int = DEF_N
@@ -27,7 +33,15 @@ def left_squares(intg: Integral, intv: Interval, eps: float) -> IntegralAnswer:
         h: float = (intv.b - intv.a) / n
         ans: float = 0
         for i in range(n):
-            x: float = intv.a + h * i
+            x: float = intv.a
+            match sq_type:
+                case SquaresType.LEFT:
+                    x += h * i
+                case SquaresType.RIGHT:
+                    x += h * (i + 1)
+                case SquaresType.CENTER:
+                    x += h * (i + 0.5)
+
             y: float = intg.f_x(x)
             ans += y
 
@@ -39,12 +53,16 @@ def left_squares(intg: Integral, intv: Interval, eps: float) -> IntegralAnswer:
     return IntegralAnswer(prev_ans, n // 2)
 
 
+def left_squares(intg: Integral, intv: Interval, eps: float) -> IntegralAnswer:
+    return abstract_sqares(intg, intv, eps, SquaresType.LEFT)
+
+
 def right_squares(intg: Integral, intv: Interval, eps: float) -> IntegralAnswer:
-    pass
+    return abstract_sqares(intg, intv, eps, SquaresType.RIGHT)
 
 
 def center_squares(intg: Integral, intv: Interval, eps: float) -> IntegralAnswer:
-    pass
+    return abstract_sqares(intg, intv, eps, SquaresType.CENTER)
 
 
 def trap(intg: Integral, intv: Interval, eps: float) -> IntegralAnswer:
