@@ -1,8 +1,10 @@
 from enum import Enum
-from typing import Callable, Tuple
+from typing import Callable
 
 from integral import Integral, IntegralType
+from method import Method, MethodType
 from utils import to_float
+from dto import Interval
 
 
 class Parser:
@@ -32,7 +34,11 @@ class Parser:
         return Parser.__choose_enum(IntegralType, 'function for integral')
 
     @staticmethod
-    def set_interval() -> Tuple[float, float]:
+    def choose_method() -> Method:
+        return Parser.__choose_enum(MethodType, 'solving method')
+
+    @staticmethod
+    def set_interval() -> Interval:
         while True:
             str_int = input('Set interval a b -> ')
             try:
@@ -44,6 +50,15 @@ class Parser:
                     print('a should be less than b')
                     continue
 
-                return intv
+                return Interval(intv[0], intv[1])
             except ValueError:
                 print('Expected float numbers')
+
+    @staticmethod
+    def set_epsilon() -> float:
+        while True:
+            eps = input('Set accuracy -> ')
+            try:
+                return to_float(eps)
+            except ValueError:
+                print('Expected float number')
