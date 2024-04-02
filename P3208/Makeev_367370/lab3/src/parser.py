@@ -2,7 +2,7 @@ from enum import Enum
 from typing import Callable
 
 from integral import Integral, IntegralType
-from method import Method, MethodType
+from method import Method, MethodList
 from utils import to_float
 from dto import Interval
 
@@ -35,7 +35,7 @@ class Parser:
 
     @staticmethod
     def choose_method() -> Method:
-        return Parser.__choose_enum(MethodType, 'solving method')
+        return Parser.__choose_enum(MethodList, 'solving method')
 
     @staticmethod
     def set_interval() -> Interval:
