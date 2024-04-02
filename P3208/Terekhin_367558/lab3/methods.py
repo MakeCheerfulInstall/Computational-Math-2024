@@ -43,6 +43,8 @@ class RectangleMethod(Method):
         x: list[float] = self.get_interval_partition(a, b)
         if self.function is not None:
             y: list[float] = [self.function(num) for num in x]
+            if math.nan in y:
+                raise TypeError("Integral is undefined on this interval")
         else:
             raise TypeError('Function is not defined')
         ans: float = sum(y) * h
@@ -85,6 +87,10 @@ class TrapezeMethod(Method):
         x: list[float] = [a + h * i for i in range(self.partition + 1)]
         if self.function is not None:
             y: list[float] = [self.function(num) for num in x]
+            if math.nan in y:
+                raise TypeError("Integral is undefined on this interval")
+            if math.nan in y:
+                raise ValueError("Integral is undefined on this interval")
         else:
             raise TypeError('Function is not defined')
         ans: float = (sum(y) - (y[0] + y[-1]) / 2) * h
@@ -101,6 +107,8 @@ class SimpsonsMethod(Method):
         x: list[float] = [a + h * i for i in range(0, self.partition + 1)]
         if self.function is not None:
             y: list[float] = [self.function(num) for num in x]
+            if math.nan in y:
+                raise TypeError("Integral is undefined on this interval")
         else:
             raise TypeError('Function is not defined')
         ans: float = (4 * sum(y[1:-1:2]) + 2 * sum(y[2:-1:2]) + y[0] + y[-1]) * h / 3

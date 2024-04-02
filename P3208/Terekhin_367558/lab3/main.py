@@ -10,6 +10,11 @@ if __name__ == '__main__':
     b_lim, t_lim, precision = reader.read_tuple('Input integral limits using two numbers: ')
     method: Method = request_from_list(METHODS)
     method.set_function(integral.function)
-    ans: float = method.calculate_integral(b_lim, t_lim, precision)
-    print('Calculated answer is: ', round(ans, get_precision(precision)))
-    print('Partition intervals number: ', method.partition)
+    try:
+        ans: float = method.calculate_integral(b_lim, t_lim, precision)
+        print('Calculated answer is: ', round(ans, get_precision(precision)))
+        print('Partition intervals number: ', method.partition)
+    except (ZeroDivisionError, TypeError) as e:
+        print(e)
+        print('Please try again')
+
