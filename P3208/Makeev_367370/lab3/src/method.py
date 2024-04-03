@@ -5,6 +5,7 @@ from integral import Integral
 from dto import Interval, IntegralAnswer
 
 DEF_N: int = 4
+DELTA: float = 1E-4
 
 
 class Method:
@@ -37,7 +38,7 @@ def proxy_method(intg: Integral, intv: Interval, eps: float, m_type: MethodType)
         if m_type == MethodType.TRAP or m_type == MethodType.SIMPSON:
             ans = trap_or_simpson(intg, intv.a, n, h, m_type)
         else:
-            ans = abstract_sqares(intg, intv.a, n, h, m_type)
+            ans = abstract_squares(intg, intv.a, n, h, m_type)
 
         r = abs(ans - prev_ans)
         prev_ans = ans
@@ -46,7 +47,7 @@ def proxy_method(intg: Integral, intv: Interval, eps: float, m_type: MethodType)
     return IntegralAnswer(prev_ans, n // 2)
 
 
-def abstract_sqares(intg: Integral, left: float, n: int, h: float, m_type: MethodType) -> float:
+def abstract_squares(intg: Integral, left: float, n: int, h: float, m_type: MethodType) -> float:
     ans: float = 0
     for i in range(n):
         x: float = left
@@ -58,25 +59,45 @@ def abstract_sqares(intg: Integral, left: float, n: int, h: float, m_type: Metho
             case MethodType.MID_SQ:
                 x += h * (i + 0.5)
 
-        y: float = intg.f_x(x)
+        # Обработка точки разрыва
+        try:
+            y: float = intg.f_x(x)
+        except ArithmeticError:
+            if i == 0:
+                y: float = intg.f_x(x + DELTA)
+            elif i == n-1:
+                y: float = intg.f_x(x - DELTA)
+            else:
+                return (abstract_squares(intg, left, i + 1, h, m_type) +
+                    abstract_squares(intg, x, n - i, h, m_type))
+
         ans += y
 
-    ans *= h
-
-    return ans
+    return ans * h
 
 
 def trap_or_simpson(intg: Integral, left: float, n: int, h: float, m_type: MethodType) -> float:
     x_0: float = left
     x_n: float = left + n * h
-    y_0: float = intg.f_x(x_0)
-    y_n: float = intg.f_x(x_n)
+
+    # Обработка точки разрыва
+    try:
+        y_0: float = intg.f_x(x_0)
+    except ArithmeticError:
+        y_0: float = intg.f_x(x_0 + DELTA)
+    try:
+        y_n: float = intg.f_x(x_n)
+    except ArithmeticError:
+        y_n: float = intg.f_x(x_n - DELTA)
 
     ans: float = y_0 + y_n
 
     for i in range(1, n):
         x: float = left + h * i
-        y: float = intg.f_x(x)
+        try:
+            y: float = intg.f_x(x)
+        except ArithmeticError:
+            return trap_or_simpson(intg, left, i, h, m_type) + trap_or_simpson(intg, x, n - i, h, m_type)
 
         if m_type == MethodType.TRAP or i % 2 == 0:
             ans += 2 * y
