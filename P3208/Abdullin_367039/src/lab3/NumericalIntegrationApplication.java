@@ -37,10 +37,14 @@ public class NumericalIntegrationApplication {
 
     Integral integral = supplier.get();
 
-    IntegralSolver.Result result = solver.solve(integral);
-    System.out.printf(
-        "> Значение интеграла: %.3f; Число разбиения интервала: %d",
-        result.getResult().doubleValue(), result.getEndN());
+    try {
+      IntegralSolver.Result result = solver.solve(integral);
+      System.out.printf(
+          "> Значение интеграла: %.3f; Число разбиения интервала: %d",
+          result.getResult().doubleValue(), result.getEndN());
+    } catch (Exception e) {
+      System.out.println("> Функция имеет разрыв, значение интеграла не может быть вычислено :(");
+    }
   }
 
   private static IntegralSolver getSolver(NumericalIntegrationApplication application) {
