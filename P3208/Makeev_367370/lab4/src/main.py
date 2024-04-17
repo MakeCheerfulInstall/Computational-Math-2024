@@ -1,7 +1,9 @@
+import math
 import os
 from parser import Parser
-from dto import PointTable
-from approx import *
+from dto import PointTable, ApproxRes
+from approx import APPROXIMATORS
+from utils import draw_graph
 
 
 def main() -> None:
@@ -10,13 +12,18 @@ def main() -> None:
     if data is None:
         return
 
-    res: ApproxRes = Approximators.LINEAR(data)
-    Parser.print_res(res, 'output')
+    Parser.clear_file()
+    min_sko: float = math.inf
+    min_type: str | None = None
+    for approximator in APPROXIMATORS:
+        res: ApproxRes = approximator(data)
+        if res.sko < min_sko:
+            min_sko = res.sko
+            min_type = res.type
+        draw_graph(res)
+        Parser.print_res(res)
 
-    for approximator in Approximators:
-        print('lol')
-        res: ApproxRes = approximator.value(data)
-        Parser.print_res(res, 'output')
+    print(f'Best approximator is {min_type} with sko = {min_sko:.4g}')
 
 
 if __name__ == '__main__':

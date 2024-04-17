@@ -45,6 +45,14 @@ class PointTable:
 
 
 @dataclass
+class DataTable:
+    x_list: list[float]
+    y_list: list[float]
+    phi_x: list[float]
+    eps: list[float]
+
+
+@dataclass
 class ApproxRes:
     type: str
     func_view: str
@@ -54,7 +62,7 @@ class ApproxRes:
     y_list: list[float]
     phi_x: list[float]
     eps: list[float]
-    pirson_kf: float
+    pirson_kf: float | None
     det_kf: float
 
     def __str__(self) -> str:
@@ -66,4 +74,4 @@ class ApproxRes:
         if self.pirson_kf is not None:
             data += f"\npirson_kf: {self.pirson_kf:.3g}"
 
-        return data
+        return f'{data}\n\n'

@@ -74,6 +74,12 @@ class Matrix:
     def swap_rows(self, index1: int, index2: int) -> None:
         self[index1], self[index2] = self[index2], self[index1]
 
+    def size(self) -> int:
+        return len(self.elems)
+
+    def copy(self) -> Matrix:
+        return Matrix([row.copy() for row in self.elems])
+
     def is_correct(self) -> bool:
         for row in self.elems:
             if row.has_only_zeros():
@@ -113,11 +119,17 @@ class Equation:
 
         matrix: Matrix = Matrix(size)
         b_vector: Vector = Vector(data[-1])
-        for i in range(size - 1):
+        for i in range(size):
             row: Vector = Vector(data[i])
             matrix[i] = row
 
         return Equation(matrix, b_vector)
+
+    def copy(self) -> Equation:
+        return Equation(self.matrix.copy(), self.b_vector.copy())
+
+    def size(self) -> int:
+        return self.b_vector.size()
 
     # Приведение к треугольному виду
     def triangle(self) -> None:
