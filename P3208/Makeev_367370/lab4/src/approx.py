@@ -80,13 +80,14 @@ def approx_linear(points: PointTable) -> ApproxRes:
 
 
 def approx_quad(points: PointTable) -> ApproxRes:
-    sx, sxx, s3x, s4x, sy, sxy, sxxy, n = points.sx(), points.sxx(), points.s3x(), points.s4x(), points.sy(), points.sxy(), points.sxxy(), points.n
+    sx, sxx, s3x, s4x, sy, sxy, sxxy, n = (points.sx(), points.sxx(), points.s3x(), points.s4x(),
+                                           points.sy(), points.sxy(), points.sxxy(), points.n)
 
     eq: Equation = Equation.create([
-        [n, sx, sxx],
-        [sx, sxx, s3x],
-        [sxx, s3x, s4x],
-        [sy, sxy, sxxy]
+        [s4x, s3x, sxx],
+        [s3x, sxx, sx],
+        [sxx, sx, n],
+        [sxxy, sxy, sy]
     ])
     eq.solve()
     a, b, c = eq.answers.elems
@@ -118,7 +119,53 @@ def approx_quad(points: PointTable) -> ApproxRes:
     )
 
 
+def approx_cube(points: PointTable) -> ApproxRes:
+    sx, sxx, s3x, s4x, s5x, s6x, sy, sxy, sxxy, s3xy, n = (points.sx(), points.sxx(), points.s3x(), points.s4x(),
+                                                           points.s5x(), points.s6x(), points.sy(), points.sxy(),
+                                                           points.sxxy(), points.s3xy(), points.n)
+    eq: Equation = Equation.create([
+        [s6x, s5x, s4x, s3x],
+        [s5x, s4x, s3x, sxx],
+        [s4x, s3x, sxx, sx],
+        [s3x, sxx, sx, n],
+        [s3xy, sxxy, sxy, sy]
+    ])
+    eq.solve()
+    a, b, c, d = eq.answers.elems
+
+    callback: callable = lambda x: a * (x ** 3) + b * (x ** 2) + c * x + d
+    func_view: str = f'{a:.3g}x^3'
+    if b > 0:
+        func_view += f' + {b:.3g}x^2'
+    elif b < 0:
+        func_view += f' - {-b:.3g}x^2'
+    if c > 0:
+        func_view += f' + {c:.3g}x'
+    elif c < 0:
+        func_view += f' - {-c:.3g}x'
+    if d > 0:
+        func_view += f' + {d:.3g}'
+    elif d < 0:
+        func_view += f' - {-d:.3g}'
+
+    def_data: DataTable = get_def_data(points, callback)
+
+    return ApproxRes(
+        type='Кубическая аппроксимация',
+        func_view=func_view,
+        callback=callback,
+        sko=calc_sko(def_data.eps),
+        x_list=def_data.x_list,
+        y_list=def_data.y_list,
+        phi_x=def_data.phi_x,
+        eps=def_data.eps,
+        pirson_kf=None,
+        det_kf=calc_det_kf(def_data)
+    )
+
+
 APPROXIMATORS: list[callable] = [
     approx_linear,
-    approx_quad
+    approx_quad,
+    approx_cube
 ]

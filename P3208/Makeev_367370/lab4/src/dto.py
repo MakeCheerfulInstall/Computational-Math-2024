@@ -34,6 +34,12 @@ class PointTable:
     def s4x(self) -> float:
         return sum([point.x ** 4 for point in self.points])
 
+    def s5x(self) -> float:
+        return sum([point.x ** 5 for point in self.points])
+
+    def s6x(self) -> float:
+        return sum([point.x ** 6 for point in self.points])
+
     def sy(self) -> float:
         return sum([point.y for point in self.points])
 
@@ -42,6 +48,9 @@ class PointTable:
 
     def sxxy(self) -> float:
         return sum([point.x * point.x * point.y for point in self.points])
+
+    def s3xy(self) -> float:
+        return sum([(point.x ** 3) * point.y for point in self.points])
 
 
 @dataclass
@@ -69,7 +78,9 @@ class ApproxRes:
         data: str = (f"-- {self.type}\n" +
                 f"phi: {self.func_view}\n" +
                 f"sko: {self.sko:.3g}\n" +
-                f"det_kf: {self.det_kf:.3g}")
+                f"det_kf: {self.det_kf:.3g}\n" +
+                f"phi: {self.phi_x}\n" +
+                f"eps: {self.eps}")
 
         if self.pirson_kf is not None:
             data += f"\npirson_kf: {self.pirson_kf:.3g}"
