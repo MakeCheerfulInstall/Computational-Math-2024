@@ -8,7 +8,7 @@ from utils import draw_graph
 
 def main() -> None:
     os.chdir('/' + '/'.join(__file__.split('/')[:-2]) + '/resources')
-    data: PointTable | None = Parser.parse_table_from_file(input('Print input filename -> '))
+    data: PointTable | None = Parser.parse_table_from_file(input('Type input filename -> '))
     if data is None:
         return
 

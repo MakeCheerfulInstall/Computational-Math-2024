@@ -46,7 +46,8 @@ def get_def_data(points: PointTable, func: callable) -> DataTable:
 
 
 def calc_linear_kfs(points: PointTable) -> tuple[float, float]:
-    sx, sy, sxx, sxy, n = points.sx(), points.sy(), points.sxx(), points.sxy(), points.n
+    sx, sy, sxx, sxy, n = (points.sx(), points.sy(),
+                           points.sxx(), points.sxy(), points.n)
 
     eq: Equation = Equation.create([
         [sxx, sx],
@@ -88,8 +89,9 @@ def approx_linear(points: PointTable) -> ApproxRes:
 
 
 def approx_quad(points: PointTable) -> ApproxRes:
-    sx, sxx, s3x, s4x, sy, sxy, sxxy, n = (points.sx(), points.sxx(), points.s3x(), points.s4x(),
-                                           points.sy(), points.sxy(), points.sxxy(), points.n)
+    sx, sxx, s3x, s4x, sy, sxy, sxxy, n = \
+        (points.sx(), points.sxx(), points.s3x(), points.s4x(),
+        points.sy(), points.sxy(), points.sxxy(), points.n)
 
     eq: Equation = Equation.create([
         [s4x, s3x, sxx],
@@ -130,9 +132,10 @@ def approx_quad(points: PointTable) -> ApproxRes:
 
 
 def approx_cube(points: PointTable) -> ApproxRes:
-    sx, sxx, s3x, s4x, s5x, s6x, sy, sxy, sxxy, s3xy, n = (points.sx(), points.sxx(), points.s3x(), points.s4x(),
-                                                           points.s5x(), points.s6x(), points.sy(), points.sxy(),
-                                                           points.sxxy(), points.s3xy(), points.n)
+    sx, sxx, s3x, s4x, s5x, s6x, sy, sxy, sxxy, s3xy, n = \
+        (points.sx(), points.sxx(), points.s3x(), points.s4x(),
+        points.s5x(), points.s6x(), points.sy(), points.sxy(),
+        points.sxxy(), points.s3xy(), points.n)
     eq: Equation = Equation.create([
         [s6x, s5x, s4x, s3x],
         [s5x, s4x, s3x, sxx],
