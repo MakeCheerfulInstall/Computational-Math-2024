@@ -17,13 +17,16 @@ def main() -> None:
     min_type: str | None = None
     for approximator in APPROXIMATORS:
         res: ApproxRes = approximator(data)
-        if res.sko < min_sko:
-            min_sko = res.sko
-            min_type = res.type
-        draw_graph(res)
         Parser.print_res(res)
 
-    print(f'Best approximator is {min_type} with sko = {min_sko:.4g}')
+        if res.data is not None:
+            draw_graph(res.data, res.type)
+            if res.data.sko < min_sko:
+                min_sko = res.data.sko
+                min_type = res.type
+
+    if min_type is not None:
+        print(f'Best approximator is {min_type} with sko = {min_sko:.4g}')
 
 
 if __name__ == '__main__':

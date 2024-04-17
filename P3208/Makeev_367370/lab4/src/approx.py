@@ -1,6 +1,6 @@
 import math
 
-from dto import Point, PointTable, ApproxRes, DataTable
+from dto import *
 from utils import avg
 from enum import Enum
 from slau_solver.matrix import Equation
@@ -45,7 +45,7 @@ def get_def_data(points: PointTable, func: callable) -> DataTable:
     return DataTable(x_list, y_list, phi_x, eps)
 
 
-def approx_linear(points: PointTable) -> ApproxRes:
+def calc_linear_kfs(points: PointTable) -> tuple[float, float]:
     sx, sy, sxx, sxy, n = points.sx(), points.sy(), points.sxx(), points.sxy(), points.n
 
     eq: Equation = Equation.create([
@@ -55,6 +55,11 @@ def approx_linear(points: PointTable) -> ApproxRes:
     ])
     eq.solve()
     a, b = eq.answers.elems
+    return a, b
+
+
+def approx_linear(points: PointTable) -> ApproxRes:
+    a, b = calc_linear_kfs(points)
 
     callback: callable = lambda x: a * x + b
     func_view: str = f'{a:.3g}x'
@@ -67,15 +72,18 @@ def approx_linear(points: PointTable) -> ApproxRes:
 
     return ApproxRes(
         type='Линейная аппроксимация',
-        func_view=func_view,
-        callback=callback,
-        sko=calc_sko(def_data.eps),
-        x_list=def_data.x_list,
-        y_list=def_data.y_list,
-        phi_x=def_data.phi_x,
-        eps=def_data.eps,
-        pirson_kf=calc_pirson_kf(def_data),
-        det_kf=calc_det_kf(def_data)
+        data=LinearApproxData(
+            func_view=func_view,
+            callback=callback,
+            sko=calc_sko(def_data.eps),
+            x_list=def_data.x_list,
+            y_list=def_data.y_list,
+            phi_x=def_data.phi_x,
+            eps=def_data.eps,
+            pirson_kf=calc_pirson_kf(def_data),
+            det_kf=calc_det_kf(def_data)
+        ),
+        error_message=None
     )
 
 
@@ -107,15 +115,17 @@ def approx_quad(points: PointTable) -> ApproxRes:
 
     return ApproxRes(
         type='Квадратичная аппроксимация',
-        func_view=func_view,
-        callback=callback,
-        sko=calc_sko(def_data.eps),
-        x_list=def_data.x_list,
-        y_list=def_data.y_list,
-        phi_x=def_data.phi_x,
-        eps=def_data.eps,
-        pirson_kf=None,
-        det_kf=calc_det_kf(def_data)
+        data=ApproxData(
+            func_view=func_view,
+            callback=callback,
+            sko=calc_sko(def_data.eps),
+            x_list=def_data.x_list,
+            y_list=def_data.y_list,
+            phi_x=def_data.phi_x,
+            eps=def_data.eps,
+            det_kf=calc_det_kf(def_data)
+        ),
+        error_message=None
     )
 
 
@@ -152,20 +162,57 @@ def approx_cube(points: PointTable) -> ApproxRes:
 
     return ApproxRes(
         type='Кубическая аппроксимация',
-        func_view=func_view,
-        callback=callback,
-        sko=calc_sko(def_data.eps),
-        x_list=def_data.x_list,
-        y_list=def_data.y_list,
-        phi_x=def_data.phi_x,
-        eps=def_data.eps,
-        pirson_kf=None,
-        det_kf=calc_det_kf(def_data)
+        data=ApproxData(
+            func_view=func_view,
+            callback=callback,
+            sko=calc_sko(def_data.eps),
+            x_list=def_data.x_list,
+            y_list=def_data.y_list,
+            phi_x=def_data.phi_x,
+            eps=def_data.eps,
+            det_kf=calc_det_kf(def_data)
+        ),
+        error_message=None
+    )
+
+
+def approx_exp(points: PointTable) -> ApproxRes:
+    if not points.log_y_is_safe():
+        return ApproxRes(
+            type='Экспоненциальная аппроксимация',
+            data=None,
+            error_message="Can't approximate with negative ordinates"
+        )
+
+    for i in range(points.n):
+        points[i].y = math.log(points[i].y)
+
+    A, b = calc_linear_kfs(points)
+    a = math.exp(A)
+
+    callback: callable = lambda x: a * math.exp(b * x)
+    func_view: str = f'{a:.3g}e^({b:.3g}x)'
+    def_data: DataTable = get_def_data(points, callback)
+
+    return ApproxRes(
+        type='Экспоненциальная аппроксимация',
+        data=ApproxData(
+            func_view=func_view,
+            callback=callback,
+            sko=calc_sko(def_data.eps),
+            x_list=def_data.x_list,
+            y_list=def_data.y_list,
+            phi_x=def_data.phi_x,
+            eps=def_data.eps,
+            det_kf=calc_det_kf(def_data)
+        ),
+        error_message=None
     )
 
 
 APPROXIMATORS: list[callable] = [
     approx_linear,
     approx_quad,
-    approx_cube
+    approx_cube,
+    approx_exp
 ]

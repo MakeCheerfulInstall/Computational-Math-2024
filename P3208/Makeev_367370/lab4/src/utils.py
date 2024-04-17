@@ -1,4 +1,4 @@
-from dto import ApproxRes, PointTable, Point
+from dto import *
 import matplotlib.pyplot as plt
 
 
@@ -10,7 +10,7 @@ def avg(data: list[float]) -> float:
     return sum(data) / len(data)
 
 
-def draw_graph(data: ApproxRes) -> None:
+def draw_graph(data: ApproxData, title: str) -> None:
     ax: Axes = plt.gca()
     ax.spines['left'].set_position('zero')
     ax.spines['bottom'].set_position('zero')
@@ -21,5 +21,5 @@ def draw_graph(data: ApproxRes) -> None:
     plt.plot(data.x_list, data.phi_x, linewidth=1, label=data.func_view)
     plt.grid(True)
     plt.legend()
-    plt.title(data.type)
+    plt.title(title)
     plt.show()

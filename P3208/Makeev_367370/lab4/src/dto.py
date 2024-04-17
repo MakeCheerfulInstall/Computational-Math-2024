@@ -16,6 +16,26 @@ class PointTable:
         self.points = sorted(points, key=lambda point: point.x)
         self.n = len(self.points)
 
+    def __getitem__(self, index: int) -> Point:
+        return self.points[index]
+
+    def __setitem__(self, index: int, point: Point) -> None:
+        self.points[index] = point
+
+    def log_y_is_safe(self) -> bool:
+        for point in self.points:
+            if point.y <= 0 or point.y == 1:
+                return False
+
+        return True
+
+    def log_x_is_safe(self) -> bool:
+        for point in self.points:
+            if point.x <= 0 or point.x == 1:
+                return False
+
+        return True
+
     def get_all_x(self) -> list[float]:
         return [point.x for point in self.points]
 
@@ -62,8 +82,7 @@ class DataTable:
 
 
 @dataclass
-class ApproxRes:
-    type: str
+class ApproxData:
     func_view: str
     callback: callable
     sko: float
@@ -71,18 +90,31 @@ class ApproxRes:
     y_list: list[float]
     phi_x: list[float]
     eps: list[float]
-    pirson_kf: float | None
     det_kf: float
 
     def __str__(self) -> str:
-        data: str = (f"-- {self.type}\n" +
-                f"phi: {self.func_view}\n" +
+        return (f"phi: {self.func_view}\n" +
                 f"sko: {self.sko:.3g}\n" +
-                f"det_kf: {self.det_kf:.3g}\n" +
-                f"phi: {self.phi_x}\n" +
-                f"eps: {self.eps}")
+                f"det_kf: {self.det_kf:.3g}\n\n")
 
-        if self.pirson_kf is not None:
-            data += f"\npirson_kf: {self.pirson_kf:.3g}"
 
-        return f'{data}\n\n'
+@dataclass
+class LinearApproxData(ApproxData):
+    pirson_kf: float
+
+    def __str__(self) -> str:
+        return f'{super().__str__()[:-1]}pirson: {self.pirson_kf:.3g}\n\n'
+
+
+@dataclass
+class ApproxRes:
+    type: str
+    data: ApproxData | None
+    error_message: str | None
+
+    def __str__(self) -> str:
+        prefix = f'-- {self.type}\n'
+        if self.error_message is not None:
+            return f'{prefix}\tERROR: {self.error_message}\n'
+        else:
+            return f'{prefix}{self.data}\n'
