@@ -183,11 +183,11 @@ def approx_exp(points: PointTable) -> ApproxRes:
             data=None,
             error_message="Can't approximate with negative ordinates"
         )
-
+    points_copy: PointTable = points.copy()
     for i in range(points.n):
-        points[i].y = math.log(points[i].y)
+        points_copy[i].y = math.log(points_copy[i].y)
 
-    A, b = calc_linear_kfs(points)
+    b, A = calc_linear_kfs(points_copy)
     a = math.exp(A)
 
     callback: callable = lambda x: a * math.exp(b * x)
@@ -210,9 +210,85 @@ def approx_exp(points: PointTable) -> ApproxRes:
     )
 
 
+def approx_log(points: PointTable) -> ApproxRes:
+    if not points.log_x_is_safe():
+        return ApproxRes(
+            type='Логарифмическая аппроксимация',
+            data=None,
+            error_message="Can't approximate with negative abscisses"
+        )
+
+    points_copy: PointTable = points.copy()
+    for i in range(points.n):
+        points_copy[i].x = math.log(points_copy[i].x)
+
+    a, b = calc_linear_kfs(points_copy)
+
+    callback: callable = lambda x: a * math.log(x) + b
+    func_view: str = f'{a:.3g}ln(x)'
+    if b > 0:
+        func_view += f' + {b:.3g}'
+    elif b < 0:
+        func_view += f' - {-b:.3g}'
+    def_data: DataTable = get_def_data(points, callback)
+
+    return ApproxRes(
+        type='Логарифмическая аппроксимация',
+        data=ApproxData(
+            func_view=func_view,
+            callback=callback,
+            sko=calc_sko(def_data.eps),
+            x_list=def_data.x_list,
+            y_list=def_data.y_list,
+            phi_x=def_data.phi_x,
+            eps=def_data.eps,
+            det_kf=calc_det_kf(def_data)
+        ),
+        error_message=None
+    )
+
+
+def approx_step(points: PointTable) -> ApproxRes:
+    if not points.log_x_is_safe() or not points.log_y_is_safe():
+        return ApproxRes(
+            type='Степпеная аппроксимация',
+            data=None,
+            error_message="Can't approximate with negative abscisses or negative ordinates"
+        )
+
+    points_copy: PointTable = points.copy()
+    for i in range(points.n):
+        points_copy[i].x = math.log(points_copy[i].x)
+        points_copy[i].y = math.log(points_copy[i].y)
+
+    b, A = calc_linear_kfs(points_copy)
+    a = math.exp(A)
+
+    callback: callable = lambda x: a * (x ** b)
+    func_view: str = f'{a:.3g}x^({b:.3g})'
+    def_data: DataTable = get_def_data(points, callback)
+
+    return ApproxRes(
+        type='Степпеная аппроксимация',
+        data=ApproxData(
+            func_view=func_view,
+            callback=callback,
+            sko=calc_sko(def_data.eps),
+            x_list=def_data.x_list,
+            y_list=def_data.y_list,
+            phi_x=def_data.phi_x,
+            eps=def_data.eps,
+            det_kf=calc_det_kf(def_data)
+        ),
+        error_message=None
+    )
+
+
 APPROXIMATORS: list[callable] = [
     approx_linear,
     approx_quad,
     approx_cube,
-    approx_exp
+    approx_exp,
+    approx_log,
+    approx_step
 ]

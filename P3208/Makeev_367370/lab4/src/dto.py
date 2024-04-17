@@ -1,6 +1,8 @@
 from __future__ import annotations
 from dataclasses import dataclass
 
+import pylab as p
+
 
 @dataclass
 class Point:
@@ -10,11 +12,17 @@ class Point:
     def __str__(self) -> str:
         return f'({self.x}, {self.y})'
 
+    def copy(self) -> Point:
+        return Point(self.x, self.y)
+
 
 class PointTable:
     def __init__(self, points: list[Point]) -> None:
         self.points = sorted(points, key=lambda point: point.x)
         self.n = len(self.points)
+
+    def copy(self) -> PointTable:
+        return PointTable([point.copy() for point in self.points])
 
     def __getitem__(self, index: int) -> Point:
         return self.points[index]
@@ -115,6 +123,6 @@ class ApproxRes:
     def __str__(self) -> str:
         prefix = f'-- {self.type}\n'
         if self.error_message is not None:
-            return f'{prefix}\tERROR: {self.error_message}\n'
+            return f'{prefix}\tERROR: {self.error_message}\n\n'
         else:
-            return f'{prefix}{self.data}\n'
+            return f'{prefix}{self.data}'
