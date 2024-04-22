@@ -1,0 +1,153 @@
+* {
+    --background_color: white;
+    --font_color: #232323;
+    --main_color: black;
+    --complementary_color: #2f2f2f;
+    --border_style: 3px solid var(--main_color);
+}
+
+body {
+    margin: 0;
+    background-color: var(--background_color);
+    font-family: Geneva, sans-serif;
+    color: var(--font_color);
+}
+
+main {
+    margin-top: 100px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    flex-wrap: wrap;
+}
+
+main > * {
+    margin: auto;
+}
+
+main form{
+    background-color: lightgrey;
+    box-shadow: 5px 5px gray;
+    border: var(--border_style);
+    border-radius: 10px;
+    padding: 20px;
+    width: 400px;
+}
+
+main .result {
+    background-color: lightgrey;
+    box-shadow: 5px 5px gray;
+    border: var(--border_style);
+    border-radius: 10px;
+    padding: 20px;
+    width: 600px;
+    margin-bottom: 20px;
+}
+
+.field {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: inherit;
+}
+
+.field:has(> input) {
+    align-items: center;
+}
+
+.field input, .field textarea {
+    background-color: var(--background_color);
+    border: var(--border_style);
+    border-radius: 5px;
+    font-size: 15pt;
+    color: var(--font_color);
+}
+
+.field input {
+    height: 30px;
+}
+
+.field input[type="file"] {
+    font-size: 11pt;
+    padding-top: 8px;
+}
+
+.field textarea {
+    height: 200px;
+}
+
+#plot{
+    width: 520px;
+    height: 520px;
+}
+
+#solve-button {
+    margin-top: 10px;
+    width: 100%;
+    grid-column: 1 / span 2;
+}
+
+#solve-button:hover {
+    cursor: pointer;
+    filter: brightness(0.75);
+}
+
+.result .field p:last-child {
+    background-color: var(--background_color);
+    border: var(--border_style);
+    padding: 10px 0;
+    text-align: center;
+}
+
+.result table {
+    text-align: center;
+    border-collapse: collapse;
+}
+
+.result table td, .result table th {
+    border: var(--border_style);
+    padding: 15px;
+}
+
+.radio-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.radio-container label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.system {
+    display: flex;
+    gap: 10px;
+}
+
+.system span:first-child {
+    font-size: 24pt;
+}
+
+.hidden {
+    display: none;
+}
+
+.interval {
+    display: flex;
+    justify-content: space-between;
+}
+
+.interval input {
+    width: 50%;
+}
+
+.interval span {
+    font-size: 20pt;
+}
+
+.result__system-value-vectors {
+    table-layout: fixed;
+    width: 100%;
+    word-break: break-all;
+    white-space: break-spaces;
+}

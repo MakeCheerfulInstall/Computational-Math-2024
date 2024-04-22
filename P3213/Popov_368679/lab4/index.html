@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <meta charset="utf-8" />
+        <title>Lab 4</title>
+    </head>
+    <body>
+    <main>
+        <form>
+            <div class="field" id="function-select">
+                <p>Функция:</p>
+                <textarea
+                        id="function-table"
+                        placeholder="Введите точки в формате X Y, каждую с новой строки"
+                        required
+                ></textarea>
+            </div>
+            <div class="field">
+                <input
+                        id="solve-button"
+                        type="submit"
+                        value="Решить"
+                />
+            </div>
+        </form>
+        <div id="plot"></div>
+        <div class="result hidden">
+            <div class="field">
+                <p>Наилучшая аппроксимирующая функция:</p>
+                <p class="result__best-approximated-function"></p>
+            </div>
+            <div class="field">
+                <p>Среднеквадратичное отклонение:</p>
+                <p class="result__std-dev"></p>
+            </div>
+            <div class="field">
+                <p>Массив X<sub>i</sub>:</p>
+                <p class="result__x"></p>
+            </div>
+            <div class="field">
+                <p>Массив Y<sub>i</sub>:</p>
+                <p class="result__y"></p>
+            </div>
+            <div class="field">
+                <p>Массив φ(x<sub>i</sub>):</p>
+                <p class="result__phi"></p>
+            </div>
+            <div class="field">
+                <p>Массив ε<sub>i</sub>:</p>
+                <p class="result__epsilon"></p>
+            </div>
+            <div class="field hidden">
+                <p>Коэффицент корелляции Пирсона:</p>
+                <p class="result__pearson"></p>
+            </div>
+        </div>
+    </main>
+    </body>
+</html>
