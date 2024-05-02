@@ -1,0 +1,106 @@
+body {
+  margin: 0;
+  background-color: #30363d;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  color: #c9d1d9;
+}
+
+nav {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 0 20px;
+  background-color: #21262d;
+  border-bottom: 1px solid #f0883e;
+}
+
+nav .container {
+  text-align: center;
+  padding: 10px;
+}
+
+nav .container p:first-of-type {
+  font-size: 16pt;
+  margin: 0;
+}
+
+nav .container p:last-of-type {
+  color: #a0b6d0;
+  margin: 0;
+}
+
+main {
+  padding: 20px;
+}
+
+main > * {
+  margin: auto;
+}
+
+main form, main .result {
+  width: 500px;
+}
+
+.field {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.field > * {
+  flex: 1;
+}
+
+.field:has(> input) {
+  align-items: center;
+}
+
+.field input, .field textarea {
+  background-color: #484f58;
+  border: 1px solid #f0883e;
+  border-radius: 5px;
+  font-size: 15pt;
+  color: #c9d1d9;
+}
+
+.field input {
+  height: 30px;
+}
+
+.field input[type="file"] {
+  font-size: 11pt;
+  padding-top: 8px;
+}
+
+.field textarea {
+  height: 200px;
+}
+
+#solve-button {
+  width: 100%;
+}
+
+#solve-button:hover {
+  cursor: pointer;
+  filter: brightness(0.75);
+}
+
+.result {
+  display: none;
+}
+
+.result .field p:last-child {
+  border: 1px solid #f0883e;
+  padding: 10px 0;
+  text-align: center;
+}
+
+.result__error-vectors-table {
+  text-align: center;
+  border-collapse: collapse;
+}
+
+.result__error-vectors-table td, .result__error-vectors-table th {
+  border: 1px solid #f0883e;
+  padding: 15px;
+}
