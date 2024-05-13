@@ -1,3 +1,9 @@
+import math
+import random
+
+from prettytable import PrettyTable
+
+
 def read() -> list[list[float]]:
     size_sle = int(input("Введите размерность СЛАУ: "))
     sle = []
@@ -44,7 +50,7 @@ def print_matrix(matrix):
         print()
 
 
-def check_predominance(matrix: list[list[float]]):
+def check_predominance(matrix: list[list[float]], isGenerated = False):
     size = len(matrix)
     all_indexes = set()
     sort_matrix = []
@@ -54,6 +60,8 @@ def check_predominance(matrix: list[list[float]]):
 
     if size == len(all_indexes):
         sort_matrix = sorted(sort_matrix, key=lambda x: x[-1], reverse=False)
+    elif isGenerated:
+        return
     else:
         print("Не выполняется условие диагонального преобладания")
         return
@@ -63,3 +71,34 @@ def check_predominance(matrix: list[list[float]]):
         tmp.append(matrix[sort_matrix[i][0]])
 
     return tmp
+
+
+def generate_matrix():
+    n = int(input("Введите размер матрицы: "))
+    th = []
+    for i in range(n):
+        th.append("x_" + str(i + 1))
+
+    th.append("result")
+    table = PrettyTable(th)
+    matrix = []
+
+    for i in range(n):
+        row = []
+        for j in range(n + 1):
+            generate_number = round(random.random() * 10, 4)
+            row.append(generate_number)
+        matrix.append(row)
+
+    sle = check_predominance(matrix, True)
+    if sle is None:
+        for i in range(n):
+            matrix[i][i] = max(matrix[i]) + 1
+
+    for i in range(n):
+        td = []
+        for j in range(n + 1):
+            td.append(str(matrix[i][j]))
+        table.add_row(td)
+    print(table)
+    return matrix

@@ -10,6 +10,7 @@ def run(sle, det):
         sle = matrix.check_predominance(sle)
         if sle is None:
             return
+        # matrix.print_matrix(sle)
         epsilon = float(input("Введите точность решения: "))
         # sle = sorted(sle, key=lambda x: x[-1], reverse=False)
         result = express_unknown(sle)
