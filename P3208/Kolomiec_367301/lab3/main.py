@@ -10,7 +10,7 @@ run = True
 method_manager: MethodManager = MethodManager(
     [Rectangle("Метод Прямоугольника"),
      Trapezoid("Метод Трапеции"),
-     Simpson("Метод Симпсон")]
+     Simpson("Метод Симпсона")]
 )
 func_manager: FuncManager = FuncManager(
     [Function([0, 0, 1]),

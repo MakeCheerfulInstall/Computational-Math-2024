@@ -1,4 +1,5 @@
 from Kolomiec_367301.lab3.methods.method import Method
+from Kolomiec_367301.lab3.function import Function
 
 
 class MethodManager:

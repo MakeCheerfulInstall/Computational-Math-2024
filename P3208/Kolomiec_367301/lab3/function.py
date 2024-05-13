@@ -1,4 +1,5 @@
 class Function:
+
     def __init__(self, func: list[float]) -> None:
         super().__init__()
         self.func = func
@@ -23,3 +24,12 @@ class Function:
                 break
             result.append(f"{equation[i]} * x^{i}")
         return " + ".join(result)
+
+    def get_max_ordinate(self, limits: tuple):
+        return max(self.get_ordinate(limits[0]), self.get_ordinate(limits[1]))
+
+    def diff(self, level: int):
+        df = self.func
+        for j in range(level):
+            df = [df[i] * i for i in range(len(df))][1:]
+        return df
