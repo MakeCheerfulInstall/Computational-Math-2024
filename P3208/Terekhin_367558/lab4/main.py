@@ -1,11 +1,13 @@
 import math
 
 from matplotlib import pyplot as plt
+from matplotlib.axes import Axes
 from tabulate import tabulate
 
 from P3208.Terekhin_367558.lab2.main import request_from_list
 from P3208.Terekhin_367558.lab2.readers import AbstractReader, READERS
 from P3208.Terekhin_367558.lab4.approx import APPROXIMATIONS, Approximation, LinearApproximation
+
 
 if __name__ == '__main__':
     reader: AbstractReader = request_from_list(READERS)
@@ -16,6 +18,13 @@ if __name__ == '__main__':
     x_values: list[float] = [x for x, y in points]
     y_values: list[float] = [y for x, y in points]
     x_range = [i / 100 for i in range(math.floor(min(x_values)), 100 * math.ceil(max(x_values)))]
+
+    ax: Axes = plt.axes()
+    ax.spines['left'].set_position('zero')
+    ax.spines['bottom'].set_position('zero')
+    ax.spines['right'].set_color('none')
+    ax.spines['top'].set_color('none')
+
     deviation: float = 0
     y_approx: list[float] = []
     if method.func is not None:
@@ -35,7 +44,7 @@ if __name__ == '__main__':
         headers.append('Pirson coefficient')
         stat[0].append(method.r)
 
-    print(tabulate(stat, headers))
+    print(tabulate(stat, headers), '\n')
 
     plt.plot(x_values, y_values, 'ro')
     plt.show()

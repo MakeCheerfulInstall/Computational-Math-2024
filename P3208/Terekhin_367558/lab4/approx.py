@@ -1,3 +1,4 @@
+import math
 from abc import abstractmethod
 from typing import Final, Callable
 
@@ -118,8 +119,49 @@ class CubedApproximation(Approximation):
         self.func = lambda x: a * x ** 3 + b * x ** 2 + c * x + d
 
 
+class DegreeApproximation(Approximation):
+    def __init__(self):
+        super().__init__("Degree Approximation")
+        self.linear = LinearApproximation()
+
+    def build_approximation(self, points: list[tuple[float, float]]) -> None:
+        ln_points = list(map(lambda x: (math.log(x[0]), math.log(x[1])), points))
+        self.linear.build_approximation(ln_points)
+        a, b = self.linear.coefficients
+        self.coefficients = [math.exp(b), a]
+        self.func = lambda x: math.exp(b) * x ** a
+
+
+class ExponentialApproximation(Approximation):
+    def __init__(self):
+        super().__init__("Exponential Approximation")
+        self.linear = LinearApproximation()
+
+    def build_approximation(self, points: list[tuple[float, float]]) -> None:
+        ln_points = list(map(lambda x: (x[0], math.log(x[1])), points))
+        self.linear.build_approximation(ln_points)
+        a, b = self.linear.coefficients
+        self.coefficients = [math.exp(b), a]
+        self.func = lambda x: math.exp(b) * math.exp(a * x)
+
+class LogarithmicApproximation(Approximation):
+    def __init__(self):
+        super().__init__("Logarithmic Approximation")
+        self.linear = LinearApproximation()
+
+    def build_approximation(self, points: list[tuple[float, float]]) -> None:
+        ln_points = list(map(lambda x: (math.log(x[0]), x[1]), points))
+        self.linear.build_approximation(ln_points)
+        a, b = self.linear.coefficients
+        self.coefficients = [a, b]
+        self.func = lambda x: a * (math.nan if x <= 0 else math.log(x)) + b
+
+
 APPROXIMATIONS: Final[list[Approximation]] = [
     LinearApproximation(),
     SquaredApproximation(),
-    CubedApproximation()
+    CubedApproximation(),
+    DegreeApproximation(),
+    ExponentialApproximation(),
+    LogarithmicApproximation()
 ]
