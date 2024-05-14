@@ -1,3 +1,4 @@
+import re
 from abc import abstractmethod
 from typing import Final, Any, TextIO
 
@@ -22,6 +23,10 @@ class AbstractReader(Describable):
 
     @abstractmethod
     def read_tuple(self, input_text: str) -> tuple[float, float, float]:
+        pass
+
+    @abstractmethod
+    def read_points(self) -> list[tuple[float, float]]:
         pass
 
 
@@ -72,6 +77,32 @@ class ConsoleReader(AbstractReader):
                 print('Try again: ')
         eps: float = self.read_precision()
         return x, y, eps
+
+    def read_points(self) -> list[tuple[float, float]]:
+        while True:
+            try:
+                n: int = int(input('Enter number of points: '))
+                if 8 <= n <= 12:
+                    break
+                else:
+                    print('From 8 to 12 points needed for approximation. Try again: ')
+                    continue
+            except ValueError:
+                print('Should be integer number. Try again: ')
+
+        points: list[tuple[float, float]] = []
+        while n > 0:
+            try:
+                a, b = map(float, filter(lambda x: x != '', re.split("\s+", input('Enter x and y: '))))
+                n -= 1
+                points.append((a, b))
+            except ValueError as e:
+                print(e)
+                print('Try again: ')
+
+        return points
+
+
 
 
 class FileReader(AbstractReader):
@@ -135,6 +166,26 @@ class FileReader(AbstractReader):
                 a, b = self.read_coordinates()
                 return a, b, self.read_precision()
             except ParsingError as e:
+                print(e)
+                print('Try another file')
+
+    def read_points(self) -> list[tuple[float, float]]:
+        while True:
+            try:
+                self.read_file_name()
+                n: int = 0
+                points: list[tuple[float, float]] = []
+                while n < 12:
+                    line: str = self.file.readline()
+                    if not line or not line.strip():
+                        if n < 8:
+                            raise ValueError('Not enough points for approximation. At least 8 is needed')
+                        break
+                    a, b = map(float, filter(lambda x: x != '', re.split("\s+", line)))
+                    points.append((a, b))
+                    n += 1
+                return points
+            except (ParsingError, ValueError) as e:
                 print(e)
                 print('Try another file')
 
