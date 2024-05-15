@@ -9,7 +9,7 @@ class Approximation(Describable):
     def __init__(self, description: str):
         super().__init__(description)
         self.func: Callable[[float], float] | None = None
-        self.coefficients: list[float] = []
+        self.view: str = ''
 
     @abstractmethod
     def build_approximation(self, points: list[tuple[float, float]]) -> None:
@@ -47,6 +47,7 @@ class LinearApproximation(Approximation):
     def __init__(self):
         super().__init__("Linear Approximation")
         self.r = 0
+        self.coefficients = []
 
     def build_approximation(self, points: list[tuple[float, float]]) -> None:
         sum_x = sum(x for x, _ in points)
@@ -59,9 +60,10 @@ class LinearApproximation(Approximation):
         average_x = sum_x / n
         average_y = sum_y / n
 
-        a, b = self.gauss_matrix_solve([[sum_x_squared, sum_x, sum_xy],
-                                        [sum_x, n, sum_y]])
+        a, b = map(lambda x: round(x, 3), self.gauss_matrix_solve([[sum_x_squared, sum_x, sum_xy],
+                                        [sum_x, n, sum_y]]))
         self.coefficients = [a, b]
+        self.view = f'{a}x + {b}'
 
         self.r = round(
             sum((x - average_x) * (y - average_y) for x, y in points) / (sum((x - average_x) ** 2 for x, y in points) * sum((y - average_y) ** 2 for x, y in points)) ** 0.5,
@@ -83,10 +85,10 @@ class SquaredApproximation(Approximation):
         sum_x_squared_y = sum(x ** 2 * y for x, y in points)
 
         n = len(points)
-        c, b, a = self.gauss_matrix_solve([[n, sum_x, sum_x_squared, sum_y],
+        c, b, a = map(lambda x: round(x, 3), self.gauss_matrix_solve([[n, sum_x, sum_x_squared, sum_y],
                                            [sum_x, sum_x_squared, sum_x_cubed, sum_xy],
-                                           [sum_x_squared, sum_x_cubed, sum_x_quad, sum_x_squared_y]])
-        self.coefficients = [c, b, a]
+                                           [sum_x_squared, sum_x_cubed, sum_x_quad, sum_x_squared_y]]))
+        self.view = f'{a}x^2 + {b}x + {c}'
 
         self.func = lambda x: a * x ** 2 + b * x + c
 
@@ -109,12 +111,12 @@ class CubedApproximation(Approximation):
 
         n = len(points)
 
-        d, c, b, a = self.gauss_matrix_solve([[n, sum_x, sum_x_squared, sum_x_cubed, sum_y],
+        d, c, b, a = map(lambda x: round(x, 3), self.gauss_matrix_solve([[n, sum_x, sum_x_squared, sum_x_cubed, sum_y],
                                               [sum_x, sum_x_squared, sum_x_cubed, sum_x_quad, sum_xy],
                                               [sum_x_squared, sum_x_cubed, sum_x_quad, sum_x_fifth, sum_x_squared_y],
-                                              [sum_x_cubed, sum_x_quad, sum_x_fifth, sum_x_sixth, sum_x_cubed_y]])
+                                              [sum_x_cubed, sum_x_quad, sum_x_fifth, sum_x_sixth, sum_x_cubed_y]]))
 
-        self.coefficients = [d, c, b, a]
+        self.view = f'{a}x^3 + {b}x^2 + {c}x + {d}'
 
         self.func = lambda x: a * x ** 3 + b * x ** 2 + c * x + d
 
@@ -128,7 +130,7 @@ class DegreeApproximation(Approximation):
         ln_points = list(map(lambda x: (math.log(x[0]), math.log(x[1])), points))
         self.linear.build_approximation(ln_points)
         a, b = self.linear.coefficients
-        self.coefficients = [math.exp(b), a]
+        self.view = f'{round(math.exp(b), 3)}x^{round(a, 3)}'
         self.func = lambda x: math.exp(b) * x ** a
 
 
@@ -141,8 +143,9 @@ class ExponentialApproximation(Approximation):
         ln_points = list(map(lambda x: (x[0], math.log(x[1])), points))
         self.linear.build_approximation(ln_points)
         a, b = self.linear.coefficients
-        self.coefficients = [math.exp(b), a]
+        self.view = f'{round(math.exp(b), 3)}e^{a}x'
         self.func = lambda x: math.exp(b) * math.exp(a * x)
+
 
 class LogarithmicApproximation(Approximation):
     def __init__(self):
@@ -153,7 +156,7 @@ class LogarithmicApproximation(Approximation):
         ln_points = list(map(lambda x: (math.log(x[0]), x[1]), points))
         self.linear.build_approximation(ln_points)
         a, b = self.linear.coefficients
-        self.coefficients = [a, b]
+        self.view = f'{a} ln(x) + {b}'
         self.func = lambda x: a * (math.nan if x <= 0 else math.log(x)) + b
 
 
