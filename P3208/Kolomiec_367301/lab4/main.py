@@ -19,3 +19,4 @@ method_manager = MethodManager(
 while True:
     dots = input_x_y(select_mode())
     method_manager.draw_all_results(dots)
+    method_manager.draw_graphic(dots)

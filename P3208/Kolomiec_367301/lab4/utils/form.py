@@ -27,7 +27,7 @@ def input_x_y(file_mode: bool):
 
 def select_mode():
     while True:
-        mode = input("1. Считать с файла\n2. Ввести в консоль\nВыберите номер варианта: ")
+        mode = input("1. Файл режим\n2. Консольный режим\nВыберите номер варианта: ")
         if mode not in "12":
             print("Нет такого варианта. Попробуйте снова!")
             continue
