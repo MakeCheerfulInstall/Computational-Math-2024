@@ -1,76 +1,158 @@
+import math
+
 import matplotlib.pyplot as plt
 import numpy as np
+from prettytable import PrettyTable
 
 
-# Определение системы уравнений
-def equations(x):
-    # Пример системы уравнений
-    f1 = x[0] ** 2 + x[1] ** 2 - 4
-    f2 = x[0] * x[1] - 1
-    return [f1, f2]
+# Вспомогательные функции
+def calculate_ordinate(equation, x):
+    return equation(x)
 
 
-# Вычисление Якобиана системы уравнений
-def jacobian(x):
-    # Якобиан для примера системы уравнений
-    return [[2 * x[0], 2 * x[1]], [x[1], x[0]]]
+def differentiation(equation, var_idx):
+    h = 1e-5
+
+    def df(x):
+        x1 = x[:]
+        x2 = x[:]
+        x1[var_idx] += h
+        x2[var_idx] -= h
+        return (equation(x1) - equation(x2)) / (2 * h)
+
+    return df
 
 
-# Метод Ньютона для решения системы уравнений
-def newton_system(equations, jacobian, x0, tolerance=1e-6, max_iterations=100):
-    x = x0
-    iteration = 0
-    errors = []
+def calculate_jacobian(equations, x):
+    jacobian = []
+    for eq in equations:
+        row = []
+        for i in range(len(x)):
+            df = differentiation(eq, i)
+            row.append(df(x))
+        jacobian.append(row)
+    return jacobian
 
-    while iteration < max_iterations:
-        f = equations(x)
-        J = jacobian(x)
-        delta_x = np.linalg.solve(J, [-f[0], -f[1]])
-        x = [x[0] + delta_x[0], x[1] + delta_x[1]]
-        error = np.sqrt(delta_x[0] ** 2 + delta_x[1] ** 2)
-        errors.append(error)
-        iteration += 1
 
-        if error < tolerance:
+def calculate_iteration_count(epsilon, diapason):
+    return 20  # Устанавливаем фиксированное число итераций для упрощения
+
+
+ACCURACY = 4
+EPSILON = 1e-4
+
+
+# Основные функции метода Ньютона для системы уравнений
+def calculate_system(equations, diapason):
+    n = calculate_iteration_count(EPSILON, diapason)
+
+    iter_number = 0
+    x_cur = select_first_value(equations, diapason)
+    values = []
+    approximations = [x_cur.copy()]
+
+    while True:
+        f_x_cur = [round(calculate_ordinate(eq, x_cur), ACCURACY) for eq in equations]
+
+        if max(abs(f) for f in f_x_cur) < EPSILON:
             break
 
-    return x, iteration, errors
+        jacobian = calculate_jacobian(equations, x_cur)
+        delta_x = gauss_elimination(jacobian, [-f for f in f_x_cur])
+
+        x_next = [round(x + delta, ACCURACY) for x, delta in zip(x_cur, delta_x)]
+        norm_delta_x = round(max(abs(delta) for delta in delta_x), ACCURACY)
+
+        values.append([iter_number, x_cur, f_x_cur, jacobian, x_next, norm_delta_x])
+        approximations.append(x_next.copy())
+
+        if norm_delta_x <= EPSILON:
+            break
+
+        x_cur = x_next
+        iter_number += 1
+        if iter_number > n:
+            break
+
+    print_table(values)
+    plot_graph(equations, approximations)
+    return x_next
 
 
-# Пользовательский ввод начальных приближений
-x0 = [float(input("Введите начальное приближение для x1: ")),
-      float(input("Введите начальное приближение для x2: "))]
+def gauss_elimination(a, b):
+    n = len(b)
+    for i in range(n):
+        # Partial pivoting
+        max_row = max(range(i, n), key=lambda r: abs(a[r][i]))
+        a[i], a[max_row] = a[max_row], a[i]
+        b[i], b[max_row] = b[max_row], b[i]
 
-# Решение системы уравнений
-solution, iterations, errors = newton_system(equations, jacobian, x0)
+        # Eliminate column below i
+        for j in range(i + 1, n):
+            factor = a[j][i] / a[i][i]
+            a[j] = [a_ij - factor * a_ik for a_ij, a_ik in zip(a[j], a[i])]
+            b[j] -= factor * b[i]
 
-# Вывод результатов
-print("Решение системы уравнений:")
-print("x1 =", solution[0])
-print("x2 =", solution[1])
-print("Количество итераций:", iterations)
+    # Back substitution
+    x = [0 for _ in range(n)]
+    for i in range(n - 1, -1, -1):
+        x[i] = (b[i] - sum(a[i][j] * x[j] for j in range(i + 1, n))) / a[i][i]
+    return x
 
-# Вывод вектора погрешностей
-print("Вектор погрешностей:")
-for i in range(len(errors)):
-    print("|x_{0}(k) - x_{0}(k-1)| = {1}".format(i + 1, errors[i]))
 
-# Проверка правильности решения системы уравнений
-print("Проверка правильности решения:")
-print("f1(x) =", equations(solution)[0])
-print("f2(x) =", equations(solution)[1])
+def select_first_value(equations, diapason):
+    a, b = diapason
+    initial_values = (a + b) / 2
+    return [initial_values for _ in equations]
 
-# Построение графика функций
-x_vals = np.linspace(-5, 5, 400)
-y_vals1 = np.sqrt(4 - x_vals ** 2)
-y_vals2 = 1 / x_vals
 
-plt.plot(x_vals, y_vals1, label='x1^2 + x2^2 - 4 = 0')
-plt.plot(x_vals, y_vals2, label='x1 * x2 - 1 = 0')
-plt.scatter(solution[0], solution[1], color='red', label='Solution')
-plt.xlabel('x1')
-plt.ylabel('x2')
-plt.title('Graph of the system of equations')
-plt.legend()
-plt.grid(True)
-plt.show()
+def print_table(values):
+    pt = PrettyTable()
+    pt.title = "Метод Ньютона для системы уравнений"
+    pt.field_names = ["№", "x_i", "f(x_i)", "J(x_i)", "x_i+1", "|x_i+1 - x_i|"]
+    for res in values:
+        pt.add_row([res[0],
+                    [round(x, ACCURACY) for x in res[1]],
+                    [round(f, ACCURACY) for f in res[2]],
+                    [[round(j, ACCURACY) for j in row] for row in res[3]],
+                    [round(x, ACCURACY) for x in res[4]],
+                    round(res[5], ACCURACY)])
+    print(pt)
+
+
+def plot_graph(equations, approximations):
+    fig, ax = plt.subplots()
+
+    x_vals = [approx[0] for approx in approximations]
+    y_vals = [approx[1] for approx in approximations]
+
+    x_range = [min(x_vals) - 1, max(x_vals) + 1]
+    y_range = [min(y_vals) - 1, max(y_vals) + 1]
+
+    x = np.linspace(x_range[0], x_range[1], 400)
+    y = np.linspace(y_range[0], y_range[1], 400)
+    X, Y = np.meshgrid(x, y)
+
+    Z1 = calculate_ordinate(equations[0], [X, Y])
+    Z2 = calculate_ordinate(equations[1], [X, Y])
+
+    ax.contour(X, Y, Z1, levels=[0], colors='r')
+    ax.contour(X, Y, Z2, levels=[0], colors='b')
+
+    ax.plot(x_vals, y_vals, 'ko')
+
+    ax.set_xlabel('x')
+    ax.set_ylabel('y')
+    ax.set_title('Графики функций и траектория метода Ньютона')
+    plt.show()
+
+
+# Пример использования:
+equations = [
+    lambda x: x[0] ** 2 - x[1] - 1,
+    lambda x: x[1] ** 2 - 2 + x[0]
+]
+diapason = (1, 2)
+
+solution = calculate_system(equations, diapason)
+print(f"Solution: {solution}")
