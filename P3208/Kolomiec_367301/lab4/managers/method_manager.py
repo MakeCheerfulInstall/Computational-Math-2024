@@ -60,7 +60,7 @@ class MethodManager:
         ax.scatter(x, y, color='red')
         ax.set_xlim(left=left_corner, right=right_corner)
 
-        plt.plot(space, empire_y)
+        plt.plot(space, empire_y, linestyle='--')
         plt.title(f"График функции: {view}")
 
         ax.set_xlabel("x")
