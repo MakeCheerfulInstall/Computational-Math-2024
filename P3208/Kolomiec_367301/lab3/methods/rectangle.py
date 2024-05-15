@@ -1,5 +1,5 @@
-from Kolomiec_367301.lab3.function import *
-from Kolomiec_367301.lab3.utils.form import *
+from lab3.function import *
+from lab3.utils.form import *
 from .method import Method
 
 

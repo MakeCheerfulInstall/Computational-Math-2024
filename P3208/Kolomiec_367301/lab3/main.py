@@ -1,4 +1,4 @@
-from Kolomiec_367301.lab3.utils.form import *
+from utils.form import *
 from function import Function
 from managers.func_manager import FuncManager
 from managers.method_manager import MethodManager

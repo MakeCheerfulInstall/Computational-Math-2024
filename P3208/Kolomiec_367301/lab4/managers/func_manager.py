@@ -1,5 +1,5 @@
-from lab3.function import Function
-from lab3.utils.form import input_variant
+from lab4.model.function import Function
+from lab4.utils.form import input_variant
 
 
 class FuncManager:
