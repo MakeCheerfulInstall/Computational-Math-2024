@@ -1,8 +1,17 @@
-import { EquationInputData, EquationSolvingMethod, FunctionData, functions } from "./solvers/equation-solver";
-import { EquationSystem, EquationSystemSolvingMethod, systems } from "./solvers/equation-system-solver";
+import {
+  EquationInputData,
+  EquationSolvingMethod,
+  FunctionData,
+  functions,
+} from "./solvers/equation-solver";
+import {
+  EquationSystem,
+  EquationSystemSolvingMethod,
+  systems,
+} from "./solvers/equation-system-solver";
 import { File } from "node:buffer";
 
-export type TaskType = 'equation' | 'system';
+export type TaskType = "equation" | "system";
 
 /**
  * Входные данные для решения системы линейных уравнений.
@@ -24,7 +33,6 @@ export interface EquationSystemInputData {
 
 /** Абстрактный класс чтения входных данных. */
 abstract class Reader {
-
   protected abstract get rawTaskType(): TaskType;
 
   protected abstract get rawMaxIterations(): string;
@@ -48,27 +56,33 @@ abstract class Reader {
   protected abstract get rawSystemSolvingMethod(): EquationSystemSolvingMethod;
 
   /** Считать входные данные. */
-  public async read(): Promise<{data: EquationInputData | EquationSystemInputData, type: TaskType}> {
+  public async read(): Promise<{
+    data: EquationInputData | EquationSystemInputData;
+    type: TaskType;
+  }> {
     switch (this.readTaskType()) {
       case "equation":
-        return { type: 'equation', data: this._readEquationInputData() };
+        return { type: "equation", data: this._readEquationInputData() };
       case "system":
-        return { type: 'system', data: this._readEquationSystemInputData() };
+        return { type: "system", data: this._readEquationSystemInputData() };
     }
-  };
+  }
 
   public readTaskType(): TaskType {
     return this.rawTaskType;
   }
 
   public readMaxIterations(): number {
-    if (this.rawMaxIterations.includes('.') || this.rawMaxIterations.includes(',')) {
-      throw new ReadError('Количество итераций должно быть целым');
+    if (
+      this.rawMaxIterations.includes(".") ||
+      this.rawMaxIterations.includes(",")
+    ) {
+      throw new ReadError("Количество итераций должно быть целым");
     }
 
     const result = parseInt(this.rawMaxIterations, 10);
     if (isNaN(result)) {
-      throw new ReadError('Неверное значение количества итераций');
+      throw new ReadError("Неверное значение количества итераций");
     }
 
     return result;
@@ -77,7 +91,7 @@ abstract class Reader {
   public readStart(): number {
     const result = this._parseFloatWithComma(this.rawStart);
     if (isNaN(result)) {
-      throw new ReadError('Левая граница интервала должна быть числом');
+      throw new ReadError("Левая граница интервала должна быть числом");
     }
 
     return result;
@@ -86,7 +100,7 @@ abstract class Reader {
   public readEnd(): number {
     const result = this._parseFloatWithComma(this.rawEnd);
     if (isNaN(result)) {
-      throw new ReadError('Правая граница интервала должна быть числом');
+      throw new ReadError("Правая граница интервала должна быть числом");
     }
 
     return result;
@@ -95,22 +109,22 @@ abstract class Reader {
   public readEpsilon(): number {
     const epsilon = this._parseFloatWithComma(this.rawEpsilon);
     if (isNaN(epsilon)) {
-      throw new ReadError('Эпсилон должно быть числом');
+      throw new ReadError("Эпсилон должно быть числом");
     } else if (epsilon <= 0) {
-      throw new ReadError('Эпсилон должен быть положительным');
+      throw new ReadError("Эпсилон должен быть положительным");
     } else if (epsilon >= 1000000) {
-      throw new ReadError('Эпсилон должен быть меньше 1000000');
+      throw new ReadError("Эпсилон должен быть меньше 1000000");
     }
-    console.log("epsilon: " + epsilon)
+    console.log("epsilon: " + epsilon);
     return epsilon;
   }
 
   public readFunctionData(): FunctionData {
     const functionIndex = parseInt(this.rawFunctionData, 10);
     if (isNaN(functionIndex)) {
-      throw new ReadError('Индекс для функции не число');
+      throw new ReadError("Индекс для функции не число");
     } else if (functionIndex < 0 || functionIndex >= functions.length) {
-      throw new ReadError('Неверный индекс для функции');
+      throw new ReadError("Неверный индекс для функции");
     }
 
     return functions[functionIndex];
@@ -119,7 +133,7 @@ abstract class Reader {
   public readX0(): number {
     const result = this._parseFloatWithComma(this.rawX0);
     if (isNaN(result)) {
-      throw new ReadError('X0 должен быть числом');
+      throw new ReadError("X0 должен быть числом");
     }
 
     return result;
@@ -128,7 +142,7 @@ abstract class Reader {
   public readY0(): number {
     const result = this._parseFloatWithComma(this.rawY0);
     if (isNaN(result)) {
-      throw new ReadError('Y0 должен быть числом');
+      throw new ReadError("Y0 должен быть числом");
     }
 
     return result;
@@ -137,9 +151,9 @@ abstract class Reader {
   public readSystemData(): EquationSystem {
     const systemIndex = parseInt(this.rawSystemData, 10);
     if (isNaN(systemIndex)) {
-      throw new ReadError('Индекс для системы не число');
+      throw new ReadError("Индекс для системы не число");
     } else if (systemIndex < 0 || systemIndex >= systems.length) {
-      throw new ReadError('Неверный индекс для системы');
+      throw new ReadError("Неверный индекс для системы");
     }
 
     return systems[systemIndex];
@@ -154,7 +168,7 @@ abstract class Reader {
   }
 
   private _parseFloatWithComma(value: string): number {
-    value = value.replace(',', '.');
+    value = value.replace(",", ".");
     return parseFloat(value);
   }
 
@@ -169,7 +183,7 @@ abstract class Reader {
     };
 
     if (result.start > result.end) {
-      throw new ReadError('Левая граница интервала должна быть меньше правой');
+      throw new ReadError("Левая граница интервала должна быть меньше правой");
     }
 
     return result;
@@ -191,9 +205,8 @@ abstract class Reader {
  * Класс для чтения входных данных из формы.
  */
 class ReaderFromForm extends Reader {
-
   protected get rawTaskType(): TaskType {
-    const taskTypeButton = document.getElementsByName('task-type');
+    const taskTypeButton = document.getElementsByName("task-type");
     for (let i = 0; i < taskTypeButton.length; i++) {
       const optionElement = taskTypeButton[i] as HTMLInputElement;
       if (optionElement.checked) {
@@ -201,16 +214,20 @@ class ReaderFromForm extends Reader {
       }
     }
 
-    throw new ReadError('Не выбран тип задачи');
+    throw new ReadError("Не выбран тип задачи");
   }
 
   protected override get rawEpsilon(): string {
-    const input = document.querySelector('input[name="epsilon"]') as HTMLInputElement;
+    const input = document.querySelector(
+      'input[name="epsilon"]'
+    ) as HTMLInputElement;
     return input.value;
   }
 
   protected override get rawEnd(): string {
-    const input = document.querySelector('input[name="end"]') as HTMLInputElement;
+    const input = document.querySelector(
+      'input[name="end"]'
+    ) as HTMLInputElement;
     return input.value;
   }
 
@@ -223,16 +240,20 @@ class ReaderFromForm extends Reader {
       }
     }
 
-    throw new ReadError('Не выбрано уравнение');
+    throw new ReadError("Не выбрано уравнение");
   }
 
   protected override get rawMaxIterations(): string {
-    const input = document.querySelector('input[name="max-iterations"]') as HTMLInputElement;
+    const input = document.querySelector(
+      'input[name="max-iterations"]'
+    ) as HTMLInputElement;
     return input.value;
   }
 
   protected override get rawStart(): string {
-    const input = document.querySelector('input[name="start"]') as HTMLInputElement;
+    const input = document.querySelector(
+      'input[name="start"]'
+    ) as HTMLInputElement;
     return input.value;
   }
 
@@ -245,22 +266,26 @@ class ReaderFromForm extends Reader {
       }
     }
 
-    throw new ReadError('Не выбрана система');
+    throw new ReadError("Не выбрана система");
   }
 
   protected get rawX0(): string {
-    const input = document.querySelector('input[name="x0"]') as HTMLInputElement;
+    const input = document.querySelector(
+      'input[name="x0"]'
+    ) as HTMLInputElement;
     return input.value;
   }
 
   protected get rawY0(): string {
-    const input = document.querySelector('input[name="y0"]') as HTMLInputElement;
+    const input = document.querySelector(
+      'input[name="y0"]'
+    ) as HTMLInputElement;
     return input.value;
   }
 
   protected get rawEquationSolvingMethod(): EquationSolvingMethod {
-    const equationSolvingMethodOptions = (
-      document.getElementsByName('equation-solving-method')
+    const equationSolvingMethodOptions = document.getElementsByName(
+      "equation-solving-method"
     );
 
     for (let i = 0; i < equationSolvingMethodOptions.length; i++) {
@@ -270,12 +295,12 @@ class ReaderFromForm extends Reader {
       }
     }
 
-    throw new ReadError('Не выбран метод решения уравнения');
+    throw new ReadError("Не выбран метод решения уравнения");
   }
 
   protected get rawSystemSolvingMethod(): EquationSystemSolvingMethod {
-    const equationSolvingMethodOptions = (
-      document.getElementsByName('system-solving-method')
+    const equationSolvingMethodOptions = document.getElementsByName(
+      "system-solving-method"
     );
 
     for (let i = 0; i < equationSolvingMethodOptions.length; i++) {
@@ -285,7 +310,7 @@ class ReaderFromForm extends Reader {
       }
     }
 
-    throw new ReadError('Не выбран метод решения системы');
+    throw new ReadError("Не выбран метод решения системы");
   }
 }
 
@@ -293,7 +318,6 @@ class ReaderFromForm extends Reader {
  * Класс для чтения входных данных из файла.
  */
 class ReaderFromFile extends Reader {
-
   private fileLines!: string[];
 
   constructor(private file: File) {
@@ -305,10 +329,12 @@ class ReaderFromFile extends Reader {
     try {
       content = await this.file.text();
     } catch (e) {
-      throw new ReadError('Не удалось считать файл, попробуйте его переоткрыть');
+      throw new ReadError(
+        "Не удалось считать файл, попробуйте его переоткрыть"
+      );
     }
 
-    this.fileLines = content.split('\n').map(s => s.trim());
+    this.fileLines = content.split("\n").map((s) => s.trim());
     return super.read();
   }
 
@@ -317,15 +343,11 @@ class ReaderFromFile extends Reader {
   }
 
   protected get rawStart(): string {
-    return this.fileLines[3]
-      .split(/\s/)[0]
-      .trim();
+    return this.fileLines[3].split(/\s/)[0].trim();
   }
 
   protected get rawEnd(): string {
-    return this.fileLines[3]
-      .split(/\s/)[1]
-      .trim();
+    return this.fileLines[3].split(/\s/)[1].trim();
   }
 
   protected get rawEpsilon(): string {
@@ -343,43 +365,46 @@ class ReaderFromFile extends Reader {
   protected get rawEquationSolvingMethod(): EquationSolvingMethod {
     const result = this.fileLines[5].trim();
 
-    if ([ 'bisection', 'chords', 'newton', 'secants', 'simple-iterations' ].includes(result)) {
+    if (
+      [
+        "bisection",
+        "chords",
+        "newton",
+        "secants",
+        "simple-iterations",
+      ].includes(result)
+    ) {
       return result as EquationSolvingMethod;
     }
 
-    throw new ReadError('Неверный метод решения уравнения');
+    throw new ReadError("Неверный метод решения уравнения");
   }
 
   protected get rawSystemSolvingMethod(): EquationSystemSolvingMethod {
     const result = this.fileLines[5].trim();
 
-    if ([ 'system-newton', 'system-simple-iterations' ].includes(result)) {
+    if (["system-newton", "system-simple-iterations"].includes(result)) {
       return result as EquationSystemSolvingMethod;
     }
 
-    throw new ReadError('Неверный метод решения системы');
+    throw new ReadError("Неверный метод решения системы");
   }
 
   protected get rawX0(): string {
-    return this.fileLines[3]
-      .split(/\s/)[0]
-      .trim();
+    return this.fileLines[3].split(/\s/)[0].trim();
   }
   protected get rawY0(): string {
-    return this.fileLines[3]
-      .split(/\s/)[1]
-      .trim();
+    return this.fileLines[3].split(/\s/)[1].trim();
   }
   protected get rawSystemData(): string {
     return this.fileLines[4].trim();
   }
-
 }
 
 class ReadError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = 'ReadError';
+    this.name = "ReadError";
   }
 }
 
@@ -388,7 +413,9 @@ class ReadError extends Error {
  * что выбрал пользователь.
  */
 export function getReader(): Reader {
-  const fileInput = document.querySelector('input[name="input-file"]') as HTMLInputElement;
+  const fileInput = document.querySelector(
+    'input[name="input-file"]'
+  ) as HTMLInputElement;
   const files = fileInput.files;
 
   if (files && files.length > 0) {
