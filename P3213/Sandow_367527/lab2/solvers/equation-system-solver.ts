@@ -72,18 +72,18 @@ export const systems: EquationSystem[] = [
   },
   { // 10 вариант
     f: {
-      value: (x: number, y: number): number => Math.cos(y - 2) + x,
-      derivativeX: (x: number, y: number): number => 1,
-      derivativeY: (x: number, y: number): number => -Math.sin(y - 2),
-      phi:(x: number, y: number): number => - Math.cos(y - 2),
+      value: (x: number, y: number): number => Math.cos(y - 1) + 2*x + 1.7,
+      derivativeX: (x: number, y: number): number => 2,
+      derivativeY: (x: number, y: number): number => -Math.sin(y - 1),
+      phi:(x: number, y: number): number => -Math.cos(y - 2)/2 - 1.7/2,
       printableValue: 'cos(y - 2) + x',
     },
     g: {
-      value: (x: number, y: number): number => Math.sin(x + 0.5) - y - 1,
-      derivativeX: (x: number, y: number): number => Math.cos(x + 0.5),
-      derivativeY: (x: number, y: number): number => -1,
-      phi:(x: number, y: number): number => Math.sin(x + 0.5) - 1,
-      printableValue: 'sin(x + 0.5) - y - 1',
+      value: (x: number, y: number): number => y - Math.cos(x) - 0.8,
+      derivativeX: (x: number, y: number): number => -Math.sin(x),
+      derivativeY: (x: number, y: number): number => 1,
+      phi:(x: number, y: number): number => Math.cos(x) + 0.8,
+      printableValue: 'sin(x + 0.5) - y - 1', 
     }
   }
 ];
