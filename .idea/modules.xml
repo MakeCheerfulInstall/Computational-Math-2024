@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/Computational-Math-2024.iml" filepath="$PROJECT_DIR$/.idea/Computational-Math-2024.iml" />
+      <module fileurl="file://$PROJECT_DIR$/P3208/P3208.iml" filepath="$PROJECT_DIR$/P3208/P3208.iml" />
+      <module fileurl="file://$PROJECT_DIR$/P3210/P3210.iml" filepath="$PROJECT_DIR$/P3210/P3210.iml" />
+      <module fileurl="file://$PROJECT_DIR$/P3213/P3213.iml" filepath="$PROJECT_DIR$/P3213/P3213.iml" />
+      <module fileurl="file://$PROJECT_DIR$/P3208/Ivanova_367245/lab1/lab1.iml" filepath="$PROJECT_DIR$/P3208/Ivanova_367245/lab1/lab1.iml" />
+      <module fileurl="file://$PROJECT_DIR$/P3208/Ivanova_367245/lab2/lab2.iml" filepath="$PROJECT_DIR$/P3208/Ivanova_367245/lab2/lab2.iml" />
+    </modules>
+  </component>
+</project>
