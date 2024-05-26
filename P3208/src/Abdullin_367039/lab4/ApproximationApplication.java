@@ -339,7 +339,7 @@ public class ApproximationApplication {
       System.out.println("Наилчушая аппроксимирующая функция: " + name[0]);
     } else {
       try {
-        FileWriter fw = new FileWriter("src/main/resources/output.txt");
+        FileWriter fw = new FileWriter("/home/yestai/IdeaProjects/Computational-Math-2024/P3208/src/Abdullin_367039/lab4/resources/output.txt");
         BufferedWriter bufferedWriter = new BufferedWriter(fw);
         double[] sko = new double[6];
         String[] name = new String[6];

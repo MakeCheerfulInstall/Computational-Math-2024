@@ -21,14 +21,12 @@ public class InterpolationPlot extends JFrame {
     double[] plotX = new double[100];
     double[] plotY1 = new double[100];
     double[] plotY2 = new double[100];
-    double[] plotY3 = new double[100];
 
     for (int i = 0; i < 100; i++) {
       double val = x[0] + i * (x[x.length - 1] - x[0]) / 99.0;
       plotX[i] = val;
       plotY1[i] = Interpolation.lagrange(x, y, val);
       plotY2[i] = Interpolation.newtonFiniteDifferences(x, y, val);
-      plotY3[i] = Interpolation.newtonSeparatedDifferences(x, y, val);
     }
 
     // Interpolated values
@@ -57,12 +55,6 @@ public class InterpolationPlot extends JFrame {
     }
     dataset.addSeries(series);
 
-    // Add Newton separated differences interpolation
-    series = new XYSeries("Многочлен Ньютона с разделенными разностями");
-    for (int i = 0; i < plotX.length; i++) {
-      series.add(plotX[i], plotY3[i]);
-    }
-    dataset.addSeries(series);
 
     // Create chart
     JFreeChart chart =

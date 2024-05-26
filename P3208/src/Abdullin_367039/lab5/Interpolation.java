@@ -156,7 +156,6 @@ public class Interpolation {
         result += (temp * table[x.length - i - 1][i]) / factorial(i);
       }
     }
-    System.out.println("t = " + t);
     return Math.round(result * 100000) / 100000.0;
   }
 
@@ -383,7 +382,7 @@ public class Interpolation {
     PointsFileReader fileReader =
         new PointsFileReader(
             "/home/yestai/IdeaProjects/Computational-Math-2024/P3208/src/Abdullin_367039/lab5/resources");
-    Pair<double[], double[]> points = fileReader.readPoints();
+    Pair<double[], double[]> points = fileReader.read();
     return points;
   }
 

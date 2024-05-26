@@ -43,7 +43,11 @@ public class PointsFileReader {
     } while (file == null);
 
     try {
-      var lines = Files.lines(file).filter(line -> !line.isBlank()).toList();
+      var lines =
+          Files.lines(file)
+              .filter(line -> !line.isBlank())
+              .map(line -> line.replaceAll(",", "."))
+              .toList();
       double[] x = new double[lines.size()];
       double[] y = new double[lines.size()];
       for (int i = 0; i < lines.size(); i++) {
