@@ -1,3 +1,4 @@
+import decimal
 import random
 import sys
 import time
@@ -22,21 +23,21 @@ def get_input_type() -> int:
         time.sleep(0.5)
 
 
-def print_matrix(mrx: [[float]]):
-    print(tabulate(mrx))
+def print_matrix(mrx: [[decimal]]):
+    print(tabulate(mrx, floatfmt=".5f"))
 
 
-def matrix_valid(mrx: [[float]]) -> str:
+def matrix_valid(mrx: [[decimal]]) -> str:
     n = len(mrx)
     if n > 20:
-        return "matrix to big! Should be n <= 20"
+        return "matrix too big! Should be n <= 20"
     for i in range(n):
         if len(mrx[i]) != n + 1:
             return f"matrix is incorrect! Line {i + 1} is {len(mrx[i])} long, expected: {n + 1}"
     return "ok"
 
 
-def get_matrix_from_file() -> [[float]]:
+def get_matrix_from_file() -> [[decimal]]:
     print("Reading matrix from file, please notice:\n"
           "- matrix should be n + 1 by n in size, extra column being the answers vector\n"
           "- separate entries inside a row via single space\n"
@@ -47,7 +48,7 @@ def get_matrix_from_file() -> [[float]]:
             f = open("../resources/" + file)
             ans = []
             for line in f:
-                ans.append([float(x.replace(",", ".")) for x in line.split(" ")])
+                ans.append([decimal.Decimal(x.replace(",", ".")) for x in line.split(" ")])
             res = matrix_valid(ans)
             f.close()
             if res == "ok":
@@ -62,17 +63,18 @@ def get_matrix_from_file() -> [[float]]:
         time.sleep(0.5)
 
 
-def get_matrix_from_console() -> [[float]]:
+def get_matrix_from_console() -> [[decimal]]:
     print("Enter your matrix. Please note the following:\n"
           "- matrix should be n + 1 by n in size, extra column being the answers vector\n"
           "- separate entries inside a row via single space\n"
           "- n can't be more than 20\n"
+          "- max precision of element is 10 digits after point\n"
           "Enter rows one by one below:")
     while True:
         try:
-            ans = [[float(x.replace(",", ".")) for x in input().split(" ")]]
+            ans = [[decimal.Decimal(x.replace(",", ".")) for x in input().split(" ")]]
             for i in range(len(ans[0]) - 2):
-                ans.append([float(x.replace(",", ".")) for x in input().split(" ")])
+                ans.append([decimal.Decimal(x.replace(",", ".")) for x in input().split(" ")])
             res = matrix_valid(ans)
             if res == 'ok':
                 return ans
@@ -120,7 +122,7 @@ def get_n() -> int:
             time.sleep(0.5)
 
 
-def get_random_matrix() -> [[float]]:
+def get_random_matrix() -> [[decimal]]:
     n = get_n()
     ans = []
     for i in range(n):
@@ -131,7 +133,7 @@ def get_random_matrix() -> [[float]]:
     return ans
 
 
-def check_diagonal_dominance(mrx: [[float]]) -> (bool, [[float]]):
+def check_diagonal_dominance(mrx: [[decimal]]) -> (bool, [[decimal]]):
     abs_mrx = []
     for i in mrx:
         abs_mrx.append([abs(i[x]) for x in range(len(i) - 1)])
@@ -139,7 +141,7 @@ def check_diagonal_dominance(mrx: [[float]]) -> (bool, [[float]]):
     if len(set(max_indexes)) != len(max_indexes):
         return False, mrx
     for i in abs_mrx:
-        if max(i) < sum(i) - max(i):
+        if max(i) <= sum(i) - max(i):
             return False, mrx
     ans = [[] for i in range(len(mrx))]
     j = 0
@@ -149,10 +151,10 @@ def check_diagonal_dominance(mrx: [[float]]) -> (bool, [[float]]):
     return True, ans
 
 
-def get_precision() -> float:
+def get_precision() -> decimal:
     while True:
         try:
-            ans = float(input("Enter desired precision: ").replace(",", "."))
+            ans = decimal.Decimal(input("Enter desired precision: ").replace(",", "."))
             if 0 < ans < 1:
                 return ans
             print("precision should be in format of x.xxx...x and in range of [0; 1]", file=sys.stderr)
@@ -161,14 +163,14 @@ def get_precision() -> float:
         time.sleep(0.5)
 
 
-def do_simple_iteration(c: [[float]], d: [float], x: [float]) -> [float]:
+def do_simple_iteration(c: [[decimal]], d: [decimal], x: [decimal]) -> [decimal]:
     ans_x = []
     for i in range(len(d)):
         ans_x.append(d[i] + sum([x[j] * c[i][j] for j in range(len(c[i]))]))
     return ans_x
 
 
-def iteration_algo(mrx: [[float]], precision: float):
+def iteration_algo(mrx: [[decimal]], precision: decimal):
     n = len(mrx)
     d = [mrx[i][-1] / mrx[i][i] for i in range(n)]
     iter_count = 0
@@ -188,20 +190,26 @@ def iteration_algo(mrx: [[float]], precision: float):
         x_1 = do_simple_iteration(c, d, x)
         errors = [abs(x_1[i] - x[i]) for i in range(len(x))]
         if max(errors) < precision:
-            print(f"Found answer with given precision!\n"
-                  f"answer vector:")
-            for i in range(n):
-                print(f"x_{i + 1}: {x_1[i]}")
-            print("errors vector:")
-            for i in range(n):
-                print(f"|x_{i + 1}({iter_count}) - x_{i + 1}({iter_count - 1})|: {errors[i]}")
-            print(f"Answer was found in {iter_count} iterations!")
-            return
+            return x_1, errors, iter_count
         if max(errors) > last_err:
             print("Answer cannot be found, ОФАЕМ С ПОЗОРОМ", file=sys.stderr)
-            return
+            return None, None, None
         last_err = max(errors)
         x = x_1
+
+
+def print_results(x_1, errors, iter_count):
+    if x_1 is None:
+        return
+    print(f"Found answer with given precision!\n"
+          f"answer vector:")
+    n = len(x_1)
+    for i in range(n):
+        print(f"x_{i + 1}: {x_1[i]}")
+    print("errors vector:")
+    for i in range(n):
+        print(f"|x_{i + 1}({iter_count}) - x_{i + 1}({iter_count - 1})|: {errors[i]}")
+    print(f"Answer was found in {iter_count} iterations!")
 
 
 if __name__ == '__main__':
@@ -221,4 +229,5 @@ if __name__ == '__main__':
     print("Your matrix:")
     print_matrix(matrix)
     eps = get_precision()
-    iteration_algo(matrix, eps)
+    res = iteration_algo(matrix, eps)
+    print_results(res[0], res[1], res[2])
