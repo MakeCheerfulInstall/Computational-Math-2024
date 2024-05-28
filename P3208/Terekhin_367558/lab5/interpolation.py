@@ -63,7 +63,7 @@ class NewtonSeparateInterpolation(Interpolation):
             for j in range(n - i):
                 self.diverse_table[i][j] = (self.diverse_table[i - 1][j + 1]
                                             - self.diverse_table[i - 1][j]) / (self.points[j + i][0] - self.points[j][0])
-        print(tabulate([[headers[k]] + self.diverse_table[k] for k in range(n)], tablefmt='pretty'))
+        print(tabulate([[headers[k]] + list(map(lambda x: round(x, 4), self.diverse_table[k])) for k in range(n)], tablefmt='pretty'))
 
 
 class NewtonFiniteInterpolation(Interpolation):
@@ -89,7 +89,7 @@ class NewtonFiniteInterpolation(Interpolation):
             for j in range(n - i):
                 self.diverse_table[i][j] = (self.diverse_table[i - 1][j + 1]
                                             - self.diverse_table[i - 1][j])
-        print(tabulate([[headers[k]] + self.diverse_table[k] for k in range(n)], tablefmt='pretty'))
+        print(tabulate([[headers[k]] + list(map(lambda x: round(x, 4), self.diverse_table[k])) for k in range(n)], tablefmt='pretty', numalign='decimal'))
 
     def interpolate(self, x: float) -> float:
         ind: int = 0

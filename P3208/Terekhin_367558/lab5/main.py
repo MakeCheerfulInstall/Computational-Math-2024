@@ -15,7 +15,7 @@ if __name__ == '__main__':
     n: int = len(points)
     x: list[float] = [points[i][0] for i in range(n)]
     y: list[float] = [p[1] for p in points]
-    x_range: list[float] = [i / 100 for i in range(math.floor(x[0] * 80), math.ceil(x[-1] * 100 * 1.2))]
+    x_range: list[float] = [i / 100 for i in range(math.floor(x[0] * 100), math.ceil(x[-1] * 100))]
 
     colors = ['red', 'green', 'blue', 'orange', 'purple', 'cyan', 'magenta', 'pink', 'yellow', 'brown']
     color_index: int = 0
@@ -26,6 +26,7 @@ if __name__ == '__main__':
             y_range: list[float] = [interpolation.interpolate(i) for i in x_range]
             plt.plot(x_range, y_range, color=colors[color_index % len(colors)])
             color_index += 1
+            print(f'For x = {argument} using {interpolation.description} y = {round(interpolation.interpolate(argument), 3)}')
         except InterpolationError as e:
             print(e)
 
