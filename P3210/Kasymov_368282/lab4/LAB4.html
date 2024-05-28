@@ -1,0 +1,361 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<style>
+			html, body, .topButtons {
+				margin: 0;
+				background: #00250e;
+				color: #99ff40;
+				height: 100%;
+				width: 100%;
+				font-family: 'Open Sans', sans-serif;
+			}
+			
+			#center_div {
+				position: absolute;
+				background: #005f49;
+				border-radius: 10px;
+				box-shadow: #094c4e 2px 8px 5px 2px;
+			}
+			
+			.topButtons {
+				position: absolute;
+				top: 0px;
+				height: 50px;
+				width: calc(50% - 1px);
+				
+				font-size: 20px;
+			}
+			
+			.tab {
+				position: absolute;
+				top: 50px;
+				left: 0px;
+				right: 0px;
+				display: none;
+			}
+			
+			#from_keyboard_2 {
+				padding: 10px;
+			}
+			#dropDivArea {
+				position: relative;
+				border: 3px dashed #3e78ff;
+				width: calc(100% - 6px);
+				height: calc(100% - 6px);
+				text-align: center;
+			}
+			#dropDivArea img {
+				margin-top:10px;
+				width:20%;
+			}
+			
+			.highlight {
+				background: #444;
+			}
+			
+			#from_keyboard_1 {
+				padding: 10px;
+			}
+			
+			#from_keyboard_1 input, #from_keyboard_1 select, #from_keyboard_1 textarea, #from_keyboard_2 input, #from_keyboard_2 select, #from_keyboard_2 textarea {
+				background: #0002;
+				color: #fff;
+				border-radius: 10px;
+			}
+			#from_keyboard_1 button, from_keyboard_2 button {
+				background: #525252;
+				color: #fff;
+				font-size: 16px;
+			}
+			textarea {
+			   resize: none;
+			   white-space: nowrap;
+			   padding: 5px;
+
+			}
+			#from_keyboard_1 button.rnd-btn, #from_keyboard_2 button.rnd-btn {
+				background: #0000;
+				border: solid 2px #4c4c4c;
+			}
+			#result {
+				padding:10px;
+			}
+			#result pre {
+				width: calc(100% - 20px);
+				height: calc(100% - 20px);
+				overflow: auto;
+				margin: 0;
+				padding: 10px;
+				background: #0003;
+				border-radius: 10px;
+			}
+			
+			#canvas {
+				position: absolute;
+				bottom: 5px;
+				left: 5px;
+				right: 5px;
+				width: calc(100% - 10px);
+				height: 80%;
+			}
+			
+			#output_text {
+				overflow: auto;
+			}
+			
+			#output_text {
+				overflow: auto;
+				display: block;
+				max-height: 500px;
+				position: absolute;
+			}
+			
+			#output_text table {
+				border-collapse: collapse;
+				border: 2px solid rgb(140 140 140);
+				font-family: sans-serif;
+				font-size: 0.8rem;
+				letter-spacing: 1px;
+			}
+			#output_text table th, #output_text table td {
+				border: 1px solid rgb(160 160 160);
+				padding: 4px 4px;
+			}
+		</style>
+		<script src="mycanvas.js"></script>
+		<script src="all.min.js"></script>
+		<script src="math.js" type="text/javascript"></script>
+		<script src="algo.js" type="text/javascript"></script>
+		<script type="text/javascript">
+math.config({
+	number: 'BigNumber',
+	precision: 1010,
+	epsilon: 1e-60
+});
+const parser = math.parser()
+window._ = (x)=>{
+	var s=parser.evaluate(x).toString();
+	if (s=='true') return true;
+	if (s=='false') return false;
+	return s;
+}
+window._floor = (s, eps)=>{
+	var precision=0;
+	while (_(`${eps} < 1`)) { eps = _(`${eps} * 10`); precision++; }
+	return math.bignumber(_(s)).toFixed(precision).replace(/(\.0*|(?<=(\..*))0*)$/, "");
+}
+window.print = (x)=>console.log(_(x));
+window._for = (s, f)=>{
+	if (/^\s*\w+\s*=.+\.\..+$/.test(s)) {
+		var v=s.match(/^\s*(\w+)\s*=(.+)\.\.(.+)$/);
+		for (_(`${v[1]}=${v[2]}`); _(`${v[1]}<=${v[3]}`);_(`${v[1]}=${v[1]}+1`)) f();
+		return;
+	}
+	
+	if (/^.*;.*;.*$/.test(s)) {
+		var v=s.match(/^(.*);(.*);(.*)$/);
+		for (_(v[1]); _(v[2]);_(v[3])) f();
+		return;
+	}
+	throw `_for(${s}) not understandable`;
+};
+
+function test_eq(s) {
+	try {
+		if (s.split('=').length!=2) return 'use only one =!';
+		s = '('+s.split('=')[0] + ') - (' + s.split('=')[1]+')';
+		if ((nerdamer(s).buildFunction()).length!=1) return 'use only 1 parametr!'
+		if ([...s.matchAll('[^*+\-=\(\) ^\/\d]+')].filter(x=>!/^(x|log|sqrt|sin|cos)$/.test(x[0])).length>0) return 'use only x!'
+		return false;
+	} catch (error) {
+		return error.message
+	}
+}
+
+function test_eq2(s) {
+	try {
+		if (s.split('=').length!=2) return 'use only one =!';
+		if (!~s.indexOf('y')) return 'use y!';
+		if (!~s.indexOf('x')) return 'use x!';
+		s = '('+s.split('=')[0] + ') - (' + s.split('=')[1]+')';
+		if ((nerdamer(s).buildFunction()).length!=2) return 'use only 2 parametr!'
+		if ([...s.matchAll('[^*+\-=\(\) ^\/\d]+')].filter(x=>!/^(y|x|log|sqrt|sin|cos)$/.test(x[0])).length>0) return 'use only x, y!'
+		return false;
+	} catch (error) {
+		return error.message
+	}
+}
+
+function get_x(s) {
+	s = '('+s.split('=')[0] + ') - (' + s.split('=')[1]+')';
+	var a=[];
+	a=a.concat(nerdamer('('+s+')+sin(x)/1000000000000=0').solveFor("x").map(x=>_(x.toString())).filter(x=>!~x.indexOf('i')));
+	a=a.concat(nerdamer('('+s+')^2=0').solveFor("x").map(x=>_(x.toString())).filter(x=>!~x.indexOf('i')));
+	a=a.concat(nerdamer('('+s+')=0').solveFor("x").map(x=>_(x.toString())).filter(x=>!~x.indexOf('i')));
+	return a.filter((x, i) => !a.filter((y, j) => _(`abs(${x}-${y})/(abs(max(${x},${y}))+1)<0.00001`) ? i > j : 0).length)
+}
+		</script>
+		
+		<script type="text/javascript">
+			var metods = {"equation":[], "system": []};
+		</script>
+		<script src="metods.js"></script>
+		
+		<script type="text/javascript">
+			function menu(i, s) {
+				algo_1_state = -1;
+				algo_2_state = -1;
+				from_keyboard_1.style.display = (i==0?'block':'');  
+				from_keyboard_2.style.display = (i==1?'block':'');  
+				//result.style.display = (i==2?'block':'');
+				let output_text = document.getElementById("output_text")
+				if(output_text.style.display === "none"){
+					output_text.style.display = "block"
+				} else {
+					output_text.style.display = "none"
+				}
+				change_state();
+			}
+			
+			function previewFile(file) {
+				let reader = new FileReader();
+				reader.readAsText(file);
+				reader.onloadend = function() {
+					menu(2, reader.result);
+				}
+			}
+			
+			var algo_1_state = -1;
+			var algo_2_state = -1;
+			function change_state() {
+				if (from_keyboard_1.style.display == 'block') {
+					if (algo_1_state!=inp_table_x.value || algo_2_state!=inp_table_y.value) {
+						algo_1_state=inp_table_x.value;
+						algo_2_state=inp_table_y.value;
+						console.log(algo_1_state, algo_2_state);
+						
+						var x=algo_1_state.replace(/[^\d\.,]+/, ' ').trim().split(' ').map(x=>parseFloat(x.replace(/,/,'.')));
+						var y=algo_2_state.replace(/[^\d\.,]+/, ' ').trim().split(' ').map(x=>parseFloat(x.replace(/,/,'.')));
+						if (!x.every(x=>x==x)) inp_comment.innerHTML = 'Какое-то число в x не число';
+						else if (!y.every(x=>x==x)) inp_comment.innerHTML = 'Какое-то число в y не число';
+						else if (x.length != y.length) inp_comment.innerHTML = 'Размеры x и y разные';
+						else if (x.length < 2) inp_comment.innerHTML = 'Размер < 2';
+						else {
+							var xy = {x: x, y: y};
+							output_text.innerHTML=__html_gen(xy);
+							DRAW({alg: 1, path:x.map((x,i)=>({x:x,y:y[i]})), g:[n_pow_aprox(xy,2).fun,n_pow_aprox(xy,3).fun,n_pow_aprox(xy,4).fun, exp_aprox(xy).fun, log_aprox(xy).fun, power_aprox(xy).fun]});
+							setTimeout(()=>canvas_events.set_canvas_state({x:canvas.clientWidth/2,y:canvas.clientHeight/2,size:40}),10);
+						}
+					}
+				} else UNDRAW();
+				setTimeout(myresize);
+			}
+			
+			function myresize() {
+				const w = Math.min(document.body.clientWidth-10, Math.max(document.body.clientWidth/1.618,512));
+				const h = Math.min(document.body.clientHeight-10, Math.max(document.body.clientHeight*0.9,600)); // 1.618
+				center_div.style.width = w + 'px';
+				center_div.style.height = h + 'px';
+				center_div.style.left = (document.body.clientWidth/2-w/2) + 'px';
+				center_div.style.top = (document.body.clientHeight/2-h/2) + 'px';
+				
+				var v = canvas_events.get_canvas_state();
+				canvas.width = Math.floor(canvas.clientWidth) + '';
+				if (from_keyboard_1.style.display.trim() == 'block')
+					canvas.height = Math.floor(h-50-from_keyboard_1.clientHeight) + '';
+				
+				if (from_keyboard_2.style.display.trim() == 'block')
+					canvas.height = Math.floor(h-50-from_keyboard_2.clientHeight) + '';
+				canvas_events.set_canvas_state(v);
+				setTimeout(canvas_events.need_repaint);
+			}
+			
+			function previewFile(file) {
+				let reader = new FileReader();
+				reader.readAsText(file);
+				reader.onloadend = function() {
+					var sp = reader.result.split('\n').map(x=>x.trim()).filter(x=>x);
+					if (sp.length!=2) return alert("В файле не 2 строчки!");
+					inp_table_x.value = sp[0];
+					inp_table_y.value = sp[1];
+					menu(0);
+				}
+			}
+			
+			function on_load() {
+				
+				
+				setTimeout(()=>menu(0))
+				addEventListener("resize", myresize);
+				myresize();
+				inp_table_x.addEventListener("change", change_state);
+				inp_table_y.addEventListener("change", change_state);
+				
+				function preventDefaults (e) {
+					e.preventDefault();
+					e.stopPropagation();
+				}
+				['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+					dropArea.addEventListener(eventName, preventDefaults, false)
+				});
+				
+				function highlight(e) {
+				  dropDivArea.classList.add('highlight')
+				}
+				function unhighlight(e) {
+				  dropDivArea.classList.remove('highlight')
+				}
+				['dragenter', 'dragover'].forEach(eventName => {
+				  dropArea.addEventListener(eventName, highlight, false)
+				});
+				['dragleave', 'drop'].forEach(eventName => {
+				  dropArea.addEventListener(eventName, unhighlight, false)
+				});
+				
+				function handleDrop(e) {
+					let dt = e.dataTransfer;
+					let files = dt.files;
+					handleFiles(files);
+				}
+				dropArea.addEventListener('drop', handleDrop, false)
+				
+				function handleFiles(files) {
+					if ([...files].length!=1) return alert('more files');
+					previewFile(files[0]);
+				}
+				
+				dropArea.addEventListener("change", () => {
+					if (dropArea.files.length != 1) return alert('more files');
+					previewFile(dropArea.files[0]);
+				});
+				
+				onload_canvas();
+			}
+			
+			function prepare_menu() {
+				
+			}
+		</script>
+	</head>
+<body onload="on_load();">
+	<div id="center_div">
+		<button class="topButtons" style="left: 0px; width:100%; border-top-left-radius: 10px; color:rgb(255, 255, 255); background: #02522f;" onclick="menu(0);">Calculations</button>
+		<div class="tab" id="from_keyboard_1">
+			X: <input type="text" style="margin: 10px; width: calc(100% - 50px); height:25px; text-align: left;" id="inp_table_x" value="1.1 2.3 3.7 4.5 5.4 6.8 7.5"></input>
+			Y: <input type="text" style="margin: 10px; width: calc(100% - 50px); height:25px; text-align: left;" id="inp_table_y" value="2.73 5.12 7.74 8.91 10.59 12.75 13.43"></input>
+			<span id="inp_comment"></span>
+			<span id="output_text"></span>
+		</div>
+		<div class="tab" id="from_keyboard_2">
+			<div id="dropDivArea"> 
+				<img src="https://www.pngall.com/wp-content/uploads/2/Upload-PNG-Image-File.png" ><br />
+				<span>Choose files</span><br />
+				<span>or drop files here</span>
+				<input type="file" style="opacity: 0.0; position: absolute; top:0; left: 0; bottom: 0; right:0; width: 100%; height:100%;" id="dropArea" />
+			</div>
+		</div>
+		<canvas id="canvas"></canvas>
+	</div>
+</body>
+</html>
