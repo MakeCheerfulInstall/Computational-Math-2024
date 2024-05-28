@@ -1,6 +1,5 @@
 import math
 
-from tabulate import tabulate
 import matplotlib.pyplot as plt
 
 from P3208.Terekhin_367558.lab1.exceptions import InterpolationError
@@ -14,12 +13,9 @@ if __name__ == '__main__':
     argument: float = reader.read_interpolation_argument()
 
     n: int = len(points)
-    sub_table: list[list[float]] = [[points[i][1] for i in range(n)]]
-    for i in range(n - 1):
-        sub_table.append([0] * n)
     x: list[float] = [points[i][0] for i in range(n)]
-    headers = ['y']
-    x_range: list[float] = [i / 100 for i in range(math.floor(points[0][0]) * 100, math.ceil(points[-1][0]) * 100)]
+    y: list[float] = [p[1] for p in points]
+    x_range: list[float] = [i / 100 for i in range(math.floor(x[0] * 80), math.ceil(x[-1] * 100 * 1.2))]
 
     colors = ['red', 'green', 'blue', 'orange', 'purple', 'cyan', 'magenta', 'pink', 'yellow', 'brown']
     color_index: int = 0
@@ -33,13 +29,7 @@ if __name__ == '__main__':
         except InterpolationError as e:
             print(e)
 
-    for i in range(1, n):
-        headers.append(f'Δ^{i}y' if i != 1 else 'Δy')
-        for j in range(n - i):
-            sub_table[i][j] = (sub_table[i - 1][j + 1] - sub_table[i - 1][j]) / (x[j + 1] - x[j])
-    print(tabulate(sub_table, headers, tablefmt='pretty'))
-
-    plt.scatter(x, sub_table[0])
+    plt.scatter(x, y)
     plt.show()
 
 

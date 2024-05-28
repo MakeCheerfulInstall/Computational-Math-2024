@@ -3,6 +3,7 @@ from typing import Final
 
 from tabulate import tabulate
 
+from P3208.Terekhin_367558.lab1.exceptions import InterpolationError
 from P3208.Terekhin_367558.lab2.functions import Describable
 
 
@@ -39,16 +40,15 @@ class LagrangeInterpolation(Interpolation):
 
 class NewtonSeparateInterpolation(Interpolation):
     def __init__(self):
-        super().__init__('Newton separate interpolation')
+        super().__init__('Newton\'s separate interpolation')
         self.diverse_table = []
 
     def interpolate(self, x: float) -> float:
         res: float = self.points[0][1]
-        for i in range(len(self.diverse_table)):
-            subres: float = 1
-            for j in range(i):
-                subres *= x - self.points[j][0]
-            res += self.diverse_table[i][0] * subres
+        subres: float = 1
+        for i in range(len(self.diverse_table) - 1):
+            subres *= x - self.points[i][0]
+            res += self.diverse_table[i + 1][0] * subres
         return res
 
     def set_points(self, points: list[tuple[float, float]]) -> None:
@@ -59,14 +59,62 @@ class NewtonSeparateInterpolation(Interpolation):
             self.diverse_table.append([0] * n)
         headers = ['y']
         for i in range(1, n):
-            headers.append(f'Δ^{i}y' if i != 1 else 'Δy')
+            headers.append(f'f{i}')
             for j in range(n - i):
                 self.diverse_table[i][j] = (self.diverse_table[i - 1][j + 1]
                                             - self.diverse_table[i - 1][j]) / (self.points[j + i][0] - self.points[j][0])
-        print(tabulate(self.diverse_table, headers, tablefmt='pretty'))
+        print(tabulate([[headers[k]] + self.diverse_table[k] for k in range(n)], tablefmt='pretty'))
+
+
+class NewtonFiniteInterpolation(Interpolation):
+    def __init__(self):
+        super().__init__('Newton\'s finite interpolation')
+        self.diverse_table = []
+        self.h = 0
+
+    def set_points(self, points: list[tuple[float, float]]):
+        h = points[1][0] - points[0][0]
+        for i in range(len(points) - 1):
+            if (points[i + 1][0] - points[i][0]) - h >= 0.001:
+                raise InterpolationError('Can\'t solve using finite sums. Step isn\'t constant')
+        self.points = points
+        self.diverse_table = [[p[1] for p in points]]
+        self.h = h
+        n = len(self.points)
+        for i in range(1, n):
+            self.diverse_table.append([0] * n)
+        headers = ['y']
+        for i in range(1, n):
+            headers.append(f'Δ^{i}y' if i != 1 else 'Δy')
+            for j in range(n - i):
+                self.diverse_table[i][j] = (self.diverse_table[i - 1][j + 1]
+                                            - self.diverse_table[i - 1][j])
+        print(tabulate([[headers[k]] + self.diverse_table[k] for k in range(n)], tablefmt='pretty'))
+
+    def interpolate(self, x: float) -> float:
+        ind: int = 0
+        res: float = 0
+        subres = 1
+        mid = (self.points[-1][0] + self.points[0][0]) / 2
+        if x <= mid:
+            while x >= self.points[ind + 1][0]:
+                ind += 1
+            res += self.points[ind][1]
+            for i in range(len(self.diverse_table) - 1 - ind):
+                subres *= (x - self.points[ind + i][0]) / self.h
+                res += self.diverse_table[i + 1][ind] * subres
+        else:
+            while x <= self.points[-(ind + 2)][0]:
+                ind += 1
+            res += self.points[-(ind + 1)][1]
+            for i in range(len(self.diverse_table) - 1 - ind):
+                subres *= (x - self.points[-(i + ind + 1)][0]) / self.h
+                res += self.diverse_table[i + 1][-(ind + i + 2)] * subres
+        return res
 
 
 INTERPOLATIONS: Final[list[Interpolation]] = [
     LagrangeInterpolation(),
-    NewtonSeparateInterpolation()
+    NewtonSeparateInterpolation(),
+    NewtonFiniteInterpolation()
 ]
