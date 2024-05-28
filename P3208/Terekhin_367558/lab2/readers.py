@@ -249,7 +249,7 @@ class FunctionReader(ConsoleReader):
         print('Input points amount:')
         while True:
             try:
-                n: int = int(input('Enter number of points: '))
+                n: int = int(input())
                 if 4 <= n <= 20:
                     break
                 else:
