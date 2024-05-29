@@ -37,9 +37,13 @@ class AbstractReader(Describable):
         return cnt
 
     def read_interpolation_argument(self) -> float:
+        return self.read_argument('Enter argument to interpolate: ')
+
+    def read_argument(self, input_text: str) -> float:
+        print(input_text)
         while True:
             try:
-                x: float = float(input('Enter argument to interpolate: '))
+                x: float = float(input())
                 break
             except ValueError:
                 print('Should be float number. Try again: ')
@@ -137,8 +141,6 @@ class ConsoleReader(AbstractReader):
 
     def read_interpolation_data(self) -> list[tuple[float, float]]:
         return self.read_points()
-
-
 
 
 class FileReader(AbstractReader):
