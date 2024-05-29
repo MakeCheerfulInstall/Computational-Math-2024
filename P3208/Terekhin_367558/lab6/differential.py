@@ -1,3 +1,5 @@
+# differential.py
+
 from abc import abstractmethod
 from typing import Final
 
@@ -76,16 +78,18 @@ class MilneDifferential(Differential):
             _y = self.y[i - 1] + self.h * equation.function(self.x[i - 1], self.y[i - 1])
             self.y[i] = self.y[i - 1] + self.h / 2 * (equation.function(self.x[i - 1], self.y[i - 1])
                                                       + equation.function(self.x[i], _y))
-        n: int = len(self.x)
-        for i in range(5, n):
-            self.y[i] = self.y[i - 4] + 4 * self.h / 3 * (2 * equation.function(self.x[i - 3], self.y[i - 3])
-                                                          - equation.function(self.x[i - 2], self.y[i - 2])
-                                                          + 2 * equation.function(self.x[i - 1], self.y[i - 1]))
-            while abs(self.y[i] - equation.solution(self.x[i], equation.c)) >= eps:
-                self.y[i] = self.y[i - 2] + self.h / 3 * (equation.function(self.x[i - 2], self.y[i - 2])
-                                                          - 4 * equation.function(self.x[i - 1], self.y[i - 1])
-                                                          + equation.function(self.x[i], self.y[i]))
-            return self.y
+        n = len(self.x)
+        for i in range(4, n):
+            self.y[i] = self.y[i - 4] + (4 * self.h / 3) * (2 * equation.function(self.x[i - 3], self.y[i - 3])
+                                                            - equation.function(self.x[i - 2], self.y[i - 2])
+                                                            + 2 * equation.function(self.x[i - 1], self.y[i - 1]))
+            step = 0
+            while abs(self.y[i] - equation.solution(self.x[i], equation.c)) >= eps and step < 1000:
+                self.y[i] = self.y[i - 2] + (self.h / 3) * (equation.function(self.x[i - 2], self.y[i - 2])
+                                                            - 4 * equation.function(self.x[i - 1], self.y[i - 1])
+                                                            + equation.function(self.x[i], self.y[i]))
+                step += 1
+        return self.y
 
 
 DIFFERENTIALS: Final[list[Differential]] = [

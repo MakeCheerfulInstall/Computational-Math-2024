@@ -1,6 +1,7 @@
 import math
 
 import matplotlib.pyplot as plt
+from tabulate import tabulate
 
 from P3208.Terekhin_367558.lab1.exceptions import InterpolationError
 from P3208.Terekhin_367558.lab2.main import request_from_list
@@ -26,7 +27,8 @@ if __name__ == '__main__':
             y_range: list[float] = [interpolation.interpolate(i) for i in x_range]
             plt.plot(x_range, y_range, color=colors[color_index % len(colors)])
             color_index += 1
-            print(f'For x = {argument} using {interpolation.description} y = {round(interpolation.interpolate(argument), 3)}')
+            print(tabulate([interpolation.description]))
+            print(f'For x = {argument} y = {round(interpolation.interpolate(argument), 3)}')
         except InterpolationError as e:
             print(e)
 
