@@ -1,6 +1,6 @@
-from lab3.utils.form import *
-from lab3.methods.method import Method
 from lab3.function import *
+from lab3.methods.method import Method
+from lab3.utils.form import *
 
 
 class Simpson(Method):
@@ -19,11 +19,11 @@ class Simpson(Method):
         while n >= 0:
 
             if n == 0 or n == copy:
-                result += abs(func.get_ordinate(a))
+                result += (func.get_ordinate(a))
             elif n % 2 == 0:
-                result += abs(func.get_ordinate(a)) * 2
+                result += (func.get_ordinate(a)) * 2
             else:
-                result += abs(func.get_ordinate(a)) * 4
+                result += (func.get_ordinate(a)) * 4
 
             x.append(round(a, epsilon))
             y.append(round(func.get_ordinate(a), epsilon))
@@ -31,6 +31,7 @@ class Simpson(Method):
             a += h
             n -= 1
 
+        result *= h / 3
         ddddf = Function(func.diff(4))
         r = abs(ddddf.get_max_ordinate((a, b))) * ((b - a_copy) ** 5) / (180 * copy ** 4)
         print("Ответ:", round(result, epsilon))

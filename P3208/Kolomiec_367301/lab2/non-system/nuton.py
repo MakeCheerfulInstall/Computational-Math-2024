@@ -1,4 +1,5 @@
 from prettytable import PrettyTable
+import matplotlib.pyplot as plt
 
 import tools
 from tools import ACCURACY
@@ -49,6 +50,10 @@ def print_table(values):
     pt = PrettyTable()
     pt.title = "Метод Ньютона"
     pt.field_names = ["№", "x_i", "f(x_i)", "f`(x_i)", "x_i+1", "|x_i+1 - x_i|"]
-    for res in values:
-        pt.add_row(res)
+    fig, ax = plt.subplots()
+    for i in range(len(values)):
+        pt.add_row(values[i])
+        if i == len(values) - 1:
+            ax.scatter(values[i][3], values[i][-2])
+
     print(pt)

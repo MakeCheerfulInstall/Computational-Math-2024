@@ -19,9 +19,9 @@ class Trapezoid(Method):
         while n >= 0:
 
             if n == 0 or n == copy:
-                result += abs(func.get_ordinate(a)) / 2
+                result += (func.get_ordinate(a)) / 2
             else:
-                result += abs(func.get_ordinate(a))
+                result += (func.get_ordinate(a))
 
             x.append(round(a, epsilon))
             y.append(round(func.get_ordinate(a), epsilon))
@@ -29,6 +29,7 @@ class Trapezoid(Method):
             a += h
             n -= 1
 
+        result *= h
         ddf = Function(func.diff(2))
         r = abs(ddf.get_max_ordinate((a, b))) * ((b - a_copy) ** 3) / (12 * copy ** 2)
         print("Ответ:", round(result, epsilon))
