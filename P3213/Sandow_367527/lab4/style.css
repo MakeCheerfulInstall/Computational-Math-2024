@@ -1,0 +1,151 @@
+* {
+  --background_color: #e9e9e9;
+  --font_color: #232323;
+  --main_color: #323232;
+  --complementary_color: #2f2f2f;
+  --border_style: 3px solid var(--main_color);
+}
+
+body {
+  margin: 0;
+  background-color: var(--background_color);
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  color: var(--font_color);
+}
+
+nav {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 0 20px;
+  background-color: var(--background_color);
+  border-bottom: var(--border_style);
+}
+
+nav .container {
+  text-align: center;
+  padding: 10px;
+}
+
+nav .container p:first-of-type {
+  font-size: 16pt;
+  margin: 0;
+}
+
+nav .container p:last-of-type {
+  color: var(--font_color);
+  margin: 0;
+}
+
+main {
+  padding: 20px;
+}
+
+main > * {
+  margin: auto;
+}
+
+main form, main .result {
+  width: 600px;
+}
+
+.field {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: inherit;
+}
+
+.field:has(> input) {
+  align-items: center;
+}
+
+.field input, .field textarea {
+  background-color: var(--background_color);
+  border: var(--border_style);
+  border-radius: 5px;
+  font-size: 15pt;
+  color: var(--font_color);
+}
+
+.field input {
+  height: 30px;
+}
+
+.field input[type="file"] {
+  font-size: 11pt;
+  padding-top: 8px;
+}
+
+.field textarea {
+  height: 200px;
+}
+
+#solve-button {
+  width: 100%;
+  grid-column: 1 / span 2;
+}
+
+#solve-button:hover {
+  cursor: pointer;
+  filter: brightness(0.75);
+}
+
+.result .field p:last-child {
+  border: var(--border_style);
+  padding: 10px 0;
+  text-align: center;
+}
+
+.result table {
+  text-align: center;
+  border-collapse: collapse;
+}
+
+.result table td, .result table th {
+  border: var(--border_style);
+  padding: 15px;
+}
+
+.radio-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.radio-container label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.system {
+  display: flex;
+  gap: 10px;
+}
+
+.system span:first-child {
+  font-size: 24pt;
+}
+
+.hidden {
+  display: none;
+}
+
+.interval {
+  display: flex;
+  justify-content: space-between;
+}
+
+.interval input {
+  width: 50%;
+}
+
+.interval span {
+  font-size: 20pt;
+}
+
+.result__system-value-vectors {
+  table-layout: fixed;
+  width: 100%;
+  word-break: break-all;
+  white-space: break-spaces;
+}
