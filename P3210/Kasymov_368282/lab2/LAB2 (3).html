@@ -1,0 +1,530 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<style>
+			html, body, .topButtons {
+				margin: 0;
+				background: #333;
+				color: #fff;
+				height: 100%;
+				width: 100%;
+				font-family: 'Open Sans', sans-serif;
+			}
+			
+			#center_div {
+				position: absolute;
+				background: #666;
+				border-radius: 10px;
+				box-shadow: #2d2d2d 2px 8px 5px 2px;
+			}
+			
+			.topButtons {
+				position: absolute;
+				top: 0px;
+				height: 50px;
+				width: calc(50% - 1px);
+				
+				font-size: 20px;
+			}
+			
+			.tab {
+				position: absolute;
+				top: 50px;
+				left: 0px;
+				right: 0px;
+				display: none;
+			}
+			
+			#from_keyboard_2 {
+				padding: 10px;
+			}
+			#dropDivArea {
+				position: relative;
+				border: 3px dashed #3e78ff;
+				width: calc(100% - 6px);
+				height: calc(100% - 6px);
+				text-align: center;
+			}
+			#dropDivArea img {
+				margin-top:10px;
+				height:20%;
+			}
+			
+			.highlight {
+				background: #444;
+			}
+			
+			#from_keyboard_1 {
+				padding: 10px;
+			}
+			
+			#from_keyboard_1 input, #from_keyboard_1 select, #from_keyboard_1 textarea, #from_keyboard_2 input, #from_keyboard_2 select, #from_keyboard_2 textarea {
+				background: #0002;
+				color: #fff;
+				border-radius: 10px;
+			}
+			#from_keyboard_1 button, from_keyboard_2 button {
+				background: #525252;
+				color: #fff;
+				font-size: 16px;
+			}
+			textarea {
+			   resize: none;
+			   white-space: nowrap;
+			   padding: 5px;
+			}
+			#from_keyboard_1 button.rnd-btn, #from_keyboard_2 button.rnd-btn {
+				background: #0000;
+				border: solid 2px #4c4c4c;
+			}
+			#result {
+				padding:10px;
+			}
+			#result pre {
+				width: calc(100% - 20px);
+				height: calc(100% - 20px);
+				overflow: auto;
+				margin: 0;
+				padding: 10px;
+				background: #0003;
+				border-radius: 10px;
+			}
+			
+			#canvas {
+				position: absolute;
+				bottom: 5px;
+				left: 5px;
+				right: 5px;
+				width: calc(100% - 10px);
+			}
+		</style>
+		<script src="mycanvas.js"></script>
+		<script src="all.min.js"></script>
+		<script src="math.js" type="text/javascript"></script>
+		<script type="text/javascript">
+math.config({
+	number: 'BigNumber',
+	precision: 1010,
+	epsilon: 1e-60
+});
+const parser = math.parser()
+window._ = (x)=>{
+	var s=parser.evaluate(x).toString();
+	if (s=='true') return true;
+	if (s=='false') return false;
+	return s;
+}
+window._floor = (s, eps)=>{
+	var precision=0;
+	while (_(`${eps} < 1`)) { eps = _(`${eps} * 10`); precision++; }
+	return math.bignumber(_(s)).toFixed(precision).replace(/(\.0*|(?<=(\..*))0*)$/, "");
+}
+window.print = (x)=>console.log(_(x));
+window._for = (s, f)=>{
+	if (/^\s*\w+\s*=.+\.\..+$/.test(s)) {
+		var v=s.match(/^\s*(\w+)\s*=(.+)\.\.(.+)$/);
+		for (_(`${v[1]}=${v[2]}`); _(`${v[1]}<=${v[3]}`);_(`${v[1]}=${v[1]}+1`)) f();
+		return;
+	}
+	
+	if (/^.*;.*;.*$/.test(s)) {
+		var v=s.match(/^(.*);(.*);(.*)$/);
+		for (_(v[1]); _(v[2]);_(v[3])) f();
+		return;
+	}
+	throw `_for(${s}) not understandable`;
+};
+
+function test_eq(s) {
+	try {
+		if (s.split('=').length!=2) return 'use only one =!';
+		s = '('+s.split('=')[0] + ') - (' + s.split('=')[1]+')';
+		if ((nerdamer(s).buildFunction()).length!=1) return 'use only 1 parametr!'
+		if ([...s.matchAll('[^*+\-=\(\) ^\/\d]+')].filter(x=>!/^(x|log|sqrt|sin|cos)$/.test(x[0])).length>0) return 'use only x!'
+		return false;
+	} catch (error) {
+		return error.message
+	}
+}
+
+function test_eq2(s) {
+	try {
+		if (s.split('=').length!=2) return 'use only one =!';
+		if (!~s.indexOf('y')) return 'use y!';
+		if (!~s.indexOf('x')) return 'use x!';
+		s = '('+s.split('=')[0] + ') - (' + s.split('=')[1]+')';
+		if ((nerdamer(s).buildFunction()).length!=2) return 'use only 2 parametr!'
+		if ([...s.matchAll('[^*+\-=\(\) ^\/\d]+')].filter(x=>!/^(y|x|log|sqrt|sin|cos)$/.test(x[0])).length>0) return 'use only x, y!'
+		return false;
+	} catch (error) {
+		return error.message
+	}
+}
+
+function get_x(s) {
+	s = '('+s.split('=')[0] + ') - (' + s.split('=')[1]+')';
+	var a=[];
+	a=a.concat(nerdamer('('+s+')+sin(x)/1000000000000=0').solveFor("x").map(x=>_(x.toString())).filter(x=>!~x.indexOf('i')));
+	a=a.concat(nerdamer('('+s+')^2=0').solveFor("x").map(x=>_(x.toString())).filter(x=>!~x.indexOf('i')));
+	a=a.concat(nerdamer('('+s+')=0').solveFor("x").map(x=>_(x.toString())).filter(x=>!~x.indexOf('i')));
+	return a.filter((x, i) => !a.filter((y, j) => _(`abs(${x}-${y})/(abs(max(${x},${y}))+1)<0.00001`) ? i > j : 0).length)
+}
+		</script>
+		
+		<script type="text/javascript">
+			var metods = {"equation":[], "system": []};
+		</script>
+		<script src="metods.js"></script>
+		
+		<script type="text/javascript">
+			function menu(i, s) {
+				algo_1_state = -1;
+				algo_2_state = -1;
+				from_keyboard_1.style.display = (i==0?'block':'');  
+				from_keyboard_2.style.display = (i==1?'block':'');  
+				result.style.display = (i==2?'block':'');
+				if (i==2) {
+					console.log(s);
+					var p=parse(s);
+					if ((typeof p) == 'object') result_pre.innerHTML=format_output(calculate(p));
+					else result_pre.innerHTML='Ошибка чтения: '+p;
+				}
+				change_state();
+			}
+			
+			function previewFile(file) {
+				let reader = new FileReader();
+				reader.readAsText(file);
+				reader.onloadend = function() {
+					menu(2, reader.result);
+				}
+			}
+			
+			var algo_1_state = -1;
+			var algo_2_state = -1;
+			var eq_1_state = -1;
+			var eq_inp_1_state = '';
+			var eq_inp_2_state = -1;
+			var eq_inp_1_roots = [];
+			var isok = {"eq_inp_1":0};
+			var arg = {};
+			function change_state() {
+				if (from_keyboard_1.style.display == 'block') {
+					if (algo_1_state!=algo_1.value) {
+						algo_1_state=algo_1.value;
+						var html = '';
+						isok = {"eq_inp_1":0};
+						eq_1_state = -1;
+						eq_inp_1_state = '';
+						
+						if (metods.equation[algo_1_state].eps_req) {
+							html+= ''+
+								'	<div style="margin: 10px; height:25px; text-align: center;">'+
+								'		ε = <input type="text" style="margin: 10px; width: 50px; height:20px; text-align: center;" id="eq_inp_eps_1" value="0,01" onchange="change_state()"></input>'+
+								'	</div>'+
+								'	<span id="eq_inp_eps_1_comment"></span>'+
+								'';
+							isok["eq_inp_eps_1"] = 0;
+						}
+						
+						if (metods.equation[algo_1_state].x0_req) {
+							html+= ''+
+								'	<div style="margin: 10px; height:25px; text-align: center;">'+
+								'		x₀ = <input type="text" style="margin: 10px; width: 50px; height:20px; text-align: center;" id="eq_inp_x0_1" value="0,5" onchange="change_state()"></input>'+
+								'	</div>'+
+								'	<span id="eq_inp_x0_1_comment"></span>'+
+								'';
+							isok["eq_inp_x0_1"] = 0;
+						}
+						
+						if (metods.equation[algo_1_state].interval_req) {
+							html+= ''+
+								'	<div style="margin: 10px; height:25px; text-align: center;">'+
+								'		a: <input type="text" style="margin: 10px; width: 50px; height:20px; text-align: center;" id="eq_inp_a_1" value="0" onchange="change_state()"></input> '+
+								'		b: <input type="text" style="margin: 10px; width: 50px; height:20px; text-align: center;" id="eq_inp_b_1" value="1" onchange="change_state()"></input>'+
+								'	</div>'+
+								'	<span id="eq_inp_ab_1_comment"></span>'+
+								'';
+							isok["eq_inp_a_1"] = 0;
+							isok["eq_inp_b_1"] = 0;
+						}
+						add_param.innerHTML = html;
+						return setTimeout(change_state);
+					}
+					if (eq_1_state!=eq_1.value) {
+						eq_1_state=eq_1.value;
+						if (eq_1_state) {
+							eq_inp_1.value = eq_1_state;
+							eq_inp_1.disabled = true;
+						} else {
+							eq_inp_1.disabled = false;
+						}
+					}
+					if (eq_inp_1_state!=eq_inp_1.value) {
+						eq_inp_1_state=eq_inp_1.value;
+						var v=test_eq(eq_inp_1_state.replace(/,/g,'.'));
+						if (v) {
+							eq_inp_1_comment.innerHTML=v;
+							isok["eq_inp_1"]=0;
+						} else {
+							isok["eq_inp_1"]=1;
+							eq_inp_1_roots = get_x(eq_inp_1_state.replace(/,/g,'.')).sort((x,y)=>parseFloat(_(`${x} - ${y}`)));
+							eq_inp_1_comment.innerHTML='Корни: ['+eq_inp_1_roots.map(x=>math.round(x, 5)).join(', ')+']';
+						}
+					}
+					arg = {};
+					if (metods.equation[algo_1_state].interval_req) {
+						isok["eq_inp_a_1"] = 0;
+						if (!/^-?([1-9]\d{0,5}|0)(\.\d+)?$/.test(eq_inp_a_1.value.replace(/,/g,'.'))) {
+							eq_inp_ab_1_comment.innerHTML = 'a is not number';
+						} else {
+							arg['a'] = parseFloat(eq_inp_a_1.value.replace(/,/g,'.'));
+							isok["eq_inp_a_1"] = 1;
+							isok["eq_inp_b_1"] = 0;
+							
+							if (!/^-?([1-9]\d{0,5}|0)(\.\d+)?$/.test(eq_inp_b_1.value.replace(/,/g,'.'))) {
+								eq_inp_ab_1_comment.innerHTML = 'b is not number';
+							} else {
+								arg['b'] = parseFloat(eq_inp_b_1.value.replace(/,/g,'.'));
+								if (_(`${arg['a']} >= ${arg['b']}`)) {
+									eq_inp_ab_1_comment.innerHTML = 'a>=b';
+								} else {
+									if (isok["eq_inp_1"] && eq_inp_1_roots.filter(x=>_(`${arg['a']} <= ${x}`) && _(`${x} <= ${arg['b']}`)).length!=1) {
+										eq_inp_ab_1_comment.innerHTML = 'Количество корней в интервале != 1';
+									} else {
+										isok["eq_inp_b_1"] = 1;
+										if (eq_inp_ab_1_comment.innerHTML!='') eq_inp_ab_1_comment.innerHTML = '';
+									}
+								}
+							}
+						}
+					}
+					if (metods.equation[algo_1_state].eps_req) {
+						isok["eq_inp_eps_1"] = 0;
+						if (!/^([1-9]\d{0,5}|0)(\.\d+)?$/.test(eq_inp_eps_1.value.replace(/,/g,'.'))) {
+							eq_inp_eps_1_comment.innerHTML = 'eps is not number';
+						} else if (parseFloat(eq_inp_eps_1.value.replace(/,/g,'.'))<=0.00000001) {
+							eq_inp_eps_1_comment.innerHTML = 'eps <= 0';
+						} else {
+							eq_inp_eps_1_comment.innerHTML = '';
+							arg['eps'] = parseFloat(eq_inp_eps_1.value.replace(/,/g,'.'));
+							isok["eq_inp_eps_1"] = 1;
+						}
+					}
+					if (metods.equation[algo_1_state].x0_req) {
+						isok["eq_inp_x0_1"] = 0;
+						if (!/^-?([1-9]\d{0,5}|0)(\.\d+)?$/.test(eq_inp_x0_1.value.replace(/,/g,'.'))) {
+							eq_inp_x0_1_comment.innerHTML = 'x0 is not number';
+						} else {
+							eq_inp_x0_1_comment.innerHTML = '';
+							arg['x0'] = parseFloat(eq_inp_x0_1.value.replace(/,/g,'.'));
+							isok["eq_inp_x0_1"] = 1;
+						}
+					}
+					
+					if (Object.values(isok).filter(x=>!x).length == 0) {
+						var f = nerdamer('('+eq_inp_1_state.replace(/,/g,'.').replace('=',')-(')+')').buildFunction();
+						var df = nerdamer(nerdamer.diff('('+eq_inp_1_state.replace(/,/g,'.').replace('=',')-(')+')').toString()).buildFunction();
+						var p = metods.equation[algo_1_state].calculate(f, arg, df);
+						if ((typeof p) != 'object') {
+							eq_out_1_comment.innerHTML = p.toString();
+							UNDRAW();
+						} else {
+							eq_out_1_comment.innerHTML = p.text || '';
+							DRAW({alg: eq_inp_1_state, path: p.path,g:[f],r:eq_inp_1_roots.map(x=>parseFloat(x)), interval_a: [arg['a']], interval_b: [arg['b']]});
+						}
+					} else {
+						eq_out_1_comment.innerHTML = '';
+						UNDRAW();
+					}
+				} else {
+					if (algo_2_state!=algo_2.value) {
+						algo_2_state=algo_2.value;
+						isok = {"f_inp_2":0,"g_inp_2":0,"x0_inp_2":0,"y0_inp_2":0,};
+						eq_inp_2_state = '';
+						
+						return setTimeout(change_state);
+					}
+					
+					if (eq_inp_2_state!=f_inp_2.value+'$'+g_inp_2.value) {
+						eq_inp_2_state=f_inp_2.value+'$'+g_inp_2.value;
+						var v=test_eq2(f_inp_2.value.replace(/,/g,'.'));
+						if (v) {
+							eq_inp_2_comment.innerHTML=v;
+							isok["f_inp_2"]=0;
+						} else {
+							isok["f_inp_2"]=1;
+							v=test_eq2(g_inp_2.value.replace(/,/g,'.'));
+							if (v) {
+								eq_inp_2_comment.innerHTML=v;
+								isok["g_inp_2"]=0;
+							} else {
+								isok["g_inp_2"]=1;
+							}
+						}
+					}
+					
+					
+					if (metods.system[algo_2_state].x0_req) {
+						isok["x0_inp_2"] = 0;
+						isok["y0_inp_2"] = 0;
+						if (!/^-?([1-9]\d{0,5}|0)(\.\d+)?$/.test(x0_inp_2.value.replace(/,/g,'.'))) {
+							x0_inp_2_comment.innerHTML = 'x0 is not number';
+						} else {
+							if (!/^-?([1-9]\d{0,5}|0)(\.\d+)?$/.test(y0_inp_2.value.replace(/,/g,'.'))) {
+								x0_inp_2_comment.innerHTML = 'y0 is not number';
+							} else {
+								x0_inp_2_comment.innerHTML = '';
+								arg['x0'] = parseFloat(x0_inp_2.value.replace(/,/g,'.'));
+								arg['y0'] = parseFloat(y0_inp_2.value.replace(/,/g,'.'));
+								isok["x0_inp_2"] = 1;
+								isok["y0_inp_2"] = 1;
+							}
+						}
+					}
+					
+					
+					
+					if (from_keyboard_2.style.display == 'block')
+						if (Object.values(isok).filter(x=>!x).length == 0) {
+							var f = '('+f_inp_2.value.replace(/,/g,'.').replace('=',')-(')+')';
+							var g = '('+g_inp_2.value.replace(/,/g,'.').replace('=',')-(')+')';
+							var fs=[];
+							var gs=[];
+							gs=gs.concat(nerdamer('('+f_inp_2.value.replace(/,/g,'.').replace('=',')-(')+')').solveFor('x').toString().split(',').map(x=>nerdamer(x).buildFunction()));
+							gs=gs.concat(nerdamer('('+g_inp_2.value.replace(/,/g,'.').replace('=',')-(')+')').solveFor('x').toString().split(',').map(x=>nerdamer(x).buildFunction()));
+							
+							fs=fs.concat(nerdamer('('+f_inp_2.value.replace(/,/g,'.').replace('=',')-(')+')').solveFor('y').toString().split(',').map(x=>nerdamer(x).buildFunction()));
+							fs=fs.concat(nerdamer('('+g_inp_2.value.replace(/,/g,'.').replace('=',')-(')+')').solveFor('y').toString().split(',').map(x=>nerdamer(x).buildFunction()));
+							var mf = nerdamer(f).buildFunction();
+							var mg = nerdamer(g).buildFunction();
+							
+							var p = metods.system[algo_2_state].calculate(mf,mg,(x,y)=>[[(mf(x,y)-mf(x+0.0001,y))/0.0001, (mf(x,y)-mf(x,y+0.0001))/0.0001],[(mg(x,y)-mg(x+0.0001,y))/0.0001, (mg(x,y)-mg(x,y+0.0001))/0.0001]],arg);
+							if ((typeof p) != 'object') {
+								out_inp_2_comment.innerHTML = p.toString();
+								UNDRAW();
+							} else {
+								out_inp_2_comment.innerHTML = p.text || '';
+								DRAW({alg: 100+algo_2_state, path: p.path, g:fs, f:gs});
+							}
+							
+						} else {
+							out_inp_2_comment.innerHTML = '';
+							UNDRAW();
+						}
+				}
+				setTimeout(myresize);
+			}
+			
+			function myresize() {
+				const w = Math.min(document.body.clientWidth-10, Math.max(document.body.clientWidth/1.618,512));
+				const h = Math.min(document.body.clientHeight-10, Math.max(document.body.clientHeight/1.618,600));
+				center_div.style.width = w + 'px';
+				center_div.style.height = h + 'px';
+				center_div.style.left = (document.body.clientWidth/2-w/2) + 'px';
+				center_div.style.top = (document.body.clientHeight/2-h/2) + 'px';
+				
+				var v = canvas_events.get_canvas_state();
+				canvas.width = Math.floor(canvas.clientWidth) + '';
+				if (from_keyboard_1.style.display.trim() == 'block')
+					canvas.height = Math.floor(h-50-from_keyboard_1.clientHeight) + '';
+				
+				if (from_keyboard_2.style.display.trim() == 'block')
+					canvas.height = Math.floor(h-50-from_keyboard_2.clientHeight) + '';
+				canvas_events.set_canvas_state(v);
+				setTimeout(canvas_events.need_repaint);
+			}
+			
+			function on_load() {
+				
+				
+				addEventListener("resize", myresize);
+				myresize();
+				
+				algo_1.addEventListener("change", change_state);
+				eq_1.addEventListener("change", change_state);
+				
+				algo_2.addEventListener("change", change_state);
+				
+				algo_1.innerHTML = metods.equation.map((x,i)=>'<option value="'+i+'">'+x.name+'</option>').join('');
+				algo_2.innerHTML = metods.system.map((x,i)=>'<option value="'+i+'">'+x.name+'</option>').join('');
+				
+				eq_inp_1.addEventListener('input', change_state);
+				onload_canvas();
+				setTimeout(()=>menu(0))
+			}
+			
+			function prepare_menu() {
+				
+			}
+		</script>
+	</head>
+<body onload="on_load();">
+	<div id="center_div">
+		<button class="topButtons" style="left: 0px; border-top-left-radius: 10px; background: #555;" onclick="menu(0);">Нелинейное уравнение</button>
+		<button class="topButtons" style="right: 0px; border-top-right-radius: 10px; background: #484848;" onclick="menu(1);">Система</button>
+		<div class="tab" id="from_keyboard_1">
+			<div style="margin: 10px; height:25px; text-align: center;">
+				Алгоритм:
+				<select id="algo_1" style="height:100%;">
+				</select>
+			</div>
+			<div style="margin: 10px; height:25px; text-align: center;">
+				Уравнение:
+				<select id="eq_1" style="height:100%;">
+					<option value="x^3 + 4,81*x^2 - 17,37*x + 5,38 = 0">𝑥³ + 4,81𝑥² − 17,37𝑥 + 5,38</option>
+					<option value="x^3 + 2,92*x^2 - 1,435*x + 0,791 = 0">𝑥³ + 2,92𝑥² − 1,435𝑥 + 0,791</option>
+					<option value="x^3 - 2,56*x^2 - 1,325*x + 4,395 = 0">𝑥³ − 2,56𝑥² − 1,325𝑥 + 4,395</option>
+					<option value="">пользовательское</option>
+				</select>
+			</div>
+			<input type="text" style="margin: 10px; width: calc(100% - 20px); height:25px; text-align: center;" id="eq_inp_1" value="x^3 + 4,81*x^2 − 17,37*x + 5,38 = 0"></input>
+			<span id="eq_inp_1_comment"></span>
+			<div id="add_param"></div>
+			<span id="eq_out_1_comment"></span>
+			<!--<div style="position: absolute; left: 10px; bottom: 45px; right:10px; height:25px; text-align: center;">
+				Формат вывода:
+				<select name="select" style="height:100%;">
+				  <option value="fixed">fixed</option>
+				  <option value="round" selected>round</option>
+				  <option value="raw">raw</option>
+				</select>
+			</div>-->
+		</div>
+		<div class="tab" id="from_keyboard_2">
+			<div style="margin: 10px; height:25px; text-align: center;">
+				Алгоритм:
+				<select id="algo_2" style="height:100%;">
+				</select>
+			</div>
+			<div style="margin: 10px; height:65px; text-align: center;">
+				<input type="text" style="margin: 5px 10px; width: calc(100% - 20px); height:25px; text-align: center;" id="f_inp_2" value="sin(y) + 2x = 2" onchange="change_state()"></input><br>
+				<input type="text" style="margin: 5px 10px; width: calc(100% - 20px); height:25px; text-align: center;" id="g_inp_2" value="y + cos(x) = 0.7" onchange="change_state()"></input>
+			</div>
+			<span id="eq_inp_2_comment"></span>
+			<div style="margin: 10px; height:25px; text-align: center;">
+				x₀ = <input type="text" style="margin: 10px; width: 50px; height:20px; text-align: center;" id="x0_inp_2" value="0,5" onchange="change_state()"></input>
+				y₀ = <input type="text" style="margin: 10px; width: 50px; height:20px; text-align: center;" id="y0_inp_2" value="0,5" onchange="change_state()"></input>
+			</div>
+			<span id="x0_inp_2_comment"></span>
+			<span id="out_inp_2_comment"></span>
+			
+			
+			
+			
+			<!--<div id="dropDivArea"> 
+				<img src="https://www.pngall.com/wp-content/uploads/2/Upload-PNG-Image-File.png" ><br />
+				<span>Choose files</span><br />
+				<span>or drop files here</span>
+				<input type="file" style="opacity: 0.0; position: absolute; top:0; left: 0; bottom: 0; right:0; width: 100%; height:100%;" id="dropArea" />
+			</div>-->
+		</div>
+		<div class="tab" id="result">
+			<pre id="result_pre">22222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222
+22222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222
+22222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222</pre>
+		</div>
+		<canvas id="canvas"></canvas>
+	</div>
+</body>
+</html>
