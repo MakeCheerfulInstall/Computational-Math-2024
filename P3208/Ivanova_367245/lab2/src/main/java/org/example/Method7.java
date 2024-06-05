@@ -10,8 +10,7 @@ public class Method7 {
     private double [] pogreshnosty = new double[10];
 
 
-    private static final int MAX_ITERATIONS = 1000; // Максимальное количество итераций
-
+    private static final int MAX_ITERATIONS = 1000;
     public  double[] solve(double initialGuessX, double initialGuessY, int systemChoice, double epsilon) {
         double x = initialGuessX;
         double y = initialGuessY;
@@ -31,7 +30,6 @@ public class Method7 {
             x = newX;
             y = newY;
             iterations++;
-            // Проверяем условие останова
 
         }
 
