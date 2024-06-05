@@ -162,4 +162,4 @@ def calculate_multiple_equations() -> None:
 
 if __name__ == '__main__':
     calculate_multiple_equations()
-    # calculate_single_equations()
+   # calculate_single_equations()
