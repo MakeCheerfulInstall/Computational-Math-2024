@@ -1,8 +1,3 @@
-package lab1;
-
-import Abdullin_367039.lab1.MatrixParser;
-import Abdullin_367039.lab1.SLAUReader;
-
 import java.io.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;
