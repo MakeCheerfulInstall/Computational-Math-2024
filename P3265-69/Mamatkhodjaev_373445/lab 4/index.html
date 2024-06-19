@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>лаба 4</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/numeric/1.2.6/numeric.min.js"></script>
+
+</head>
+<body>
+    <h1>АППРОКСИМАЦИЯ ФУНКЦИИ МЕТОДОМ
+        НАИМЕНЬШИХ КВАДРАТОВ</h1>
+    <!-- Text input for data -->
+    <textarea id="dataInput"></textarea>
+
+    <!-- File input for data -->
+    <input type="file" id="fileInput" accept=".txt">
+    <button onclick="loadFile()">Загрузить данные из файла</button>
+
+    <!-- Button to use text input data -->
+    <button onclick="useTextInput()">Ввести данные вручную</button>
+
+    <div id="output"></div>
+    <div id="linearPlot" style="width:600px;height:400px;"></div>
+    <div id="exponentialPlot" style="width:600px;height:400px;"></div>
+    <div id="powerPlot" style="width:600px;height:400px;"></div>
+    <div id="logarithmicPlot" style="width:600px;height:400px;"></div>
+    <div id="polynomial2Plot" style="width:600px;height:400px;"></div>
+    <div id="polynomial3Plot" style="width:600px;height:400px;"></div>
+    <script src="analysis.js"></script>
+</body>
+</html>

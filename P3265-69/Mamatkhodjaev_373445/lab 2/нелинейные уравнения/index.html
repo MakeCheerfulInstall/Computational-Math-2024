@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab 2</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+        }
+
+        label {
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        input {
+            margin-bottom: 10px;
+            border-radius: 10px;
+            border-color: #ccc;
+            height: 25px;
+        }
+
+        button {
+            margin-bottom: 20px;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        canvas {
+            border: 1px solid #ccc;
+            margin-top: 20px;
+        }
+    </style>
+    <h1>Нелинейные уравнения</h1>
+    
+    <label for="lowLimit">Введите первое значение интервала:</label>
+    <input type="number" id="lowLimit" step="any"><br>
+    
+    <label for="upLimit">Введите второе значение интервала:</label>
+    <input type="number" id="upLimit" step="any"><br>
+
+    <label for="initialTolerance">Введите погрешность:</label>
+    <input type="number" id="initialTolerance" step="any"><br>
+
+    <label for="fileData">Или выберете данные из файла:</label>
+    <input type="file" onchange="onInputLoaded(this)" id="fileData" step="any"><br>
+
+    <button onclick="solve()">Рассчитать</button><br>
+
+    <div id="solution"></div>
+    <canvas id="graphCanvas" ></canvas>
+
+    <script>
+        onInputLoaded = (input) =>{
+            let file = input.files[0];
+            let reader = new FileReader();
+            reader.readAsText(file);
+            reader.onload = function () {
+                let newArr = JSON.stringify(reader.result.trim()).split("_");
+                document.getElementById("upLimit").value = newArr[1];
+                document.getElementById("lowLimit").value = newArr[2];
+                document.getElementById("initialTolerance").value = newArr[3];
+            }
+            
+        }
+
+        // Определение функции уравнения
+        function equationFunction(x) {
+            return x ** 3 + 4.81 * x ** 2 - 17.37 * x + 5.38;
+        }
+
+        // Метод половинного деления
+        function bisectionMethod(a, b, tolerance) {
+            let iteration = 0;
+            let c = (a + b) / 2;
+            let fc = equationFunction(c);
+
+            while (Math.abs(fc) > tolerance) {
+                c = (a + b) / 2;
+                fc = equationFunction(c);
+
+                if (equationFunction(a) * fc < 0) {
+                    b = c;
+                } else {
+                    a = c;
+                }
+
+                iteration++;
+            }
+
+            return { root: c, iterations: iteration };
+        }
+
+        // Метод секущих
+        function secantMethod(x0, x1, tolerance) {
+            let iteration = 0;
+            let x = x1;
+            let fx = equationFunction(x);
+
+            while (Math.abs(fx) > tolerance) {
+                const xNew = x - (fx * (x - x0)) / (fx - equationFunction(x0));
+                x0 = x;
+                x = xNew;
+                fx = equationFunction(x);
+
+                iteration++;
+            }
+
+            return { root: x, iterations: iteration };
+        }
+
+        // Метод простой итерации
+        function simpleIterationMethod(a, b, tolerance) {
+            // Проверка условия сходимости метода простой итерации
+            const lambda = 1 / Math.max(
+                Math.abs(equationFunction(a)),
+                Math.abs(equationFunction(b))
+            );
+            if (lambda >= 1) {
+                throw new Error("Метод простой итерации не сходится на заданном интервале.");
+            }
+
+            let iteration = 0;
+            let x = (a + b) / 2;
+            let fx = equationFunction(x);
+
+            while (Math.abs(fx) > tolerance && iteration) {
+                x = equationFunction(x);
+                fx = equationFunction(x);
+
+                iteration++;
+            }
+
+            return { root: x, iterations: iteration };
+        }
+
+        // Функция для проверки наличия корня на заданном интервале
+        function checkRootExistence(a, b) {
+            let signChange = false;
+            let prevSign = Math.sign(equationFunction(a));
+
+            for (let x = a + 0.1; x <= b; x += 0.1) {
+                const sign = Math.sign(equationFunction(x));
+                if (sign !== prevSign) {
+                    if (signChange) {
+                        // Если найдено второе изменение знака, значит, есть более одного корня
+                        return false;
+                    }
+                    signChange = true;
+                }
+                prevSign = sign;
+            }
+
+            // Проверяем знаки на концах интервала
+            return equationFunction(a) * equationFunction(b) < 0;
+        }
+
+        // Функция для поиска начального приближения к корню
+        function findInitialApproximation(a, b) {
+            const fa = equationFunction(a);
+            const fb = equationFunction(b);
+
+            if (Math.abs(fa) < Math.abs(fb)) {
+                return [a, a + (b - a) / 2];
+            } else {
+                return [b - (b - a) / 2, b];
+            }
+        }
+
+        // Функция для вывода результатов
+        function printResults(root, functionValue, iterations) {
+            console.log("Найденный корень уравнения:", root);
+            console.log("Значение функции в корне:", functionValue);
+            console.log("Количество итераций:", iterations);
+        }
+
+        // Функция для вывода графика на страницу
+        function plotFunction() {
+            const canvas = document.getElementById("graphCanvas");
+            const ctx = canvas.getContext("2d");
+
+            const minX = -8;
+            const maxX = 5;
+            const step = 0.01;
+
+            const data = {
+                labels: [],
+                datasets: [{
+                    label: 'Значение х при значени у',
+                    borderColor: 'rgb(75, 192, 192)',
+                    data: [],
+                    fill: false,
+                    tension: 0
+                }]
+            };
+
+            for (let x = minX; x <= maxX; x += step) {
+                data.labels.push(x);
+                data.datasets[0].data.push({ x: x, y: equationFunction(x) });
+            }
+
+            const config = {
+                type: 'line',
+                data: data,
+                options: {
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            position: 'bottom',
+                            grid: {
+                                color: ctx => ctx.tick.value === 0 ? 'red' : 'rgba(0, 0, 0, 0.1)' // Красный цвет для нулевой оси
+                            },
+                        },
+                        y: {
+                            type: 'linear',
+                            position: 'left',
+                            grid: {
+                                color: ctx => ctx.tick.value === 0 ? 'red' : 'rgba(0, 0, 0, 0.1)' // Красный цвет для нулевой оси
+                            },
+                        }
+                    }
+                }
+            };
+
+            // Очистка холста и отображение графика
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            new Chart(ctx, config);
+        }
+
+        function findRootsWithAxesIntersection(min, max) {
+            const roots = [];
+            if (equationFunction(min) * equationFunction(max) <= 0) {
+                roots.push(min);
+            }
+            for (let x = min; x <= max; x += 0.1) {
+                if (equationFunction(x) * equationFunction(x + 0.1) <= 0) {
+                    roots.push(x + 0.1);
+                }
+            }
+            return roots;
+        }
+
+        function solve() {
+            
+            const upLimit = parseFloat(document.getElementById("upLimit").value);
+            const lowLimit = parseFloat(document.getElementById("lowLimit").value);
+            const tolerance = parseFloat(document.getElementById("initialTolerance").value);
+
+            
+            if (checkRootExistence(upLimit, lowLimit)) {
+                const initialApproximation = findInitialApproximation(upLimit, lowLimit);
+                
+                const rootBisection = bisectionMethod(upLimit, lowLimit, tolerance);
+                const rootSecant = secantMethod(initialApproximation[0], initialApproximation[1], tolerance);
+                const rootSimpleIteration = simpleIterationMethod(upLimit, lowLimit, tolerance);
+                
+                console.log("Метод половинного деления");
+                printResults(rootBisection.root, equationFunction(rootBisection.root), rootBisection.iterations);
+                console.log("Метод секущих");
+                printResults(rootSecant.root, equationFunction(rootSecant.root), rootSecant.iterations);
+                console.log("Метод простых итераций");
+                printResults(rootSimpleIteration.root, equationFunction(rootSimpleIteration.root), rootSimpleIteration.iterations);
+            } else {
+                console.log("На указанном интервале корней нет или их несколько.");
+            }
+        }
+
+        plotFunction();
+    </script>
+</body>
+</html>

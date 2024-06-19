@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Интерполяция</title>
+</head>
+<body>
+<h2>Интерполяционный калькулятор</h2>
+<div>
+  <label for="input-method">Выберите метод ввода данных:</label>
+  <select id="input-method">
+    <option value="manual">Вручную</option>
+    <option value="file">Из файла</option>
+    <option value="function">Функция</option>
+  </select>
+</div>
+<div id="data-entry">
+  <!-- Динамически добавляемые поля для ввода данных -->
+</div>
+<div>
+  <button onclick="processData()">Обработать данные</button>
+</div>
+<div id="output">
+  <!-- Результаты интерполяции -->
+</div>
+<div id="difference-table"></div>
+
+<div id="plot"></div>
+
+<script src="interpolation.js"></script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</body>
+</html>
