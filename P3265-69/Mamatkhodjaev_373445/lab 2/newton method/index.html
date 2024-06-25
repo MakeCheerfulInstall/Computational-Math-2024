@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab 2</title>
+</head>
+<body>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+        }
+
+        label {
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        input {
+            margin-bottom: 10px;
+            border-radius: 10px;
+            border-color: #ccc;
+            height: 25px;
+        }
+
+        button {
+            margin-bottom: 20px;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        canvas {
+            border: 1px solid #ccc;
+            margin-top: 20px;
+        }
+    </style>
+    <h1>Метод Ньютона для решения систем нелинейных уравнений</h1>
+    
+    <label for="initialGuessX">Введите приближение для x:</label>
+    <input type="number" id="initialGuessX" step="any"><br>
+    
+    <label for="initialGuessY">Введите приближение для y:</label>
+    <input type="number" id="initialGuessY" step="any"><br>
+
+    <label for="initialTolerance">Введите погрешность:</label>
+    <input type="number" id="initialTolerance" step="any"><br>
+
+    <button onclick="solve()">Рассчитать</button><br>
+
+    <div id="solution"></div>
+    <div class="wrapper" width="1000" height="400">
+        <canvas id="chart" width="400" height="400"></canvas>
+    </div>
+    
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/node_modules/numeric/numeric-1.2.6.min.js"></script>
+    <script>
+        // Уравнения системы
+        const equations = [
+            (x, y) => x**2 + y**2 - 4,
+            (x, y) => x**2 - y - 1
+        ];
+
+        // Производные уравнений по x
+        const derivativesX = [
+            (x, y) => 2*x,
+            (x, y) => 2*x
+        ];
+
+        // Производные уравнений по y
+        const derivativesY = [
+            (x, y) => 2*y,
+            (x, y) => -1
+        ];
+
+        function plotGraph() {
+    const canvas = document.getElementById('chart');
+    const ctx = canvas.getContext('2d');
+
+    // Генерируем точки для построения графиков
+    const dataX = [];
+    const dataY1 = [];
+    const dataY2 = [];
+    for (let x = -5; x <= 5; x += 0.1) {
+        dataX.push(x);
+        dataY1.push(Math.sqrt(4 - x**2)); // Для уравнения x^2 + y^2 = 4 решаем уравнение относительно y
+        dataY2.push(x**2 - 1); // Для уравнения x^2 - y - 1 решаем уравнение относительно y
+    }
+    for (let x = -5; x <= 5; x += 0.1) {
+        dataX.push(x);
+        dataY1.push(-Math.sqrt(4 - x**2)); // Для уравнения x^2 + y^2 = 4 решаем уравнение относительно y
+    }
+
+    dataX.push(-2);
+    dataY1.push(0)
+
+    const chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: dataX,
+            datasets: [
+                {
+                    label: 'x^2 + y^2 = 4',
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    data: dataY1,
+                    borderWidth: 1
+                },
+                {
+                    label: 'x^2 - y - 1',
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    data: dataY2,
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            scales: {
+                x: {
+                    type: 'linear',
+                    position: 'bottom'
+                },
+                y: {
+                    min: -5,
+                    max: 5
+                }
+            }
+        }
+    });
+}
+
+
+
+        function solve() {
+            const initialGuessX = parseFloat(document.getElementById("initialGuessX").value);
+            const initialGuessY = parseFloat(document.getElementById("initialGuessY").value);
+            const initialTolerance = parseFloat(document.getElementById("initialTolerance").value);
+
+            const solution = newtonMethod(equations, derivativesX, derivativesY, [initialGuessX, initialGuessY], initialTolerance);
+
+            if (solution) {
+                document.getElementById("solution").innerHTML = `Вектор корней: [${solution[0].toFixed(2)}, ${solution[1].toFixed(2)}]`;
+                plotGraph(solution);
+            }
+        }
+
+        function newtonMethod(equations, derivativesX, derivativesY, initialGuess, tolerance) {
+            let x = initialGuess[0];
+            let y = initialGuess[1];
+            let errors = [];
+            let iteration = 0;
+
+            while (true) {
+                const f = equations.map(eq => eq(x, y));
+                const J = [
+                    [derivativesX[0](x, y), derivativesY[0](x, y)],
+                    [derivativesX[1](x, y), derivativesY[1](x, y)]
+                ];
+                const JInverse = numeric.inv(J);
+                const correction = numeric.dot(JInverse, f);
+                x -= correction[0];
+                y -= correction[1];
+                const error = Math.max(...f.map(Math.abs));
+                errors.push(error);
+                iteration++;
+
+                if (error < tolerance) {
+                    console.log("Найденные корни:");
+                    console.log("x =", x);
+                    console.log("y =", y);
+                    console.log("Количество итераций:", iteration);
+                    console.log("Вектор ошибок:", errors);
+                    return [x, y];
+                }
+            }
+
+            return null;
+        }
+    </script>
+</body>
+</html>

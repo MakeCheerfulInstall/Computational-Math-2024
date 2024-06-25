@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Решение ОДУ</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <h1>Решение ОДУ численными методами</h1>
+    <form id="inputForm">
+        <label for="equation">Выберите ОДУ:</label>
+        <select id="equation">
+            <option value="1">y' = x + y</option>
+            <option value="2">y' = x - y^2</option>
+            <option value="3">y' = y * sin(x)</option>
+        </select><br>
+
+        <label for="y0">Начальное условие y(0):</label>
+        <input type="number" id="y0" required><br>
+
+        <label for="x0">Начальное значение x0:</label>
+        <input type="number" id="x0" required><br>
+
+        <label for="xn">Конечное значение xn:</label>
+        <input type="number" id="xn" required><br>
+
+        <label for="h">Шаг h:</label>
+        <input type="number" step="0.01" id="h" required><br>
+
+        <label for="accuracy">Точность ε:</label>
+        <input type="number" step="0.0001" id="accuracy" required><br>
+
+        <button type="button" id="calculateButton">Рассчитать</button>
+    </form>
+    <div id="results"></div>
+    <div id="plot"></div>
+    <script src="app.js"></script>
+</body>
+</html>
