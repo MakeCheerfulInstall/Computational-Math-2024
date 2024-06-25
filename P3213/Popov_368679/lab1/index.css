@@ -1,0 +1,94 @@
+body {
+    margin: 0;
+    background-color: #30363d;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    color: #c9d1d9;
+}
+
+main {
+    padding: 20px;
+}
+
+main > * {
+    margin: auto;
+}
+
+main form, main .result {
+    width: 500px;
+}
+
+.field {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.field > * {
+    flex: 1;
+}
+
+.field:has(> input) {
+    align-items: center;
+}
+
+.field input, .field textarea {
+    background-color: #484f58;
+    border: 1px solid white;
+    border-radius: 5px;
+    font-size: 15pt;
+    color: #c9d1d9;
+}
+
+.field input {
+    height: 30px;
+}
+
+.field input[type="file"] {
+    font-size: 11pt;
+    padding-top: 8px;
+}
+
+.field textarea {
+    height: 200px;
+}
+#random-matrix-button{
+    margin: auto;
+    height: 30px;
+    background-color: #484f58;
+    border: 1px solid white;
+    border-radius: 5px;
+    font-size: 12pt;
+    color: #c9d1d9;
+}
+#random-matrix-button:hover {
+    cursor: pointer;
+    filter: brightness(0.75);
+}
+#solve-button {
+    width: 100%;
+}
+
+#solve-button:hover {
+    cursor: pointer;
+    filter: brightness(0.75);
+}
+
+.result {
+    display: none;
+}
+
+.result .field p:last-child {
+    border: 1px solid white;
+    padding: 10px 0;
+    text-align: center;
+}
+
+.result__error-vectors-table {
+    text-align: center;
+    border-collapse: collapse;
+}
+
+.result__error-vectors-table td, .result__error-vectors-table th {
+    border: 1px solid white;
+    padding: 15px;
+}

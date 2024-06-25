@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Lab5</title>
+    <link rel="stylesheet" href="./style.css"/>
+</head>
+
+<body>
+<main>
+    <form>
+        <div class="field">
+            <p>X:</p>
+            <input name="x" type="number" step="0.01"/>
+        </div>
+        <div class="field" id="input-type-select">
+            <p>Ввод:</p>
+            <div class="radio-container">
+                <label for="points">
+                    <input
+                            type="radio"
+                            name="input-type-select"
+                            id="points"
+                            value="points"
+                            checked
+                    />
+                    <span>Точки</span>
+                </label>
+                <label for="function">
+                    <input
+                            type="radio"
+                            name="input-type-select"
+                            id="function"
+                            value="function"
+                    />
+                    <span>Функция на выбор</span>
+                </label>
+            </div>
+        </div>
+        <div id="points-controls">
+            <div class="field">
+                <p>Абсциссы точек:</p>
+                <textarea name="points-x" rows="5"></textarea>
+            </div>
+            <div class="field">
+                <p>Ординаты точек:</p>
+                <textarea name="points-y" rows="5"></textarea>
+            </div>
+        </div>
+        <div class="hidden" id="function-controls">
+            <div class="field" id="function-select">
+                <p>Функция:</p>
+                <div class="radio-container">
+                    <label for="function-1">
+                        <input
+                                type="radio"
+                                name="function-select"
+                                id="function-1"
+                                value="function-1"
+                                checked
+                        />
+                        <span>y = sin(x)</span>
+                    </label>
+                    <label for="function-2">
+                        <input
+                                type="radio"
+                                name="function-select"
+                                id="function-2"
+                                value="function-2"
+                        />
+                        <span>y = x<sup>3</sup></span>
+                    </label>
+                </div>
+            </div>
+            <div class="field">
+                <p>Интервал:</p>
+                <div class="interval">
+                    <span>[</span>
+                    <input name="start" type="number"/>
+                    <span>;</span>
+                    <input name="end" type="number"/>
+                    <span>]</span>
+                </div>
+            </div>
+            <div class="field">
+                <p>Количество точек:</p>
+                <input name="points-count" type="number" step="1" min="1"/>
+            </div>
+        </div>
+        <div class="field">
+            <input id="solve-button" type="submit" value="Решить"/>
+        </div>
+    </form>
+    <div id="plot"></div>
+    <div class="result hidden">
+        <div class="field">
+            <p>Результат по методу Ньютона c разделёнными разностями:</p>
+            <p class="result__newton tes"></p>
+        </div>
+        <div class="field">
+            <p>Результат по методу Лагранжа:</p>
+            <p class="result__lagrange tes"></p>
+        </div>
+        <div class="field">
+            <p>Результат по методу Ньютона c конечные разностями:</p>
+            <p class="result__newton-finite tes"></p>
+        </div>
+        <div class="field">
+            <p>Таблица конечных разностей:</p>
+            <table class="result__table">
+                <thead></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <hr/>
+        <h2>
+            ПОЯСНЕНИЯ
+        </h2>
+        <p>
+            Синие: исходные точки<br/>
+            Оранжевая: решение по интерполяционному многочлену Ньютона с
+            разделёнными разностями<br/>
+            Фиолетовая: решение по интерполяционному многочлену Лагранжа<br/>
+            Красная: решение по интерполяционному многочлену Ньютона с конечными
+            разностями
+            Розовый: интерполяционный многочлен Лагранжа<br/>
+            Зелёный: интерполяционный многочлен Ньютона с разделёнными
+            разностями<br/>
+            Коричневый: интерполяционный многочлен Ньютона с конечными разностями
+        </p>
+        <hr/>
+    </div>
+</main>
+</body>
+</html>

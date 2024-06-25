@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <title>Lab1</title>
+    <script type="module" src="main.js" defer></script>
+    <link href="./index.css" rel="stylesheet">
+</head>
+<body>
+<main>
+    <form>
+        <div class="field">
+            <p>Введите размер матрицы:</p>
+            <input name="n" type="number" min="0" max="20"/>
+        </div>
+        <div class="field">
+            <p>Сгенерировать матрицу:</p>
+            <button id="random-matrix-button">Случайная матрица</button>
+        </div>
+        <div class="field">
+            <p>Введите матрицу в формате CSV:</p>
+            <textarea name="matrix"></textarea>
+        </div>
+        <div class="field">
+            <p>Ввод из файла:</p>
+            <input name="input-file" type="file"/>
+        </div>
+        <div class="field">
+            <input
+                    id="solve-button"
+                    type="submit"
+                    value="Решить"
+            />
+        </div>
+    </form>
+    <div class="result">
+        <p>Треугольная матрица:</p>
+        <div class="field">
+            <table class="result__error-vectors-table">
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+        <div class="field">
+            <p>Вектор неизвестных:</p>
+            <p class="result__solution"></p>
+        </div>
+        <div class="field">
+            <p>Определитель:</p>
+            <p class="result__iterations-count"></p>
+        </div>
+        <div class="field">
+            <p>Вектор невязок:</p>
+            <p class="result__residuals"></p>
+        </div>
+    </div>
+</main>
+
+</body>
+</html>
