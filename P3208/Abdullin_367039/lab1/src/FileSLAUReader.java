@@ -1,4 +1,7 @@
-package lab1;
+package lab1.src;
+
+import Abdullin_367039.lab1.MatrixParser;
+import Abdullin_367039.lab1.SLAUReader;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,7 +14,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public class FileSLAUReader implements SLAUReader {
-  private final MatrixParser parser = new MatrixParser();
+  private final Abdullin_367039.lab1.MatrixParser parser = new MatrixParser();
   private static final String RESOURCE_PACKAGE =
       "P3208/Abdullin_367039/lab1/resources";
 

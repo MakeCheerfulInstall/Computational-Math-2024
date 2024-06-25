@@ -1,12 +1,10 @@
-package lab1;
-
 import java.io.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ConsoleSLAUReader implements SLAUReader {
-  private final MatrixParser parser = new MatrixParser();
+  private final Abdullin_367039.lab1.MatrixParser parser = new MatrixParser();
 
   @Override
   public BigDecimal[][] read() {

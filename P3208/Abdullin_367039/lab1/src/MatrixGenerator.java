@@ -1,4 +1,6 @@
-package lab1;
+package lab1.src;
+
+import Abdullin_367039.lab1.SLAUReader;
 
 import java.io.BufferedReader;
 import java.io.IOException;
