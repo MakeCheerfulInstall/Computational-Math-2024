@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #e4e4e4;" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="mortum.demo.gui.Graphic">
+  <LineChart fx:id="lineChart" layoutX="20.0" layoutY="-73.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+    <xAxis>
+      <CategoryAxis side="BOTTOM"/>
+    </xAxis>
+    <yAxis>
+      <NumberAxis prefHeight="360.0" prefWidth="30.0" side="LEFT"/>
+    </yAxis>
+  </LineChart>
+</AnchorPane>
