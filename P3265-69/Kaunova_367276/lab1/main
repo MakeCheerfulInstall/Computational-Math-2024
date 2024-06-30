@@ -1,0 +1,126 @@
+def make_diagonal(matrix):
+    biggest_el_index_list = []
+    for i in range(len(matrix)):
+        if matrix[i] == max(matrix[i][:-1], key=abs):
+            biggest_el_index_list.append(i)
+        else:
+            biggest_el_index_list.append(matrix[i].index(max(matrix[i][:-1], key=abs)))
+    if len(list(set(biggest_el_index_list))) != len(biggest_el_index_list):
+        print("Matrix was not provided to diagonal-dominated. Simple iteration method might not be applyed correctly")
+        error_lines = set()
+        for i in range(len(biggest_el_index_list)):
+            if biggest_el_index_list[i] != i:
+              error_lines.add(i)
+        print("These lines are not diagonal-dominated", error_lines)
+    result_matrix = []
+
+    try:
+        for i in range(len(matrix)):
+            result_matrix.append(matrix[biggest_el_index_list.index(i)])
+        print("Matrix was successfully provided to diagonal-dominated:")
+    except ValueError as e:
+        print("Matrix was not successfully provided to diagonal-dominated:")
+    for line in result_matrix:
+        for x in line:
+            print(x, end=" ")
+        print()
+
+    if len(result_matrix) != len(matrix):
+        return matrix
+    return result_matrix
+
+def simple_iteration_method(accuracy, matrix):
+    max_iteration = 1000
+    matrix = make_diagonal(matrix)
+    result_x = []
+
+    d = []
+    
+    for i in range(len(matrix)):
+        d.append(matrix[i][-1] / matrix[i][i])
+
+    last_x = d
+    iteration_amount = 0
+
+    print("There are the results of each iteration:")
+    while True:
+        iteration_amount += 1
+        result_x = []
+        accuracy_vec = []
+        
+        for i in range(len(matrix)):
+            summ = last_x[i] + d[i]
+            for q in range(len(matrix[i]) - 1):
+                summ += - matrix[i][q] / matrix[i][i] * last_x[q]
+            result_x.append(summ)
+            accuracy_vec.append(abs(last_x[i] - summ))
+        cur_accuracy = max(accuracy_vec)
+        last_x = result_x
+
+        if cur_accuracy <= accuracy:
+            break
+
+        if iteration_amount >= max_iteration:
+            raise ValueError("Programm reached the maximum amount of iterations: " + str(max_iteration) + " . Accuracy on last iteration was "  + str(cur_accuracy))
+
+        print(iteration_amount, result_x)
+
+    residual = []
+    for i in range(len(matrix)):
+        sum = - matrix[i][-1]
+        for q in range(len(matrix)):
+            sum += matrix[i][q] * result_x[q]
+        residual.append(sum)
+
+    return result_x, iteration_amount, accuracy_vec, residual
+
+
+def main():
+    filename = "input.txt"
+
+    matrix = []
+    n = 0
+    accuracy = 0
+    
+    choose = input(
+        "Type 0 to enter matrix from file \"" + filename + "\"\nOr type 1 to enter matrix from keyboard\n")
+    if choose == "0":
+        file = open(filename, "r")
+
+        n = int(file.readline())
+        accuracy = float(file.readline())
+
+        for line in file:
+            matrix.append([float(x) for x in line.strip().split(" ")])
+
+        file.close()
+        
+    elif choose == "1":
+        n = int(input())
+        accuracy = float(input())
+        for i in range(n):
+            line = input()
+            matrix.append([float(x) for x in line.strip().split(" ")])
+
+    else:
+        raise ValueError("You entered invalid number")
+
+    if len(matrix) != n:
+        raise ValueError("Matrix has invalid number of lines")
+    elif n > 20:
+        raise ValueError("n can not be greater than 20")
+    elif len(matrix) != 0:
+        result = simple_iteration_method(accuracy, matrix)
+        print("x:", result[0])
+        print("iteration amount:", result[1])
+        print("accuracy vector:", result[2])
+        print("residual:", result[3])
+        
+try:
+    main()
+except ValueError as e:
+    print("Error occurred! Error message:", e)
+except KeyboardInterrupt as e:
+    print(e)
+except ZeroDivisionError as e:
+    print("Couldn't apply simple iteration method to the matrix")
